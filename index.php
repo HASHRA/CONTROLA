@@ -1,7 +1,6 @@
 <?php
 require_once 'config/define.php';
 require_once 'class/miner.class.php';
-require_once 'class/tail.class.php';
 require_once 'class/cache.class.php';
 
 $cache = new Cache(PATH_CACHE);
@@ -50,6 +49,7 @@ if($_POST)
     if(!$ltc_enable && !$btc_enable)
     {
         $model = 0;
+        $runmode = "IDLE";
     }
     else if(!$ltc_enable && $btc_enable)
     {
@@ -162,11 +162,15 @@ if(!empty($devices))
 			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-			$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
+			
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="miner1" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#F94743"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+			
+			//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
 		}
 		else
 		{
-			$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="miner1" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Offline :(</a></div>';
+			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
 	}
@@ -187,14 +191,23 @@ if($iniArr["model"] == 1 || $iniArr["model"] == 3)
 	$procs = Miner::getRunningBtcProcess();
 	if(!empty($procs))
 	{
-		$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>N/A</td><td>N/A</td></tr>';
+		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="100" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Mining...</a></div>';
+		
+		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>N/A</td><td>N/A</td></tr>';
 	}
 	else
 	{
-		$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>N/A</td><td>N/A</td></tr>';
+		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="0" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Offline :(</a></div>';
+		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>N/A</td><td>N/A</td></tr>';
 	}
 }
- 
+
+$runmode = "IDLE";
+
+if ($iniArr["model"] == 1) {$runmode = 'BTC';}
+if ($iniArr["model"] == 2) {$runmode = 'LTC';}
+if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
+
 $syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/monitor.log") : '';
 
 if(isset($_GET["i"]))
@@ -215,419 +228,267 @@ if(isset($_GET["i"]))
 
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<title>Dashboard - Lightning Asic Admin</title>
-
-		<meta name="description" content="overview &amp; stats" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-		<!-- basic styles -->
-
-		<link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-		<link rel="stylesheet" href="assets/css/font-awesome.min.css" />
-
-		<!--[if IE 7]>
-		  <link rel="stylesheet" href="assets/css/font-awesome-ie7.min.css" />
-		<![endif]-->
-
-		<!-- page specific plugin styles -->
-
-		<!-- fonts -->
-
-		<link rel="stylesheet" href="assets/css/ace-fonts.css" />
-
-		<!-- ace styles -->
-
-		<link rel="stylesheet" href="assets/css/ace.min.css" />
-		<link rel="stylesheet" href="assets/css/ace-rtl.min.css" />
-		<link rel="stylesheet" href="assets/css/ace-skins.min.css" />
-
-		<!--[if lte IE 8]>
-		  <link rel="stylesheet" href="assets/css/ace-ie.min.css" />
-		<![endif]-->
-
-		<!-- inline styles related to this page -->
-		<style type="text/css">
-			#navbar {
-				background-color:white;
-				height:200px;
-			}
-		</style>
-		
-		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script src="assets/js/flot/jquery.flot.min.js"></script>
-		<script src="assets/js/flot/jquery.flot.time.js"></script>
-	</head>
-
-	<body>
-		<div class="navbar navbar-default" id="navbar">
-			<script type="text/javascript">
-				try{ace.settings.check('navbar' , 'fixed')}catch(e){}
-			</script>
-
-			<div class="navbar-container" id="navbar-container">
-				<div class="navbar-header pull-left">
-					<a href="http://lightningasic.com/" class="navbar-brand" target="_blank">
-						<small>
-						<img src="logo.png" width="300" style="position: relative; top: 5px;" />
-						</small>
-					</a><!-- /.brand -->
-				</div><!-- /.navbar-header -->
-
-				<div class="navbar-header pull-right" role="navigation">
-					
-				</div><!-- /.navbar-header -->
-			</div><!-- /.container -->
-		</div>
-
-		<div class="main-container" id="main-container">
-			<script type="text/javascript">
-				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
-			</script>
-
-			<div class="main-container-inner">
-				<a class="menu-toggler" id="menu-toggler" href="#">
-					<span class="menu-text"></span>
-				</a>
-
-				<div class="sidebar" id="sidebar">
-					<script type="text/javascript">
-						try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
-					</script>
-
-					<div class="sidebar-shortcuts" id="sidebar-shortcuts">
-						
-
-						<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
-							<span class="btn btn-success"></span>
-
-							<span class="btn btn-info"></span>
-
-							<span class="btn btn-warning"></span>
-
-							<span class="btn btn-danger"></span>
-						</div>
-					</div><!-- #sidebar-shortcuts -->
-
-					<ul class="nav nav-list">
-
-						<li class="active">
-							<a href="/" class="dropdown-toggle">
-								<i class="icon-dashboard"></i>
-								<span class="menu-text"> Miners </span>
-
-								<b class="arrow icon-angle-down"></b>
-							</a>
-
-							<ul class="submenu">
-							<?php echo $li?>
-							</ul>
-						</li>
-						<li>
-							<a href="/stats.php">
-								<i class="icon-bar-chart"></i>
-								<span class="menu-text">Statistics</span>
-							</a>
-						</li>
-						<li>
-							<a href="/update.php">
-								<i class="icon-cogs"></i>
-								<span class="menu-text">Update Firmware</span>
-							</a>
-						</li>
-						
-					</ul><!-- /.nav-list -->
-
-					<div class="sidebar-collapse" id="sidebar-collapse">
-						<i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
-					</div>
-
-					<script type="text/javascript">
-						try{ace.settings.check('sidebar' , 'collapsed')}catch(e){}
-					</script>
-				</div>
-
-				<div class="main-content">
-					<div class="breadcrumbs" id="breadcrumbs">
-						<script type="text/javascript">
-							try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
-						</script>
-
-						<ul class="breadcrumb">
-							<li>
-								<i class="icon-home home-icon"></i>
-								<a href="/">Home</a>
-							</li>
-							<li class="active">Dashboard</li>
-						</ul><!-- .breadcrumb -->
-
-					</div>
-
-					<div class="page-content">
-						<div class="page-header">
-							<h1>
-								Dashboard
-								<small>
-									<i class="icon-double-angle-right"></i>
-									overview &amp; stats
-								</small>
-							</h1>
-						</div><!-- /.page-header -->
-
-						<div class="row">
-							<div class="col-xs-12">
-								<!-- PAGE CONTENT BEGINS -->
-
-								<div class="alert alert-block alert-success">
-									<button type="button" class="close" data-dismiss="alert">
-										<i class="icon-remove"></i>
-									</button>
-
-									<i class="icon-ok green"></i>
-
-									Welcome to
-									<strong class="green">
-										LightningAsic Admin
-										<small>(v1.0)</small>
-									</strong>
-								</div>
-								
-								<div class="alert alert-warning" <?php echo ($success ? 'style="display:block"' : 'style="display:none"') ?>>
-									<button type="button" class="close" data-dismiss="alert">
-										<i class="icon-remove"></i>
-									</button>
-									<strong>Warning -</strong>
-									<?php echo $info?>
-									<br>
-								</div>
-
-								<div class="hr hr32 hr-dotted"></div>
-
-								<div class="row" id="minerconfig">
-									<div class="col-sm-5">
-										<div class="widget-box transparent">
-											<div class="widget-header widget-header-flat">
-												<h4 class="lighter">
-													<i class="icon-star orange"></i>
-													Miner status <span style="font-size: 0.7em">(uptime: <?php echo $uptime ?>) (hashrate: <b><?php echo $totalhash ?> Kh/s</b>)</span>
-												</h4>
-
-												<div class="widget-toolbar">
-													<a href="#" data-action="collapse">
-														<i class="icon-chevron-up"></i>
-													</a>
-												</div>
-											</div>
-
-											<div class="widget-body">
-												<div class="widget-main no-padding">
-													<table class="table table-bordered table-striped">
-														<thead class="thin-border-bottom">
-															<tr>
-																<th>
-																	<i class="icon-caret-right blue"></i>
-																	Name
-																</th>
-
-																<th class="hidden-480">
-																	<i class="icon-caret-right blue"></i>
-																	Status
-																</th>
-																
-																<th class="hidden-480">
-																	<i class="icon-caret-right blue"></i>
-																	Khash/s
-																</th>
-																
-																<th class="hidden-480">
-																	<i class="icon-caret-right blue"></i>
-																	Accepted
-																</th>
-															</tr>
-														</thead>
-
-														<tbody>
-														<?php echo $table?>
-														</tbody>
-													</table>
-												</div><!-- /widget-main -->
-											</div><!-- /widget-body -->
-										</div><!-- /widget-box -->
-										<div class="widget-box transparent">
-											<div class="widget-header widget-header-flat">
-												<h4 class="lighter">
-													<i class="icon-signal"></i>
-													System Log
-												</h4>
-
-												<div class="widget-toolbar">
-													<a href="#" data-action="collapse">
-														<i class="icon-chevron-up"></i>
-													</a>
-												</div>
-											</div>
-
-											<div class="widget-body">
-												<div class="widget-main padding-4">
-													<textarea rows="15" style="width: 100%"><?php echo $syslog ?></textarea>
-												</div>
-											</div><!-- /widget-body -->
-										</div><!-- /widget-box -->
-
-									</div>
-
-									<div class="col-sm-7">
-										<div class="widget-box transparent">
-											<div class="widget-header widget-header-flat">
-												<h4 class="lighter">
-													<i class="icon-signal"></i>
-													Miner Configuration
-												</h4>
-
-												<div class="widget-toolbar">
-													<a href="#" data-action="collapse">
-														<i class="icon-chevron-up"></i>
-													</a>
-												</div>
-											</div>
-
-											<div class="widget-body">
-												<div class="widget-main padding-4">
-												
-												<form class="form-horizontal" role="form" action="/" method="post" id="config_form">
-														<h4 class="lighter">
-															Scrypt Mining
-														</h4>
-														<div class="form-group">
-		
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Scrypt Pool URL </label>
-
-															<div class="col-sm-9">
-																<input type="text" id="form-field-1" placeholder="Pool URL" class="col-xs-10 col-sm-5" name="ltc_url" value="<?php echo $ltc_url?>" />
-																<span class="help-button" data-rel="popover" data-trigger="hover" data-placement="left" data-content="More details." title="Url of your favorite pool. Usualy starts with stratum+tcp://...">?</span>
-															</div>
-														</div>
-
-														<div class="space-4"></div>
-														
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Worker(s) Name </label>
-
-															<div class="col-sm-9">
-																<input type="text" id="form-field-1" placeholder="Worker name" class="col-xs-10 col-sm-5" name="ltc_workers" value="<?php echo $ltc_workers?>" />
-															</div>
-														</div>
-														
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Worker password </label>
-
-															<div class="col-sm-9">
-																<input type="text" id="form-field-1" placeholder="Worker password" class="col-xs-10 col-sm-5" name="ltc_pass" value="<?php echo $ltc_pass?>" />
-															</div>
-														</div>
-														
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Core Frequency (MHz) </label>
-
-															<div class="col-sm-9">
-																<select id="form-field-1" class="col-xs-10 col-sm-5" name="freq">
-																	<option value="600" <?php $tbool = $freq == 600 ? 'selected="selected"' : ''; echo $tbool; ?> >600</option>
-																	<option value="650" <?php $tbool = $freq == 650 ? 'selected="selected"' : ''; echo $tbool; ?> >650</option>
-																	<option value="700" <?php $tbool = $freq == 700 ? 'selected="selected"' : ''; echo $tbool; ?> >700</option>
-																	<option value="750" <?php $tbool = $freq == 750 ? 'selected="selected"' : ''; echo $tbool; ?> >750</option>
-																	<option value="800" <?php $tbool = $freq == 800 ? 'selected="selected"' : ''; echo $tbool; ?> >800</option>
-																	<option value="850" <?php $tbool = $freq == 850 ? 'selected="selected"' : ''; echo $tbool; ?> >850</option>
-																	<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
-																</select>
-															</div>
-														</div>
-														
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Enable </label>
-
-															<div class="col-sm-9">
-																<input type="checkbox" id="form-field-1" class="col-xs-10 col-sm-5" name="ltc_enable" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> />
-															</div>
-														</div>
-
-														<div class="space-4"></div>
-														
-														<div class="hr hr32 hr-dotted"></div>	
-												
-														<h4 class="lighter">
-															SHA256 Mining
-														</h4>
-														
-														<div class="form-group">
-		
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">SHA256 Pool URL </label>
-
-															<div class="col-sm-9">
-																<input type="text" id="form-field-1" placeholder="Pool URL" class="col-xs-10 col-sm-5" name="btc_url" value="<?php echo $btc_url?>"  />
-																<span class="help-button" data-rel="popover" data-trigger="hover" data-placement="left" data-content="More details." title="Url of your favorite pool. Usualy starts with stratum+tcp://...">?</span>
-															</div>
-														</div>
-
-														<div class="space-4"></div>
-														
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Worker Name </label>
-
-															<div class="col-sm-9">
-																<input type="text" id="form-field-1" placeholder="Worker name" class="col-xs-10 col-sm-5" name="btc_worker" value="<?php echo $btc_worker?>" />
-															</div>
-														</div>
-														
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Worker password </label>
-
-															<div class="col-sm-9">
-																<input type="text" id="form-field-1" placeholder="Worker password" class="col-xs-10 col-sm-5" name="btc_pass" value="<?php echo $btc_pass?>" />
-															</div>
-														</div>
-
-														<div class="form-group">
-															<label class="col-sm-3 control-label no-padding-right" for="form-field-1">Enable </label>
-
-															<div class="col-sm-9">
-																<input type="checkbox" id="form-field-1" class="col-xs-10 col-sm-5" name="btc_enable" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> />
-															</div>
-														</div>
-														
-														<div class="space-4"></div>
-
-
-
-														<div class="clearfix form-actions">
-															<div class="col-md-offset-3 col-md-9">
-																<button class="btn btn-info" type="button" onclick="submit()">
-																	<i class="icon-ok bigger-110"></i>
-																	Submit and restart
-																</button>
-
-															</div>
-														</div>
-													</div>
-												</form>
-									
-												</div><!-- /widget-main -->
-											</div><!-- /widget-body -->
-										</div><!-- /widget-box -->
-									</div>
-								
-								</div>
-
-								<!-- PAGE CONTENT ENDS -->
-							</div><!-- /.col -->
-						</div><!-- /.row -->
-					</div><!-- /.page-content -->
-				</div><!-- /.main-content -->
-			</div><!-- /.main-container-inner -->
-
-			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
-				<i class="icon-double-angle-up icon-only bigger-110"></i>
-			</a>
-		</div><!-- /.main-container -->
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        
+        <title>Hashra Webconsole</title>
+        <link rel="shortcut icon" href="/img/ico/favicon.png" />
+        
+        <!-- CSS -->
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" type="text/css" />
+        <link href="scripts/vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="scripts/vendor/bootstrap-jasny/dist/extend/css/jasny-bootstrap.min.css" rel="stylesheet" />
+        <!--<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />-->
+        <link href="scripts/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css"  />
+        <link href="scripts/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+        <link href="scripts/vendor/bootstrap-datepicker/css/datepicker.css" rel="stylesheet" type="text/css" />
+        <link href="scripts/vendor/select2/select2.css" rel="stylesheet" type="text/css" />
+        <link href="scripts/vendor/select2/select2-bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="scripts/vendor/jquery.uniform/themes/default/css/uniform.default.min.css" rel="stylesheet" type="text/css" />
+        <link href="scripts/css/prettify.css" rel="stylesheet" type="text/css" />
+        <link href="scripts/vendor/fullcalendar/fullcalendar.css" rel="stylesheet" />
+        <link href="scripts/vendor/fullcalendar/fullcalendar.print.css" rel="stylesheet" media="print" />
+        <link href="scripts/css/ark.css" rel="stylesheet" type="text/css" />
+
+        <!-- Remove this line on production-->
+        <link href="scripts/css/examples.css" rel="stylesheet" type="text/css" />
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    
+    <body class="cover">
+
+        <div class="wrapper">
+
+            <!-- HEAD NAV -->
+            <div class="navbar navbar-default navbar-static-top navbar-main" role="navigation">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="index.php"><div id="logo"></div></a>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="visible-xs">
+                        <a href="#" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <i class="fa fa-bars"></i>
+                        </a>
+                    </li>                  
+                </ul>
+
+            </div>
+            <!-- END: HEAD NAV -->
+
+            <!-- BODY -->
+            <div class="body">
+
+                <!-- SIDEBAR -->
+                <aside class="sidebar">
+                    <ul class="nav nav-stacked">
+                        <li class="active" ><a href="index.html"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a></li>
+                        <li  ><a href="log.php"><i class="fa fa-terminal fa-fw"></i>Logs</a></li>
+                        <li  ><a href="help.html"><i class="fa fa-info fa-fw"></i>Help</a></li>
+                    </ul>
+                </aside>
+                <!-- END: SIDEBAR -->
+
+                <section class="content">
+                    
+<ol class="breadcrumb">
+    <li class="active"><i class="fa fa-home fa-fw"></i> Home</li>
+</ol>
+
+<div class="header">
+    <div class="col-md-12">
+        <h3 class="header-title">Dashboard</h3>
+        <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="main-content">
+
+	 <div class="row">
+        <div class="col-md-6">
+            <div class="panel ">
+                <div class="panel-heading">
+                    <h3 class="panel-title">SCRYPT Miners hashrate <b class="value"><?php echo $totalhash ?></b> Kh/s</h3>
+                </div>
+                <div class="panel-body">
+                	
+                	<?php echo $table ?>
+                	
+                    <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                    
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div><a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
+                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
+                    </div>
+                    
+                    <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+                        <div class="pie-chart" data-percent="80" data-bar-color="#1F8A70"><span>SHA256  miner</span></div>
+                        <a href="#" class="pie-title">Mining...</a>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-md-6">
+            <div class="panel ">
+                <form role="form" action="." method="post" id="config_form">
+                <div class="panel-heading">
+                	 <h4 class="panel-title">SCRYPT pool configuration</h4>
+                </div>
+                <div class="panel-body">
+		                <div class="form-group">
+		                    <label for="ltc_url">Scrypt Pool address</label>
+		                    <input class="form-control" id="ltc_url" name="ltc_url" placeholder="stratum+tcp://..." value="<?php echo $ltc_url?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
+		                </div>
+		                <div class="form-group">
+		                    <label for="ltc_workers">Scrypt worker name</label>
+		                    <input class="form-control" id="ltc_workers" name="ltc_workers" value="<?php echo $ltc_workers?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
+		                </div> 
+		                <div class="form-group">
+		                    <label for="ltc_pass">Scrypt worker password</label>
+		                    <input class="form-control" id="ltc_pass" name="ltc_pass" value="<?php echo $ltc_pass?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Worker password. Usually ignored by pools">
+		                </div>
+		                <div class="form-group">
+		                	<label for="freq">Core clock speed (Mhz)</label>
+		                	<select class="form-control" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
+		                        <option value="600" <?php $tbool = $freq == 600 ? 'selected="selected"' : ''; echo $tbool; ?> >600</option>
+								<option value="650" <?php $tbool = $freq == 650 ? 'selected="selected"' : ''; echo $tbool; ?> >650</option>
+								<option value="700" <?php $tbool = $freq == 700 ? 'selected="selected"' : ''; echo $tbool; ?> >700</option>
+								<option value="750" <?php $tbool = $freq == 750 ? 'selected="selected"' : ''; echo $tbool; ?> >750</option>
+								<option value="800" <?php $tbool = $freq == 800 ? 'selected="selected"' : ''; echo $tbool; ?> >800</option>
+								<option value="850" <?php $tbool = $freq == 850 ? 'selected="selected"' : ''; echo $tbool; ?> >850</option>
+								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
+		                     </select>
+		                </div>
+		                <div class="form-group">
+		                	<div class="checkbox">
+		                        <label>
+		                            <input type="checkbox" name="ltc_enable" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> >
+		                           	Enable
+		                        </label>
+		                    </div>
+		                </div>
+                </div>
+                
+                 <div class="panel-heading">
+                	 <h4 class="panel-title">SHA256 pool configuration</h4>
+                </div>
+                <div class="panel-body">
+		                <div class="form-group">
+		                    <label for="btc_url">SHA256 Pool address</label>
+		                    <input class="form-control" id="btc_url" name="btc_url" placeholder="stratum+tcp://..." value="<?php echo $btc_url?>"  data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
+		                </div>
+		                <div class="form-group">
+		                    <label for="btc_worker">SHA256 worker name</label>
+		                    <input class="form-control" id="btc_worker" name="btc_worker" value="<?php echo $btc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
+		                </div> 
+		                <div class="form-group">
+		                    <label for="btc_pass">SHA256 worker password</label>
+		                    <input class="form-control" id="btc_pass" name="btc_pass" value="<?php echo $btc_pass?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Worker password. Usually ignored by pools">
+		                </div>
+		                <div class="form-group">
+		                	<div class="checkbox">
+		                        <label>
+		                            <input type="checkbox" name="btc_enable" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> >
+		                           	Enable
+		                        </label>
+		                    </div>
+		                </div>
+		                <button type="submit" class="btn btn-primary">Save and restart</button>
+                </div>
+                </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+         <div class="col-md-6">
+            <div class="panel ">
+            	<div class="panel-heading">
+                	 <h4 class="panel-title">System logs:</h4>
+                </div>
+            	<div class="panel-body">
+		        	<div class="form-group">
+		                    <label>Log</label>
+		                    <textarea class="form-control" rows="4"><?php echo $syslog ?>
+		                    </textarea>
+		            </div>
+	            </div>
+	        </div>
+	            
+        	
+        </div>
+    </div>
+
+</div>
+<!-- END: CONTENT -->
+                </section>
+            </div>
+            <!-- END: BODY -->
+        </div>
+
+        <!-- JS -->
+        <script src="scripts/vendor/jquery/jquery.min.js"></script>
+        <script src="scripts/vendor/jquery-ui/js/jquery-ui.min.js"></script>
+        <script src="scripts/vendor/jquery.uniform/jquery.uniform.min.js"></script>
+        <script src="scripts/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="scripts/vendor/bootstrap-jasny/dist/extend/js/jasny-bootstrap.min.js"></script>
+        <script src="scripts/vendor/jquery-autosize/jquery.autosize.min.js"></script>
+        <script src="scripts/vendor/moment/min/moment.min.js"></script>
+        <script src="scripts/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+        <script src="scripts/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+        <script src="scripts/vendor/dropzone/downloads/dropzone.min.js"></script>
+        <script src="scripts/vendor/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js"></script>
+        <script src="scripts/vendor/jquery-flot/jquery.flot.js"></script>
+        <script src="scripts/vendor/jquery-flot/jquery.flot.pie.js"></script>
+        <script src="scripts/vendor/jquery-flot/jquery.flot.stack.js"></script>
+        <script src="scripts/vendor/jquery-flot/jquery.flot.resize.js"></script>
+        <script src="scripts/vendor/select2/select2.min.js"></script>
+        <script src="scripts/vendor/fullcalendar/fullcalendar.min.js"></script>
+        <script src="scripts/vendor/nestable/jquery.nestable.js"></script>
+        <script src="https://google-code-prettify.googlecode.com/svn/loader/prettify.js"></script>
+        <script src="scripts/js/ark.min.js"></script>
+    </body>
 </html>
