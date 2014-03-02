@@ -228,73 +228,18 @@ if(isset($_GET["i"]))
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
-        <title>HASHRA Controla</title>
-        <link rel="shortcut icon" href="/img/ico/favicon.png" />
-        
-        <!-- CSS -->
-        <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" type="text/css" />
-        <link href="scripts/vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="scripts/vendor/bootstrap-jasny/dist/extend/css/jasny-bootstrap.min.css" rel="stylesheet" />
-        <!--<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />-->
-        <link href="scripts/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css"  />
-        <link href="scripts/vendor/bootstrap-daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
-        <link href="scripts/vendor/bootstrap-datepicker/css/datepicker.css" rel="stylesheet" type="text/css" />
-        <link href="scripts/vendor/select2/select2.css" rel="stylesheet" type="text/css" />
-        <link href="scripts/vendor/select2/select2-bootstrap.css" rel="stylesheet" type="text/css" />
-        <link href="scripts/vendor/jquery.uniform/themes/default/css/uniform.default.min.css" rel="stylesheet" type="text/css" />
-        <link href="scripts/css/prettify.css" rel="stylesheet" type="text/css" />
-        <link href="scripts/vendor/fullcalendar/fullcalendar.css" rel="stylesheet" />
-        <link href="scripts/vendor/fullcalendar/fullcalendar.print.css" rel="stylesheet" media="print" />
-        <link href="scripts/css/ark.css" rel="stylesheet" type="text/css" />
-
-        <!-- Remove this line on production-->
-        <link href="scripts/css/examples.css" rel="stylesheet" type="text/css" />
-
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-        <![endif]-->
-    </head>
+    <?php include 'includes/head.php';?>
     
     <body class="cover">
 
         <div class="wrapper">
 
-            <!-- HEAD NAV -->
-            <div class="navbar navbar-default navbar-static-top navbar-main" role="navigation">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="index.php"><div id="logo"></div></a>
-                </div>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="visible-xs">
-                        <a href="#" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar">
-                            <span class="sr-only">Toggle navigation</span>
-                            <i class="fa fa-bars"></i>
-                        </a>
-                    </li>                  
-                </ul>
-
-            </div>
-            <!-- END: HEAD NAV -->
+           <?php include 'includes/banner.php';?>
 
             <!-- BODY -->
             <div class="body">
 
-                <!-- SIDEBAR -->
-                <aside class="sidebar">
-                    <ul class="nav nav-stacked">
-                        <li class="active" ><a href="index.html"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a></li>
-                        <li  ><a href="log.php"><i class="fa fa-terminal fa-fw"></i>Logs</a></li>
-                        <li  ><a href="help.html"><i class="fa fa-info fa-fw"></i>Help</a></li>
-                    </ul>
-                </aside>
-                <!-- END: SIDEBAR -->
+                <?php include 'includes/menu.php';?>
 
                 <section class="content">
                     
@@ -469,26 +414,6 @@ if(isset($_GET["i"]))
             <!-- END: BODY -->
         </div>
 
-        <!-- JS -->
-        <script src="scripts/vendor/jquery/jquery.min.js"></script>
-        <script src="scripts/vendor/jquery-ui/js/jquery-ui.min.js"></script>
-        <script src="scripts/vendor/jquery.uniform/jquery.uniform.min.js"></script>
-        <script src="scripts/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
-        <script src="scripts/vendor/bootstrap-jasny/dist/extend/js/jasny-bootstrap.min.js"></script>
-        <script src="scripts/vendor/jquery-autosize/jquery.autosize.min.js"></script>
-        <script src="scripts/vendor/moment/min/moment.min.js"></script>
-        <script src="scripts/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
-        <script src="scripts/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-        <script src="scripts/vendor/dropzone/downloads/dropzone.min.js"></script>
-        <script src="scripts/vendor/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js"></script>
-        <script src="scripts/vendor/jquery-flot/jquery.flot.js"></script>
-        <script src="scripts/vendor/jquery-flot/jquery.flot.pie.js"></script>
-        <script src="scripts/vendor/jquery-flot/jquery.flot.stack.js"></script>
-        <script src="scripts/vendor/jquery-flot/jquery.flot.resize.js"></script>
-        <script src="scripts/vendor/select2/select2.min.js"></script>
-        <script src="scripts/vendor/fullcalendar/fullcalendar.min.js"></script>
-        <script src="scripts/vendor/nestable/jquery.nestable.js"></script>
-        <script src="https://google-code-prettify.googlecode.com/svn/loader/prettify.js"></script>
-        <script src="scripts/js/ark.min.js"></script>
+       <?php include 'includes/footer.php';?>
     </body>
 </html>
