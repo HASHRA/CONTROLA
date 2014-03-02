@@ -232,7 +232,7 @@ if(isset($_GET["i"]))
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         
-        <title>Hashra Webconsole</title>
+        <title>HASHRA Controla</title>
         <link rel="shortcut icon" href="/img/ico/favicon.png" />
         
         <!-- CSS -->
@@ -304,7 +304,7 @@ if(isset($_GET["i"]))
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">Dashboard</h3>
+        <h3 class="header-title">CONTROLA</h3>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
     </div>
 </div>
