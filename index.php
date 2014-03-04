@@ -129,8 +129,10 @@ $li = '';
 $offline = 0;
 $totalhash = 0;
 $info = "";
+$table = 'No devices found';
 if(!empty($devices))
 {
+	$table = "";
 	foreach($devices as $devid)
 	{
 		$li .= '<li>
@@ -147,7 +149,6 @@ if(!empty($devices))
 	{
 		$devproc[$proc["devid"]] = $proc["worker"];
 	}
-	$table = '';
 	$statsui = Miner::getLtcStatsUI();
 	foreach($statsui as $stat)
 	{
@@ -163,13 +164,13 @@ if(!empty($devices))
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
 			
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="miner1" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#F94743"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#F94743"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 			
 			//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
 		}
 		else
 		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="miner1" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Offline :(</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Offline :(</a></div>';
 			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
@@ -264,55 +265,7 @@ if(isset($_GET["i"]))
                     <h3 class="panel-title">SCRYPT Miners hashrate <b class="value"><?php echo $totalhash ?></b> Kh/s</h3>
                 </div>
                 <div class="panel-body">
-                	
                 	<?php echo $table ?>
-                	
-                    <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                    
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div><a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                     <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div id="miner1" class="pie-chart" data-percent="80" data-bar-color="#F94743"><span><b class="value"> 350 </b> Kh/s</span></div>
-                        <div>LTC miner 1:1</div> <a href="#" class="pie-title">Mining...(10/10) 0%</a>
-                    </div>
-                    
-                    <div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
-                        <div class="pie-chart" data-percent="80" data-bar-color="#1F8A70"><span>SHA256  miner</span></div>
-                        <a href="#" class="pie-title">Mining...</a>
-                    </div>
                 </div>
             </div>
             

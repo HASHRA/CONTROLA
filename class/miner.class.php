@@ -61,7 +61,17 @@ class Miner {
 				}
 			}
 		}
-		sort($devices);
+		if(count ($devices) == 0){
+			exec("lsusb | grep Thomson |  awk '{print $4}'", $devices);
+			if(!empty($devices))
+			{
+				foreach($devices as $k => $device)
+				{
+					$devices[$k] = (int) $device;
+				}
+			}
+		}
+ 		sort($devices);
 		return $devices;
 	}
 	
@@ -206,7 +216,7 @@ class Miner {
 	{
 		if(!$dual)
 		{
-			$cmd = BIN_LTC . " -G /dev/ttyUSB{$devid} --dif={$devid} --freq={$freq} -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$devid}.log &";
+			$cmd = BIN_LTC . " -G /dev/ttyS{$devid} --dif={$devid} --freq={$freq} -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$devid}.log &";
 		}
 		else
 		{

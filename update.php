@@ -36,10 +36,10 @@
         <div class="col-md-12">
             <div class="panel ">
                 <div class="panel-heading">
-                    <h3 class="panel-title">SCRYPT Miners hashrate <b class="value"><?php echo $totalhash ?></b> Kh/s</h3>
+                    <h3 class="panel-title">Fetching</h3>
                 </div>
                 <div class="panel-body">
-                	...fetching...
+                	...go to git...
                 </div>
             </div>
         </div>
