@@ -1,6 +1,6 @@
 <?php
 /**
- * 监控器 - 双挖模式
+ * ç›‘æŽ§å™¨ - å�ŒæŒ–æ¨¡å¼�
  */
 
 //Init
@@ -12,20 +12,20 @@ $process	= $GLOBALS['process'];
 
 
 
-//停止进程 - BTC
-if(!empty($process['btc']) && !empty($devices['devids'])) {
-	writeLog("Please remove power, one of more miners are hanging");
-	foreach($process['btc'] as $pid => $proc) {
-		Miner::shutdownBtcProc($pid);
-		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
-	}
-	$process['btc'] = array();
-}
+// //å�œæ­¢è¿›ç¨‹ - BTC
+// if(!empty($process['btc']) && !empty($devices['devids'])) {
+// 	writeLog("Please remove power, one of more miners are hanging");
+// 	foreach($process['btc'] as $pid => $proc) {
+// 		Miner::shutdownBtcProc($pid);
+// 		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
+// 	}
+// 	$process['btc'] = array();
+// }
 $count = 0;
 foreach($process['btc'] as $pid => $proc) {
 	$count++;
 	if($count > 1) {
-		//停止重复进程
+		//å�œæ­¢é‡�å¤�è¿›ç¨‹
 		Miner::shutdownBtcProc($pid);
 		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
 		unset($process['btc'][$pid]);
@@ -33,7 +33,7 @@ foreach($process['btc'] as $pid => $proc) {
 }
 
 
-//停止进程 - LTC
+//å�œæ­¢è¿›ç¨‹ - LTC
 if(empty($process['btc'])) {
 	foreach($process['ltc'] as $pid => $proc) {
 		Miner::shutdownLtcProc($pid);
@@ -45,7 +45,7 @@ if(empty($process['btc'])) {
 	foreach($process['ltc'] as $pid => $proc) {
 		$busid = $proc['devid'];
 		$excess[$busid][] = $pid;
-		//对应无效设备的进程
+		//å¯¹åº”æ— æ•ˆè®¾å¤‡çš„è¿›ç¨‹
 		if(!in_array($busid, $devices['bus'])) {
 			Miner::shutdownLtcProc($pid);
 			writeLog("LTC process shutdown: Bus={$busid} Pid={$pid} Worker={$proc['worker']}");
@@ -53,7 +53,7 @@ if(empty($process['btc'])) {
 		}
 	}
 	foreach($excess as $busid => $pids) {
-		//检查重复开启的进程
+		//æ£€æŸ¥é‡�å¤�å¼€å�¯çš„è¿›ç¨‹
 		if(count($pids) > 1) {
 			for($i=1; $i<count($pids); $i++) {
 				$pid = $pids[$i];
@@ -67,23 +67,23 @@ if(empty($process['btc'])) {
 }
 
 
-//启动进程 - BTC
+//å�¯åŠ¨è¿›ç¨‹ - BTC
 if(empty($process['btc'])) {
-	//写缓存
+	//å†™ç¼“å­˜
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
 	$stats = $cache->get(CACHE_STATS);
 	$stats['lastcommit']['btc'] = array();
 	$cache->set(CACHE_STATS, $stats);
-	//启动
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq']);
+	//å�¯åŠ¨
+	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
 	if($re === false) {
 		writeLog("BTC process fails to start");
-		//关闭所有进程
+		//å…³é—­æ‰€æœ‰è¿›ç¨‹
 		Miner::shutdownBtcProc();
 		Miner::shutdownLtcProc();
 		writeLog("All process shutdown");
-		//重启USB电源
+		//é‡�å�¯USBç”µæº�
 		Miner::closePower();
 		writeLog("Close the USB controller power");
 		usleep(1000000);
@@ -97,7 +97,7 @@ if(empty($process['btc'])) {
 
 
 
-//更新LTC可用矿工
+//æ›´æ–°LTCå�¯ç”¨çŸ¿å·¥
 $workers = $unusedWorkers = explode(',', $config['ltc_workers']);
 foreach($unusedWorkers as $k => $worker) {
 	$unusedWorkers[$k] = trim($worker);
@@ -112,7 +112,7 @@ foreach($process['ltc'] as $proc) {
 	}
 }
 sort($unusedWorkers);
-//启动 - LTC
+//å�¯åŠ¨ - LTC
 $usedBus = array();
 $unusedBus = array();
 foreach($process['ltc'] as $proc) {
@@ -124,14 +124,14 @@ foreach($devices['bus'] as $bus) {
 	}
 }
 if(!empty($unusedBus)) {
-	//写缓存
+	//å†™ç¼“å­˜
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
 	$stats = $cache->get(CACHE_STATS);
 	$stats['lastcommit']['ltc'] = array();
 	$cache->set(CACHE_STATS, $stats);
 	foreach($unusedBus as $bus) {
-		//启动
+		//å�¯åŠ¨
 		$worker = !empty($unusedWorkers) ? array_shift($unusedWorkers) : $workers[0];
 		$pid = Miner::startupLtcProc(
 			$bus,
@@ -146,7 +146,7 @@ if(!empty($unusedBus)) {
 }
 
 
-//宕机检测 - BTC
+//å®•æœºæ£€æµ‹ - BTC
 $freezeTime = 900;
 $timeNow = time();
 $arr = $cache->get(CACHE_RUNTIME);
@@ -170,11 +170,11 @@ foreach($devices['bus'] as $bus) {
 }
 if(!empty($diedBus)) {
 	writeLog("Device downtime (BTC): DiedBus=".implode(',',$diedBus));
-	//关闭所有进程
+	//å…³é—­æ‰€æœ‰è¿›ç¨‹
 	Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
 	writeLog("All process shutdown");
-	//重启USB电源
+	//é‡�å�¯USBç”µæº�
 	Miner::closePower();
 	writeLog("Close the USB controller power");
 	usleep(1000000);
@@ -184,7 +184,7 @@ if(!empty($diedBus)) {
 }
 
 
-//宕机检测 - LTC
+//å®•æœºæ£€æµ‹ - LTC
 $freezeTime = 600;
 $timeNow = time();
 $runtime = $cache->get(CACHE_RUNTIME);
@@ -208,11 +208,11 @@ foreach($devices['bus'] as $bus) {
 }
 if(!empty($diedBus)) {
 	writeLog("Device downtime (LTC): DiedBus=".implode(',',$diedBus));
-	//关闭所有进程
+	//å…³é—­æ‰€æœ‰è¿›ç¨‹
 	Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
 	writeLog("All process shutdown");
-	//重启USB电源
+	//é‡�å�¯USBç”µæº�
 	Miner::closePower();
 	writeLog("Close the USB controller power");
 	usleep(1000000);

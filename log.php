@@ -18,13 +18,13 @@ if(!empty($devices))
 {
 	foreach($devices as $device)
 	{
-		$array["LTC{$device}"] = PATH_LOG."/ltc{$device}.log";
+		$logid = str_replace(":", "", $device);
+		$array["LTC{$device}"] = PATH_LOG."/ltc{$logid}.log";
 	}
 }
-if($iniArr["model"] == 1 || $iniArr["model"] == 3)
-{
-	$array["BTC"] = PATH_LOG."/btc.log";
-}
+
+$array["CGMinerLog"] = PATH_LOG."/btc.log";
+
 $tail = new Tail($array, 3000);
 
 /**

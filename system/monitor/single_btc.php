@@ -1,6 +1,6 @@
 <?php
 /**
- * 监控器 - BTC单挖模式
+ * ç›‘æŽ§å™¨ - BTCå�•æŒ–æ¨¡å¼�
  */
 
 
@@ -12,7 +12,7 @@ $devices	= $GLOBALS['devices'];
 $process	= $GLOBALS['process'];
 
 
-//停止进程
+//å�œæ­¢è¿›ç¨‹
 if(!empty($process['btc']) && !empty($devices['devids'])) {
 	writeLog("Please remove power, one of more miners are hanging");
 	foreach($process['btc'] as $pid => $proc) {
@@ -25,7 +25,7 @@ $count = 0;
 foreach($process['btc'] as $pid => $proc) {
 	$count++;
 	if($count > 1) {
-		//停止重复进程
+		//å�œæ­¢é‡�å¤�è¿›ç¨‹
 		Miner::shutdownBtcProc($pid);
 		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
 		unset($process['btc'][$pid]);
@@ -33,19 +33,19 @@ foreach($process['btc'] as $pid => $proc) {
 }
 
 
-//启动进程
+//å�¯åŠ¨è¿›ç¨‹
 if(empty($process['btc']) && !empty($devices['bus'])) {
-	//写缓存
+	//å†™ç¼“å­˜
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
 	$stats = $cache->get(CACHE_STATS);
 	$stats['lastcommit']['btc'] = array();
 	$cache->set(CACHE_STATS, $stats);
-	//启动
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq']);
+	//å�¯åŠ¨
+	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
 	if($re === false) {
 		writeLog("BTC process fails to start");
-		//重启USB电源
+		//é‡�å�¯USBç”µæº�
 		Miner::closePower();
 		writeLog("Close the USB controller power");
 		usleep(1000000);
@@ -58,7 +58,7 @@ if(empty($process['btc']) && !empty($devices['bus'])) {
 }
 
 
-//宕机检测
+//å®•æœºæ£€æµ‹
 $freezeTime = 900;
 $timeNow = time();
 $arr = $cache->get(CACHE_RUNTIME);
@@ -82,10 +82,10 @@ foreach($devices['bus'] as $bus) {
 }
 if(!empty($diedBus)) {
 	writeLog("Device downtime (BTC): DiedBus=".implode(',',$diedBus));
-	//关闭所有miner进程
+	//å…³é—­æ‰€æœ‰minerè¿›ç¨‹
 	Miner::shutdownBtcProc();
 	writeLog("BTC process shutdown");
-	//重启USB电源
+	//é‡�å�¯USBç”µæº�
 	Miner::closePower();
 	writeLog("Close the USB controller power");
 	usleep(1000000);

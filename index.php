@@ -267,6 +267,19 @@ if(isset($_GET["i"]))
                 <div class="panel-body">
                 	<?php echo $table ?>
                 </div>
+                
+            	<div class="panel-heading">
+                	 <h4 class="panel-title">System logs:</h4>
+                </div>
+            	<div class="panel-body">
+		        	<div class="form-group">
+		                    <label>Log</label>
+		                    <textarea class="form-control" rows="4"><?php echo $syslog ?>
+		                    </textarea>
+		            </div>
+	            </div>
+	        
+                
             </div>
             
         </div>
@@ -340,23 +353,6 @@ if(isset($_GET["i"]))
                 </form>
                 </div>
             </div>
-        </div>
-        <div class="row">
-         <div class="col-md-6">
-            <div class="panel ">
-            	<div class="panel-heading">
-                	 <h4 class="panel-title">System logs:</h4>
-                </div>
-            	<div class="panel-body">
-		        	<div class="form-group">
-		                    <label>Log</label>
-		                    <textarea class="form-control" rows="4"><?php echo $syslog ?>
-		                    </textarea>
-		            </div>
-	            </div>
-	        </div>
-	            
-        	
         </div>
     </div>
 

@@ -72,6 +72,30 @@ if(!empty($unusedDevids))
 	$stats = $cache->get(CACHE_STATS);
 	$stats['lastcommit']['ltc'] = array();
 	$cache->set(CACHE_STATS, $stats);
+	
+	if (empty($process['btc']) && !empty($devices['bus'])){
+		//have to start btc process
+		$runtime = array('runtime' => time());
+		$cache->set(CACHE_RUNTIME, $runtime);
+		$stats = $cache->get(CACHE_STATS);
+		$stats['lastcommit']['btc'] = array();
+		$cache->set(CACHE_STATS, $stats);
+		//startup btc background process
+		$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq']);
+		if($re === false) {
+			writeLog("BTC process fails to start");
+			//reset usb
+			Miner::closePower();
+			writeLog("Close the USB controller power");
+			usleep(1000000);
+			Miner::openPower();
+			writeLog("Open the USB controller power");
+			return;
+		}
+		//Log
+		writeLog("BTC process startup: Pid={$re['pid']} Worker={$config['btc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
+	}
+	
 	foreach($unusedDevids as $devid)
 	{
 		$worker = !empty($unusedWorkers) ? array_shift($unusedWorkers) : $workers[0];
@@ -105,20 +129,22 @@ foreach($devices['devids'] as $devid)
 {
 	if(!isset($stats['lastcommit']['ltc'][$devid]))
 	{
-		$diedDevids[] = $devid;
+		writeLog("Machine never commited DeviceID={$proc['devid']} Pid={$pid} Worker={$proc['worker']}");
 		continue;
 	}
 	if(($stats['lastcommit']['ltc'][$devid] + $freezeTime) < $timeNow)
 	{
-		$diedDevids[] = $devid;
+		foreach($process['ltc'] as $pid => $proc)
+		{
+			$currentDev = $proc['devid'];
+			if($currentDev == $devid)
+			{
+				Miner::shutdownLtcProc($pid);
+				writeLog("Last commit took longer than 7,5 mins, restarting machine DeviceID={$proc['devid']} Pid={$pid} Worker={$proc['worker']}");
+				unset($process['ltc'][$pid]);
+			}
+		}
 		continue;
 	}
-}
-if(!empty($diedDevids))
-{
-	writeLog("Device downtime (LTC): DiedDevices=".implode(',',$diedDevids));
-	Miner::shutdownLtcProc();
-	writeLog("LTC all process shutdown");
-	exec("wget http://192.168.0.142/system/restart.php");
 }
 

@@ -62,12 +62,12 @@ class Miner {
 			}
 		}
 		if(count ($devices) == 0){
-			exec("lsusb | grep Thomson |  awk '{print $4}'", $devices);
+			$devices = Miner::getUsbBus();
 			if(!empty($devices))
 			{
 				foreach($devices as $k => $device)
 				{
-					$devices[$k] = (int) $device;
+					$devices[$k] = $device;
 				}
 			}
 		}
@@ -214,14 +214,10 @@ class Miner {
 	// Start LTC miner
 	function startupLtcProc($devid, $url, $worker, $password, $freq, $dual = false)
 	{
-		if(!$dual)
-		{
-			$cmd = BIN_LTC . " -G /dev/ttyS{$devid} --dif={$devid} --freq={$freq} -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$devid}.log &";
-		}
-		else
-		{
-			$cmd = BIN_LTC . " --dif={$devid} --dual -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$devid}.log &";
-		}
+		$logid = str_replace(':' , '', $devid);
+		
+		$cmd = BIN_LTC . " --dif={$devid} --dual --freq={$freq} -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$logid}.log &";
+		
 		
 		$cache = new Cache(PATH_CACHE);
 		$stats = $cache->get(CACHE_STATSUI);

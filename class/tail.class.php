@@ -93,7 +93,7 @@ class Tail {
 		<!DOCTYPE html>
 		<html>
 			<head>
-				<title>Wiibox Monitor</title> 
+				<title>LOG</title> 
 				<meta charset='utf-8'>
 
 				<link type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/flick/jquery-ui.css" rel="stylesheet"></link>
