@@ -12,15 +12,15 @@ $devices	= $GLOBALS['devices'];
 $process	= $GLOBALS['process'];
 
 
-//å�œæ­¢è¿›ç¨‹
-if(!empty($process['btc']) && !empty($devices['devids'])) {
-	writeLog("Please remove power, one of more miners are hanging");
-	foreach($process['btc'] as $pid => $proc) {
-		Miner::shutdownBtcProc($pid);
-		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
-	}
-	$process['btc'] = array();
-}
+// //å�œæ­¢è¿›ç¨‹
+// if(!empty($process['btc']) && !empty($devices['devids'])) {
+// 	writeLog("Please remove power, one of more miners are hanging");
+// 	foreach($process['btc'] as $pid => $proc) {
+// 		Miner::shutdownBtcProc($pid);
+// 		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
+// 	}
+// 	$process['btc'] = array();
+// }
 $count = 0;
 foreach($process['btc'] as $pid => $proc) {
 	$count++;

@@ -39,7 +39,8 @@
                     <h3 class="panel-title">Fetching</h3>
                 </div>
                 <div class="panel-body">
-                	...go to git...
+                	running update script:
+                	
                 </div>
             </div>
         </div>

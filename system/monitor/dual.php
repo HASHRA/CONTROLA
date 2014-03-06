@@ -76,7 +76,7 @@ if(empty($process['btc'])) {
 	$stats['lastcommit']['btc'] = array();
 	$cache->set(CACHE_STATS, $stats);
 	//å�¯åŠ¨
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
+	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 11);
 	if($re === false) {
 		writeLog("BTC process fails to start");
 		//å…³é—­æ‰€æœ‰è¿›ç¨‹
@@ -175,11 +175,7 @@ if(!empty($diedBus)) {
 	Miner::shutdownLtcProc();
 	writeLog("All process shutdown");
 	//é‡�å�¯USBç”µæº�
-	Miner::closePower();
-	writeLog("Close the USB controller power");
-	usleep(1000000);
-	Miner::openPowe();
-	writeLog("Open the USB controller power");
+	Miner::restartPower();
 	return;
 }
 
@@ -198,25 +194,35 @@ $stats = $cache->get(CACHE_STATS);
 $diedBus = array();
 foreach($devices['bus'] as $bus) {
 	if(!isset($stats['lastcommit']['ltc'][$bus])) {
-		$diedBus[] = $bus;
 		continue;
 	}
 	if(($stats['lastcommit']['ltc'][$bus] + $freezeTime) < $timeNow) {
-		$diedBus[] = $bus;
+		
+		foreach($process['ltc'] as $pid => $proc)
+		{
+			$currentDev = $proc['devid'];
+			if($currentDev == $devid)
+			{
+				Miner::shutdownLtcProc($pid);
+				writeLog("Last commit took longer than 7,5 mins, restarting machine DeviceID={$proc['devid']} Pid={$pid} Worker={$proc['worker']}");
+				unset($process['ltc'][$pid]);
+			}
+		}
+		
 		continue;
 	}
 }
-if(!empty($diedBus)) {
-	writeLog("Device downtime (LTC): DiedBus=".implode(',',$diedBus));
-	//å…³é—­æ‰€æœ‰è¿›ç¨‹
-	Miner::shutdownBtcProc();
-	Miner::shutdownLtcProc();
-	writeLog("All process shutdown");
-	//é‡�å�¯USBç”µæº�
-	Miner::closePower();
-	writeLog("Close the USB controller power");
-	usleep(1000000);
-	Miner::openPower();
-	writeLog("Open the USB controller power");
-}
+// if(!empty($diedBus)) {
+// 	writeLog("Device downtime (LTC): DiedBus=".implode(',',$diedBus));
+// 	//å…³é—­æ‰€æœ‰è¿›ç¨‹
+// 	Miner::shutdownBtcProc();
+// 	Miner::shutdownLtcProc();
+// 	writeLog("All process shutdown");
+// 	//é‡�å�¯USBç”µæº�
+// 	Miner::closePower();
+// 	writeLog("Close the USB controller power");
+// 	usleep(1000000);
+// 	Miner::openPower();
+// 	writeLog("Open the USB controller power");
+// }
 

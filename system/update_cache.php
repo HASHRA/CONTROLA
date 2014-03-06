@@ -96,6 +96,22 @@ class UpdateCache {
 				$array['ltc'][$stat['device']]['invalid']++;
 			}
 		}
+		foreach($statsBtc as $stat)
+		{
+			if(!isset($array['btc'][$stat['device']]))
+			{
+				$array['btc'][$stat['device']] = array('valid' => 0, 'invalid' => 0, 'shares' => 0);
+			}
+			if($stat['isaccept'])
+			{
+				$array['btc'][$stat['device']]['valid']++;
+				$array['btc'][$stat['device']]['shares'] += $stat['diff'];
+			}
+			else
+			{
+				$array['btc'][$stat['device']]['invalid']++;
+			}
+		}
 		ksort($array['btc']);
 		ksort($array['ltc']);
 		$cache->set(CACHE_STATSUI, $array);

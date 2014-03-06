@@ -75,6 +75,13 @@ class Miner {
 		return $devices;
 	}
 	
+	function restartPower( $_intTime = 1000000 )
+	{
+		@exec('stty -F /dev/ttyATH0 raw speed 9600; echo "O(00,05,0)E" > /dev/ttyATH0 &' );
+		usleep( $_intTime );
+		@exec('stty -F /dev/ttyATH0 raw speed 9600; echo "O(00,05,1)E" > /dev/ttyATH0 &' );
+	}
+	
 	// Get Bus:Dev from miners
 	function getUsbBus()
 	{
@@ -285,6 +292,27 @@ class Miner {
 			}
 		}
 		return $stats;
+	}
+	
+	// BTC stats
+	function getBtcStatsUI()
+	{
+		$cache = new Cache(PATH_CACHE);
+		$stats = $cache->get(CACHE_STATSUI);
+		$btc = array();
+		$time = time();
+		if(!empty($stats) && array_key_exists('btc', $stats) && !empty($stats['btc']))
+		{
+			foreach($stats['btc'] as $devid => $btcminer)
+			{
+				$btc[$devid] = array(
+					'valid' => $btcminer['valid'],
+					'invalid' => $btcminer['invalid'],
+					'hashrate' => (round((((float) pow(2.0, 16)) / (($time - $stats['time']) / $btcminer['shares'])) / 10000000)) * 1.8,
+				);
+			}
+		}
+		return $btc;
 	}
 	
 	// LTC stats

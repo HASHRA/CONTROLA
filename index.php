@@ -128,11 +128,13 @@ $uptime = time() - $runtime["runtime"];
 $li = '';
 $offline = 0;
 $totalhash = 0;
+$totalhashbtc = 0;
 $info = "";
 $table = 'No devices found';
 if(!empty($devices))
 {
 	$table = "";
+	$tablebtc = "";
 	foreach($devices as $devid)
 	{
 		$li .= '<li>
@@ -149,10 +151,15 @@ if(!empty($devices))
 	{
 		$devproc[$proc["devid"]] = $proc["worker"];
 	}
+	$btcstatsui = Miner::getBtcStatsUI();
 	$statsui = Miner::getLtcStatsUI();
 	foreach($statsui as $stat)
 	{
 		$totalhash += $stat["hashrate"];
+	}
+	foreach($btcstatsui as $stat)
+	{
+		$totalhashbtc += $stat["hashrate"];
 	}
 	foreach($devices as $devid)
 	{
@@ -175,6 +182,7 @@ if(!empty($devices))
 			$offline++;
 		}
 	}
+
 	if(count($devices) == $offline)
 	{
 		$uptime = 0;
@@ -183,24 +191,38 @@ if(!empty($devices))
 $uptime = formatTime($uptime);
 if($iniArr["model"] == 1 || $iniArr["model"] == 3)
 {
-	$li .= '<li>
-		<a href="log.php#BTC" target="_blank">
-			<i class="icon-double-angle-right"></i>
-			BTC Miner
-		</a>
-	</li>';
-	$procs = Miner::getRunningBtcProcess();
-	if(!empty($procs))
+	
+	
+	//btc part
+	
+	foreach($devices as $devid)
 	{
-		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="100" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Mining...</a></div>';
+	
+		$hash = isset($btcstatsui[$devid]["hashrate"]) ? $btcstatsui[$devid]["hashrate"] : 0;
+		$valids = isset($btcstatsui[$devid]["valid"]) ? $btcstatsui[$devid]["valid"] : 0;
+		$invalids = isset($btcstatsui[$devid]["invalid"]) ? $btcstatsui[$devid]["invalid"] : 0;
+		$totals = $valids + $invalids;
+		$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
+	
+		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/10) * 100).'" data-bar-color="#1F8A70"><span><b class="value"> '.$hash.' </b> Gh/s</span></div><div>BTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'">'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+	
+		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
+	
+	}
+	
+	
+// 	$procs = Miner::getRunningBtcProcess();
+// 	if(!empty($procs))
+// 	{
+// 		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="100" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Mining...</a></div>';
 		
-		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>N/A</td><td>N/A</td></tr>';
-	}
-	else
-	{
-		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="0" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Offline :(</a></div>';
-		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>N/A</td><td>N/A</td></tr>';
-	}
+// 		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>N/A</td><td>N/A</td></tr>';
+// 	}
+// 	else
+// 	{
+// 		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="0" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Offline :(</a></div>';
+// 		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>N/A</td><td>N/A</td></tr>';
+// 	}
 }
 
 $runmode = "IDLE";
@@ -261,20 +283,29 @@ if(isset($_GET["i"]))
 	 <div class="row">
         <div class="col-md-6">
             <div class="panel ">
+            	 <?php if ($runmode == "LTC" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
                     <h3 class="panel-title">SCRYPT Miners hashrate <b class="value"><?php echo $totalhash ?></b> Kh/s</h3>
                 </div>
                 <div class="panel-body">
                 	<?php echo $table ?>
                 </div>
-                
+                <?php }?>
+                <?php if ($runmode == "BTC" || $runmode == "DUAL") {?>
+                <div class="panel-heading">
+                    <h3 class="panel-title">BTC Miners hashrate <b class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
+                </div>
+                <div class="panel-body">
+                	<?php echo $tablebtc ?>
+                </div>
+                <?php }?>
             	<div class="panel-heading">
                 	 <h4 class="panel-title">System logs:</h4>
                 </div>
             	<div class="panel-body">
 		        	<div class="form-group">
 		                    <label>Log</label>
-		                    <textarea class="form-control" rows="4"><?php echo $syslog ?>
+		                    <textarea class="form-control log" rows="4"><?php echo $syslog ?>
 		                    </textarea>
 		            </div>
 	            </div>
@@ -325,15 +356,15 @@ if(isset($_GET["i"]))
                 </div>
                 
                  <div class="panel-heading">
-                	 <h4 class="panel-title">SHA256 pool configuration</h4>
+                	 <h4 class="panel-title">BTC pool configuration</h4>
                 </div>
                 <div class="panel-body">
 		                <div class="form-group">
-		                    <label for="btc_url">SHA256 Pool address</label>
+		                    <label for="btc_url">BTC Pool address</label>
 		                    <input class="form-control" id="btc_url" name="btc_url" placeholder="stratum+tcp://..." value="<?php echo $btc_url?>"  data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
 		                </div>
 		                <div class="form-group">
-		                    <label for="btc_worker">SHA256 worker name</label>
+		                    <label for="btc_worker">BTC worker name</label>
 		                    <input class="form-control" id="btc_worker" name="btc_worker" value="<?php echo $btc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
 		                </div> 
 		                <div class="form-group">
