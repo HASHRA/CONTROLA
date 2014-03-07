@@ -19,7 +19,8 @@ if(!empty($devices))
 	foreach($devices as $device)
 	{
 		$logid = str_replace(":", "", $device);
-		$array["LTC{$device}"] = PATH_LOG."/ltc{$logid}.log";
+		$tabid = str_replace(":", "-", $device);
+		$array["LTC{$tabid}"] = PATH_LOG."/ltc{$logid}.log";
 	}
 }
 

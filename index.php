@@ -163,6 +163,9 @@ if(!empty($devices))
 	}
 	foreach($devices as $devid)
 	{
+		
+		$tabid = str_replace(":", "-", $devid);
+		
 		if(isset($devproc[$devid]))
 		{
 			$hash = isset($statsui[$devid]["hashrate"]) ? $statsui[$devid]["hashrate"] : 0;
@@ -171,13 +174,13 @@ if(!empty($devices))
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
 			
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#F94743"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$tabid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#F94743"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$tabid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 			
 			//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
 		}
 		else
 		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'"> Offline :(</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$tabid.'" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$tabid.'"> Offline :(</a></div>';
 			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
@@ -204,25 +207,14 @@ if($iniArr["model"] == 1 || $iniArr["model"] == 3)
 		$totals = $valids + $invalids;
 		$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
 	
-		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/10) * 100).'" data-bar-color="#1F8A70"><span><b class="value"> '.$hash.' </b> Gh/s</span></div><div>BTC Miner '.$devid.' </div> <a href="log.php#LTC'.$devid.'">'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/10) * 100).'" data-bar-color="#1F8A70"><span><b class="value"> '.$hash.' </b> Gh/s</span></div><div>BTC Miner '.$devid.' </div> <a href="log.php#CGMinerLog">'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 	
 		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
 	
 	}
 	
 	
-// 	$procs = Miner::getRunningBtcProcess();
-// 	if(!empty($procs))
-// 	{
-// 		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="100" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Mining...</a></div>';
-		
-// 		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>N/A</td><td>N/A</td></tr>';
-// 	}
-// 	else
-// 	{
-// 		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div class="pie-chart" data-percent="0" data-bar-color="#1F8A70"><span>SHA256 miner</span></div><a href="#" class="pie-title">Offline :(</a></div>';
-// 		//$table .= '<tr><td>BTC Miner ('.$iniArr["btc_worker"].')</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>N/A</td><td>N/A</td></tr>';
-// 	}
+
 }
 
 $runmode = "IDLE";
@@ -285,7 +277,7 @@ if(isset($_GET["i"]))
             <div class="panel ">
             	 <?php if ($runmode == "LTC" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
-                    <h3 class="panel-title">SCRYPT Miners hashrate <b class="value"><?php echo $totalhash ?></b> Kh/s</h3>
+                    <h3 class="panel-title">SCRYPT Miners hashrate <b id="ltc_totalhash" class="value"><?php echo $totalhash ?></b> Kh/s</h3>
                 </div>
                 <div class="panel-body">
                 	<?php echo $table ?>
@@ -293,7 +285,7 @@ if(isset($_GET["i"]))
                 <?php }?>
                 <?php if ($runmode == "BTC" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
-                    <h3 class="panel-title">BTC Miners hashrate <b class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
+                    <h3 class="panel-title">BTC Miners hashrate <b id="btc_totalhash" class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
                 </div>
                 <div class="panel-body">
                 	<?php echo $tablebtc ?>
@@ -394,6 +386,53 @@ if(isset($_GET["i"]))
             <!-- END: BODY -->
         </div>
 
+        <script>
+			//update stats script
+			function updateScreen() {
+				$.ajax({
+					  dataType: "json",
+					  url: "ajaxController.php"
+					}).done(function (data) {
+								var totalHashLTC = 0;
+								for (i = 0 ; i < data.LTCdevices.length ; i++) {
+									var ltcdevice = data.LTCdevices[i];
+									if (ltcdevice) {
+										var hash = ltcdevice.hash;
+										var percentage = (hash / 500) * 100;
+										var totals = ltcdevice.totals;
+										var valids = ltcdevice.valids;
+										var rejrate = ltcdevice.rejectrate;
+										$("#" + ltcdevice.dev).data('easyPieChart').update(percentage);
+										$("#" + ltcdevice.dev + " b.value").html(hash);
+										$("").html(" Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										totalHashLTC += parseInt(hash);
+									}
+								}
+								$("#ltc_totalhash").html(totalHashLTC);	
+
+								var totalHashBTC = 0;
+								for (i = 0 ; i < data.BTCDevices.length ; i++) {
+									var btcdevice = data.BTCDevices[i];
+									if (btcdevice) {
+										var hash = btcdevice.hash;
+										var percentage = (hash / 500) * 100;
+										var totals = btcdevice.totals;
+										var valids = btcdevice.valids;
+										var rejrate = btcdevice.rejectrate;
+										$("#" + btcdevice.dev).data('easyPieChart').update(percentage);
+										$("#" + btcdevice.dev + " b.value").html(hash);
+										$("").html(" Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										totalHashBTC += parseInt(hash);
+									}
+								}
+								$("#btc_totalhash").html(totalHashBTC);	
+							}) ;
+			}
+			setInterval(function(){
+					updateScreen();
+				}, 15000);
+        </script>
+        
        <?php include 'includes/footer.php';?>
     </body>
 </html>

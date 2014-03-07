@@ -1,8 +1,9 @@
 #!/bin/ash
 
-for log in $(ls -1 /var/log/ltc*/* 2> /dev/null; ls -1 /var/log/btc/* 2> /dev/null); do
-	logpath="/var/log/$(echo $log | cut -d "/" -f4).log"
-	cat $log >> $logpath && cat /dev/null > $log
-	last=$(tail -c 10k $logpath)
-	echo $last > $logpath
+while true ; do
+	sleep 3600
+	for log in $(ls -1 /var/log/*.log 2> /dev/null); do
+		> $log;
+	done
 done
+exit 0

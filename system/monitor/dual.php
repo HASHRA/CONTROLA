@@ -76,7 +76,7 @@ if(empty($process['btc'])) {
 	$stats['lastcommit']['btc'] = array();
 	$cache->set(CACHE_STATS, $stats);
 	//å�¯åŠ¨
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 11);
+	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 13);
 	if($re === false) {
 		writeLog("BTC process fails to start");
 		//å…³é—­æ‰€æœ‰è¿›ç¨‹

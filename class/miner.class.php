@@ -176,8 +176,8 @@ class Miner {
 	// Start BTC miner
 	function startupBtcProc($url, $worker, $password, $freq, $cores = 0)
 	{
-		$cmd = BIN_BTC . " --dif --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
-		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} -l 9999 > " . PATH_LOG . "/btc.log 2>&1 &";
+		$cmd = BIN_BTC . " --dif --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
+		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} -l 9999 >> " . PATH_LOG . "/btc.log 2>&1 &";
 		
 		$cache = new Cache(PATH_CACHE);
 		$stats = $cache->get(CACHE_STATSUI);
@@ -223,7 +223,7 @@ class Miner {
 	{
 		$logid = str_replace(':' , '', $devid);
 		
-		$cmd = BIN_LTC . " --dif={$devid} --dual --freq={$freq} -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$logid}.log &";
+		$cmd = BIN_LTC . " --dif={$devid} --dual --freq={$freq} -o {$url} -u {$worker} -p {$password} -q >> " . PATH_LOG . "/ltc{$logid}.log 2>&1 &";
 		
 		
 		$cache = new Cache(PATH_CACHE);

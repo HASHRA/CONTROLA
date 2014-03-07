@@ -129,7 +129,7 @@ foreach($devices['devids'] as $devid)
 {
 	if(!isset($stats['lastcommit']['ltc'][$devid]))
 	{
-		writeLog("Machine never commited DeviceID={$proc['devid']} Pid={$pid} Worker={$proc['worker']}");
+		//writeLog("Machine never commited DeviceID={$proc['devid']} Pid={$pid} Worker={$proc['worker']}");
 		continue;
 	}
 	if(($stats['lastcommit']['ltc'][$devid] + $freezeTime) < $timeNow)
