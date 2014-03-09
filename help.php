@@ -25,8 +25,8 @@
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">UPDATE</h3>
-        <p class="header-info">updating firmware software from git</p>
+        <h3 class="header-title">Help</h3>
+        <p class="header-info">Work in progress</p>
     </div>
 </div>
 
@@ -39,8 +39,7 @@
                     <h3 class="panel-title">Fetching</h3>
                 </div>
                 <div class="panel-body">
-                	running update script:
-                	
+                	Work in progress                	
                 </div>
             </div>
         </div>

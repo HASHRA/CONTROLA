@@ -25,8 +25,8 @@
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">UPDATE</h3>
-        <p class="header-info">updating firmware software from git</p>
+        <h3 class="header-title">Update Script</h3>
+        <p class="header-info">Firmware update</p>
     </div>
 </div>
 
@@ -36,11 +36,38 @@
         <div class="col-md-12">
             <div class="panel ">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Fetching</h3>
+                    <h3 class="panel-title">Update</h3>
                 </div>
                 <div class="panel-body">
-                	running update script:
-                	
+                <?php if ($_REQUEST['doupdate'] !== 'true'){?>
+                	<div class="alert alert-success">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <i class="fa fa-check-circle"></i>
+                            <?php 
+		                	exec("curl https://bitbucket.org/api/1.0/repositories/purplefox/hashra-public-firmware" , $out);
+		                	$obj = json_decode($out[0]);
+		                	
+		                	$age =   time() - strtotime($obj->last_updated) ;
+		                	
+		                	if ($age > 0 ) {
+								echo "<p>You have the most current version</p>";
+								echo '<p><a href="update.php?doupdate=true" class="btn btn-primary btn-lg" role="button">Update Anyway</a></p>';
+							}else {
+								echo "A newer version is available, do you want to Update? <br/>";
+								echo '<p><a "update.php?doupdate=true" class="btn btn-primary btn-lg" role="button">Update</a></p>';
+							}
+		                	?>
+		               </div>
+		              <?php }else {?>
+		              
+		              	<div class="alert alert-success">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            Backing up, this can take a while.
+		               </div>
+		               
+
+		             <?php }?>
+                    
                 </div>
             </div>
         </div>
