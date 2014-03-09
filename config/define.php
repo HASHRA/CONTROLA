@@ -2,13 +2,6 @@
 
 error_reporting(E_ALL ^ E_STRICT);
 
-function writeLog($msg)
-{
-	$msg = sprintf("[%s] %s\r\n", date('Y-m-d H:i:s'), $msg);
-	$fp = fopen(FILE_LOG, 'a');
-	fwrite($fp, $msg);
-	fclose($fp);
-}
 
 //è¾“å‡ºè°ƒè¯•ä¿¡æ�¯
 //define('DEBUG', true);
@@ -26,7 +19,7 @@ define('PATH_CACHE', PATH_ROOT.'/cache');
 define('PATH_TEMP', '/tmp');
 
 //ä¸´æ—¶æ–‡ä»¶è·¯å¾„
-define('PATH_LOG', '/tmp/log');
+define('PATH_LOG', '/var/log');
 
 //ç”¨æˆ·é…�ç½®æ–‡ä»¶è·¯å¾„
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
@@ -39,8 +32,9 @@ define('RUN_MODEL_BTC', 0x01);
 define('RUN_MODEL_LTC', 0x02);
 
 //ç¨‹åº�è·¯å¾„
-define('BIN_BTC', '/www/soft/cgminer');
-define('BIN_LTC', '/www/soft/minerd');
+define('BIN_BTC', '/var/www/soft/sha/cgminer');
+define('BIN_LTC', '/var/www/soft/scrypt/cgminer');
+define('BIN_CPUMINER', '/var/www/soft/minerd');
 
 //ç¼“å­˜
 define('CACHE_CFGMTIME', 'cfgmtime');
@@ -60,3 +54,24 @@ define('ERRNO_BTC_PASS','A0005');	//BTC å¯†ç �è¾“å…¥é”™è¯
 define('ERRNO_LTC_URL',	'A0006');	//LTC urlè¾“å…¥é”™è¯¯
 define('ERRNO_LTC_USER','A0007');	//LTC ç”¨æˆ·å��è¾“å…¥é”™è¯¯
 define('ERRNO_LTC_PASS','A0008');	//LTC å¯†ç �è¾“å…¥é”™
+
+function writeLog($msg)
+{
+	$msg = sprintf("[%s] %s\r\n", date('Y-m-d H:i:s'), $msg);
+	$fp = fopen(FILE_LOG, 'a');
+	fwrite($fp, $msg);
+	fclose($fp);
+}
+
+/**
+ * Determine if a variable is iterable. i.e. can be used to loop over.
+ *
+ * @return bool
+ */
+function is_iterable($var)
+{
+	return $var !== null
+	&& (is_array($var)
+			|| $var instanceof Traversable
+	);
+}

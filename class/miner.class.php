@@ -1,7 +1,10 @@
 <?php
-
+require_once 'cgminerclient.class.php';
+openlog("MinerClass log", LOG_PID, LOG_LOCAL0);
 class Miner {
 
+	
+	
 	function getDirFile($path, $fileregular = "")
 	{
 		$path = rtrim($path, "/");
@@ -40,8 +43,9 @@ class Miner {
 	}
 	
 	// Available USB/ACM device IDs
-	function getAvailableDevice()
+	function getAvailableDevice($api = false)
 	{
+		syslog(LOG_INFO,memory_get_usage(true). " >  getting available devices from system");
 		exec("ls -1 /dev | grep ttyUSB", $devices);
 		if(!empty($devices))
 		{
@@ -62,16 +66,18 @@ class Miner {
 			}
 		}
 		if(count ($devices) == 0){
-			$devices = Miner::getUsbBus();
-			if(!empty($devices))
+			syslog(LOG_INFO, memory_get_usage(true). " > no ttyACM or ttmUSB found getting usb bus");
+			$devs = Miner::getUsbBus();
+			if(is_iterable($devs))
 			{
-				foreach($devices as $k => $device)
+				for($i = 0 ; $i < count($devs) ; $i++)
 				{
-					$devices[$k] = $device;
+					$devices[] = $i;
 				}
 			}
 		}
- 		sort($devices);
+		sort($devices);
+ 		syslog(LOG_INFO," exiting getting available devices");
 		return $devices;
 	}
 	
@@ -85,42 +91,32 @@ class Miner {
 	// Get Bus:Dev from miners
 	function getUsbBus()
 	{
+		syslog(LOG_INFO, "Fetching USB bus");
 		$array = array();
 		$temp = false;
-		exec("cat /proc/bus/usb/devices", $lines);
+		exec('lsusb -d  "0483:5740" | awk \'{print $2,":", $4}\'', $lines);
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
 			{
-				if(strstr($line, "T:") !== false)
-				{
-					preg_match('/Bus\=(\d+)\sLev\=(\d+)\sPrnt\=(\d+)\sPort\=(\d+)\sCnt\=(\d+)\sDev#\=\s+(\d+)/', $line, $out);
-					$cBus = intval($out[1]);
-					$cDev = intval($out[6]);
-					$temp = $cBus.":".$cDev;
-				}
-				else if(preg_match("/S\:\s\sProduct/", $line) === 1)
-				{
-					if(strstr($line, "CP210") !== false || strstr($line, "STM32") !== false)
-					{
-						if($temp !== false)
-						{
-							$array[] = $temp;
-						}
-						$temp = false;
-					}
-				}
+				$aLine = explode(":", $line);
+				$cBus = intval($aLine[0]);
+				$cDev = intval($aLine[1]);
+				$array[] = $cBus.":".$cDev;
 			}
 		}
+		syslog(LOG_INFO, memory_get_usage(true). " > Found USB devices hello " . count($array));
 		sort($array);
+		syslog(LOG_INFO, memory_get_usage(true). " > sorted");
 		return $array;
 	}
 	
 	// Running BTC miners
 	function getRunningBtcProcess()
 	{
+		syslog(LOG_INFO, "Getting Running BTC Processes");
 		$process = array();
-		exec("ps | grep " . BIN_BTC . " | grep -v screen | grep -v grep | awk '{print $1}'", $lines);
+		exec("ps agx | grep " . BIN_BTC . " | grep -v screen | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'", $lines);
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
@@ -146,8 +142,9 @@ class Miner {
 	// Running LTC miners
 	function getRunningLtcProcess()
 	{
+		syslog(LOG_INFO, "Getting Running LTC Processes");
 		$process = array();
-		exec("ps | grep " . BIN_LTC . " | grep -v screen | grep -v grep | awk '{print $1}'", $lines);
+		exec("ps agx | grep " . BIN_LTC . " | grep scrypt | grep -v screen | grep -v sudo | grep -v grep | awk '{print $1}'", $lines);
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
@@ -157,14 +154,11 @@ class Miner {
 				if(!empty($out))
 				{
 					$cmdline = $out[0];
-					preg_match('/\-\-dif\=(\d+\:?\d*)/', $cmdline, $out);
-					$devid = $out[1];
 					preg_match('/\-u\x00([\.a-zA-Z0-9]+)/', $cmdline, $out);
 					$worker = $out[1];
 					$process[$pid] = array(
 						'pid'		=> $pid,
-						'devid'		=> $devid,
-						'worker'	=> $worker, 
+						'worker'	=> $worker
 					);
 				}
 				$out = null;
@@ -176,8 +170,8 @@ class Miner {
 	// Start BTC miner
 	function startupBtcProc($url, $worker, $password, $freq, $cores = 0)
 	{
-		$cmd = BIN_BTC . " --dif --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
-		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} -l 9999 >> " . PATH_LOG . "/btc.log 2>&1 &";
+		$cmd = 'sudo '. BIN_BTC . " --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
+		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} &";
 		
 		$cache = new Cache(PATH_CACHE);
 		$stats = $cache->get(CACHE_STATSUI);
@@ -196,13 +190,16 @@ class Miner {
 			$is_run = false;
 			while($waitsec > 0)
 			{
-				$file = PATH_LOG . '/btc.log';
-				$log = file_get_contents($file);
-				if(strpos($log, 'Network diff set to'))
+				//get answer from cgminerclient
+				$devs = CGMinerClient::requestDevices();
+				if(is_iterable($devs))
 				{
 					$devids = array();
-					preg_match_all('/Create\sLTC\sproxy\son\s\d+\/UDP\sfor\s\d+\:\d+\((\d+)\)/', $log, $out);
-					$devids = array_values(array_unique($out[1]));
+					foreach ($devs as $key=>$val) {
+						if (strpos($key,'ASC') !== false){
+							$devids[] = $val['ID'];
+						}
+					}
 					$is_run = true;
 					break;
 				}
@@ -219,13 +216,69 @@ class Miner {
 	}
 	
 	// Start LTC miner
-	function startupLtcProc($devid, $url, $worker, $password, $freq, $dual = false)
+	function startupLtcProc($url, $worker, $password, $freq)
+	{
+		$cmd = 'sudo '. BIN_LTC . " --scrypt --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options freq={$freq}";
+		$cmd .= " -o {$url} -u {$worker} -p {$password} &";
+		
+		$cache = new Cache(PATH_CACHE);
+		$stats = $cache->get(CACHE_STATS);
+		$stats['ltc'] = array();
+		$stats['time'] = time();
+		$cache->set(CACHE_STATS, $stats);
+	
+		syslog(LOG_INFO, "about to run  " . $cmd);
+		
+		$p = popen($cmd, 'r');
+		pclose($p);
+		
+		syslog(LOG_INFO, "Started LTC PRocess waiting 10 seconds to boot cgminer");
+		usleep(100000);
+		exec('ps | grep ' . BIN_LTC . ' | grep sudo | grep -v grep | awk \'{print $1}\'', $out);
+		if(!empty($out))
+		{
+			$pid = intval(trim($out[0]));
+			$waitsec = 120;
+			$is_run = false;
+			while($waitsec > 0)
+			{
+				
+				//get answer from cgminerclient
+				syslog(LOG_INFO, "Requesting devices from cgminer");
+				$devs = CGMinerClient::requestDevices();
+				
+				if(is_iterable($devs))
+				{
+					$devids = array();
+					syslog(LOG_INFO, "found " . count($devs) . " devices");
+					foreach ($devs as $key=>$val) {
+						if (strpos($key,'ASC') !== false){
+							$devids[] = $val['ID'];
+						}
+					}
+					syslog(LOG_INFO, "Continuing process");
+					$is_run = true;
+					break;
+				}
+				$waitsec--;
+				sleep(1);
+			}
+			if(!$is_run)
+			{
+				syslog(LOG_INFO, "Process not running, cgminer returns nothing");
+				exec("kill -9 {$pid}");
+				return false;
+			}
+			return array('pid' => $pid, 'devids' => $devids);
+		}
+	}
+	
+	// Start LTC miner
+	function startupDualProc($devid, $url, $worker, $password, $freq)
 	{
 		$logid = str_replace(':' , '', $devid);
 		
-		$cmd = BIN_LTC . " --dif={$devid} --dual --freq={$freq} -o {$url} -u {$worker} -p {$password} -q >> " . PATH_LOG . "/ltc{$logid}.log 2>&1 &";
-		
-		
+		$cmd = 'sudo ' .BIN_CPUMINER . " --dual -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$devid}.log &";
 		$cache = new Cache(PATH_CACHE);
 		$stats = $cache->get(CACHE_STATSUI);
 		$stats['ltc'] = array();
@@ -248,7 +301,7 @@ class Miner {
 	{
 		if($pid == -1)
 		{
-			$cmd = 'killall -9 ' . basename(BIN_BTC);
+			$cmd = 'sudo killall -9 ' . basename(BIN_BTC);
 		}
 		else
 		{
@@ -262,100 +315,51 @@ class Miner {
 	{
 		if($pid == -1)
 		{
-			$cmd = 'killall -9 ' . basename(BIN_LTC);
+			$cmd = 'sudo killall -9 ' . basename(BIN_LTC);
 		}
 		else
 		{
-			$cmd = "kill -9 {$pid}";
+			$cmd = "sudo kill -9 {$pid}";
 		}
-		return exec($cmd);
+		syslog(LOG_INFO, "Shutting down LTC process with this command: " . $cmd);
+		$executed = exec($cmd , $out);
+		syslog(LOG_INFO, "LTC Process shut down with return code ". json_encode($out));
+		return $executed;
 	}
 	
 	// BTC stats
-	function getBtcStats($unlink = true)
+	function getCGMinerStats()
 	{
+		syslog(LOG_INFO, "Getting CGMiner stats");
 		$stats = array();
-		$files = Miner::getDirFile(PATH_TEMP.'/btc');
-		foreach($files as $file)
-		{
-			$time = filectime($file);
-			list($device, , $accepted, $diff) = explode('|', file_get_contents($file));
-			$stats[] = array(
-				'time'		=> $time,
-				'device'	=> $device,
-				'isaccept'	=> $accepted == 'A' ? true : false,
-				'diff'		=> $diff,
-			);
-			if($unlink)
-			{
-				unlink($file);
+		$ltcProc = Miner::getRunningLtcProcess();
+		$btcProc = Miner::getRunningBtcProcess();
+		
+		if (count($ltcProc) == 0 && count($btcProc) == 0){
+			syslog(LOG_INFO, "No mining processes running, waiting for another time");
+			return $stats;
+		}
+		
+		syslog(LOG_INFO, "Found a live CGMINER process, getting stats");
+		
+		$devs = CGMinerClient::requestDevices();
+		if (is_iterable($devs)) {
+			foreach ($devs as $key=>$val){
+				if (strpos($key, 'ASC') !== false) {
+					//found device
+					$stats[] = array(
+							'time'		=> $val['Last Share Time'],
+							'device'	=> $val['ID'],
+							'diff'		=> $val['Diff1 Work'],
+							'hashrate'  => $val['MHS 5s'] * 1000,
+							'valid'		=> $val['Accepted'],
+							'invalid'	=> $val['Rejected']
+					);
+				}
 			}
 		}
 		return $stats;
 	}
-	
-	// BTC stats
-	function getBtcStatsUI()
-	{
-		$cache = new Cache(PATH_CACHE);
-		$stats = $cache->get(CACHE_STATSUI);
-		$btc = array();
-		$time = time();
-		if(!empty($stats) && array_key_exists('btc', $stats) && !empty($stats['btc']))
-		{
-			foreach($stats['btc'] as $devid => $btcminer)
-			{
-				$btc[$devid] = array(
-					'valid' => $btcminer['valid'],
-					'invalid' => $btcminer['invalid'],
-					'hashrate' => (round((((float) pow(2.0, 16)) / (($time - $stats['time']) / $btcminer['shares'])) / 10000000)) * 1.8,
-				);
-			}
-		}
-		return $btc;
-	}
-	
-	// LTC stats
-	function getLtcStats($unlink = true)
-	{
-		$stats = array();
-		$files = Miner::getDirFile(PATH_TEMP.'/ltc');
-		foreach($files as $file)
-		{
-			$time = filectime($file);
-			list($device, , $accepted, $diff) = explode('|', file_get_contents($file));
-			$stats[] = array(
-				'time'		=> $time,
-				'device'	=> $device,
-				'isaccept'	=> $accepted == 'A' ? true : false,
-				'diff'		=> $diff,
-			);
-			if($unlink)
-			{
-				unlink($file);
-			}
-		}
-		return $stats;
-	}
-	
-	function getLtcStatsUI()
-	{
-		$cache = new Cache(PATH_CACHE);
-		$stats = $cache->get(CACHE_STATSUI);
-		$ltc = array();
-		$time = time();
-		if(!empty($stats) && array_key_exists('ltc', $stats) && !empty($stats['ltc']))
-		{
-			foreach($stats['ltc'] as $devid => $ltcminer)
-			{
-				$ltc[$devid] = array(
-					'valid' => $ltcminer['valid'],
-					'invalid' => $ltcminer['invalid'],
-					'hashrate' => round((((float) pow(2.0, 16)) / (($time - $stats['time']) / $ltcminer['shares'])) / 1000),
-				);
-			}
-		}
-		return $ltc;
-	}
+
 }
 

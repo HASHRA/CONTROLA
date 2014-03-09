@@ -98,7 +98,7 @@ if(empty($process['btc'])) {
 
 
 //æ›´æ–°LTCå�¯ç”¨çŸ¿å·¥
-$workers = $unusedWorkers = explode(',', $config['ltc_workers']);
+$workers = $unusedWorkers = explode(',', $config['ltc_worker']);
 foreach($unusedWorkers as $k => $worker) {
 	$unusedWorkers[$k] = trim($worker);
 	if(empty($unusedWorkers[$k])) {

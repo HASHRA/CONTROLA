@@ -108,11 +108,11 @@ function request($cmd)
  return null;
 }
 
-if (isset($argv) and count($argv) > 1)
- $r = request($argv[1]);
+if (isset($_REQUEST["command"]))
+ $r = request($_REQUEST["command"]);
 else
- $r = request('summary');
+ $r = request('config');
 
-echo print_r($r, true)."\n";
+echo json_encode($r, true)."\n";
 
 ?>

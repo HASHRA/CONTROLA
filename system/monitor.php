@@ -1,5 +1,5 @@
 <?php
-require_once '/www/config/define.php';
+require_once '/var/www/config/define.php';
 require_once PATH_CLASS . '/miner.class.php';
 require_once PATH_CLASS . '/cache.class.php';
 
@@ -49,13 +49,16 @@ $config = parse_ini_file(FILE_CONFIG);
 $arr = $cache->get(CACHE_CFGMTIME);
 
 $mtime = filemtime(FILE_CONFIG);
+
+	syslog(LOG_INFO, "Configuration cached time " .$arr['mtime']);
 if($arr === false)
 {
 	$arr['mtime'] = $mtime;
 	$cache->set(CACHE_CFGMTIME, $arr);
+	syslog(LOG_INFO, "Configuration file time " . $mtime);
 }
 	
-$path = "/www/soft/";
+$path = "/var/www/soft/";
 $ls = exec("ls -1 {$path} | grep -v \\\.", $files);
 if($ls && !empty($files))
 {
@@ -73,11 +76,13 @@ if($ls && !empty($files))
 	}
 }
 
+
 if($arr['mtime'] != $mtime)
 {
 	$arr['mtime'] = $mtime;
 	$cache->set(CACHE_CFGMTIME, $arr);
 	writeLog("Configuration file is modified");
+	syslog(LOG_INFO, "Configuration file modified, shutting down");
 	Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
 	writeLog("All process shutdown - monitor (1)");

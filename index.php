@@ -14,25 +14,27 @@ function formatTime($input)
 }
  
 $iniArr = parse_ini_file(FILE_CONFIG);
-if($iniArr["model"] == 2)
-{
-	$devices = Miner::getAvailableDevice();
-}
-else if($iniArr["model"] == 3)
-{
-	$devices = Miner::getUsbBus();
-}
+
+$runmode = "IDLE";
+
+
+if ($iniArr["model"] == 1) {$runmode = 'BTC';}
+if ($iniArr["model"] == 2) {$runmode = 'LTC';}
+if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
+
+$devices = $cache->get(CACHE_DEVICE);
 
 $success = false;   
  
 if($_POST)
 {
+	
 	$valid = true;
     $ltc_url = preg_replace('/\s+/', '', $_POST["ltc_url"]);
-    $ltc_workers = preg_replace('/\s+/', '', $_POST["ltc_workers"]);
+    $ltc_worker = preg_replace('/\s+/', '', $_POST["ltc_worker"]);
     $ltc_pass = preg_replace('/\s+/', '', $_POST["ltc_pass"]);
     $ltc_enable = isset($_POST["ltc_enable"]);
-    if(empty($ltc_url) || empty($ltc_workers) || empty($ltc_pass))
+    if(empty($ltc_url) || empty($ltc_worker) || empty($ltc_pass))
     {
         $valid = false;
     }
@@ -73,7 +75,7 @@ if($_POST)
     
     if( $valid &&
 		$ltc_url != $iniArr["ltc_url"] || 
-        $ltc_workers != $iniArr["ltc_workers"] ||
+        $ltc_worker != $iniArr["ltc_worker"] ||
         $ltc_pass != $iniArr["ltc_pass"] ||
         $btc_url != $iniArr["btc_url"] ||
         $btc_worker != $iniArr["btc_worker"] ||
@@ -89,14 +91,15 @@ if($_POST)
         $iniStr .= "btc_worker = \"{$btc_worker}\"\n";
         $iniStr .= "btc_pass = \"{$btc_pass}\"\n";
         $iniStr .= "ltc_url = \"{$ltc_url}\"\n";
-        $iniStr .= "ltc_workers = \"{$ltc_workers}\"\n";
+        $iniStr .= "ltc_worker = \"{$ltc_worker}\"\n";
         $iniStr .= "ltc_pass = \"{$ltc_pass}\"\n";
         
         $outfile = fopen(FILE_CONFIG,"w");
         fwrite($outfile, $iniStr);
         fclose($outfile);
 		
-		if(($iniArr["model"] == 1 || $iniArr["model"] == 3) && $model == 2)
+        syslog(LOG_INFO, " selected mode is " .$iniArr["model"]);
+		if(($model == 1 || $model == 3) && $model == 2)
 		{
 			exec("sleep 1 && reboot");
 			header('Location: /?i=1');
@@ -104,7 +107,7 @@ if($_POST)
 		}
 		else
 		{
-			require_once 'system/monitor.php';
+			//exec('wget http://localhost/system/monitor.php');
 			header('Location: /?i=2');
 			exit;
 		}
@@ -113,7 +116,7 @@ if($_POST)
 else
 {
     $ltc_url = $iniArr["ltc_url"];
-    $ltc_workers = $iniArr["ltc_workers"];
+    $ltc_worker = $iniArr["ltc_worker"];
     $ltc_pass = $iniArr["ltc_pass"];
     $ltc_enable = dechex($iniArr["model"]) & 0x2;
     $btc_url = $iniArr["btc_url"];
@@ -135,52 +138,27 @@ if(!empty($devices))
 {
 	$table = "";
 	$tablebtc = "";
-	foreach($devices as $devid)
-	{
-		$li .= '<li>
-			<a href="log.php#LTC'.$devid.'" target="_blank">
-				<i class="icon-double-angle-right"></i>
-				LTC Miner '.$devid.'
-			</a>
-		</li>';
-	}
 
-	$procs = Miner::getRunningLtcProcess();
-	$devproc = array();
-	foreach($procs as $proc)
-	{
-		$devproc[$proc["devid"]] = $proc["worker"];
-	}
-	$btcstatsui = Miner::getBtcStatsUI();
-	$statsui = Miner::getLtcStatsUI();
+	$statsui = Miner::getCGMinerStats();
 	foreach($statsui as $stat)
 	{
 		$totalhash += $stat["hashrate"];
 	}
-	foreach($btcstatsui as $stat)
+	$color = $runmode === 'BTC' || $runmode === 'DUAL' ? '1F8A70' : 'F94743';
+	foreach($devices["devids"] as $devid)
 	{
-		$totalhashbtc += $stat["hashrate"];
-	}
-	foreach($devices as $devid)
-	{
-		
-		$tabid = str_replace(":", "-", $devid);
-		
-		if(isset($devproc[$devid]))
+		if(isset($statsui[$devid]))
 		{
 			$hash = isset($statsui[$devid]["hashrate"]) ? $statsui[$devid]["hashrate"] : 0;
 			$valids = isset($statsui[$devid]["valid"]) ? $statsui[$devid]["valid"] : 0;
 			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-			
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$tabid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#F94743"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$tabid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
-			
-			//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 		}
 		else
 		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$tabid.'" class="pie-chart" data-percent="0" data-bar-color="#F94743"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="log.php#LTC'.$tabid.'"> Offline :(</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="#'.$devid.'"> Offline :(</a></div>';
 			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
@@ -191,37 +169,31 @@ if(!empty($devices))
 		$uptime = 0;
 	}
 }
-$uptime = formatTime($uptime);
-if($iniArr["model"] == 1 || $iniArr["model"] == 3)
-{
+// $uptime = formatTime($uptime);
+// if($iniArr["model"] == 1 || $iniArr["model"] == 3)
+// {
 	
 	
-	//btc part
+// 	//btc part
 	
-	foreach($devices as $devid)
-	{
+// 	foreach($devices as $devid)
+// 	{
 	
-		$hash = isset($btcstatsui[$devid]["hashrate"]) ? $btcstatsui[$devid]["hashrate"] : 0;
-		$valids = isset($btcstatsui[$devid]["valid"]) ? $btcstatsui[$devid]["valid"] : 0;
-		$invalids = isset($btcstatsui[$devid]["invalid"]) ? $btcstatsui[$devid]["invalid"] : 0;
-		$totals = $valids + $invalids;
-		$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
+// 		$hash = isset($btcstatsui[$devid]["hashrate"]) ? $btcstatsui[$devid]["hashrate"] : 0;
+// 		$valids = isset($btcstatsui[$devid]["valid"]) ? $btcstatsui[$devid]["valid"] : 0;
+// 		$invalids = isset($btcstatsui[$devid]["invalid"]) ? $btcstatsui[$devid]["invalid"] : 0;
+// 		$totals = $valids + $invalids;
+// 		$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
 	
-		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/10) * 100).'" data-bar-color="#1F8A70"><span><b class="value"> '.$hash.' </b> Gh/s</span></div><div>BTC Miner '.$devid.' </div> <a href="log.php#CGMinerLog">'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+// 		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/10) * 100).'" data-bar-color="#1F8A70"><span><b class="value"> '.$hash.' </b> Gh/s</span></div><div>BTC Miner '.$devid.' </div> <a href="log.php#CGMinerLog">'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 	
-		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
+// 		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
 	
-	}
+// 	}
 	
 	
 
-}
-
-$runmode = "IDLE";
-
-if ($iniArr["model"] == 1) {$runmode = 'BTC';}
-if ($iniArr["model"] == 2) {$runmode = 'LTC';}
-if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
+// }
 
 $syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/monitor.log") : '';
 
@@ -234,7 +206,7 @@ if(isset($_GET["i"]))
 	}
 	else if($_GET["i"] == 2)
 	{
-		$info = "Successfully saved configuration, miners will restart...";
+		$info = "Successfully saved configuration, miners will restart..."; 
 		$success = true;
 	}
 }
@@ -318,8 +290,8 @@ if(isset($_GET["i"]))
 		                    <input class="form-control" id="ltc_url" name="ltc_url" placeholder="stratum+tcp://..." value="<?php echo $ltc_url?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
 		                </div>
 		                <div class="form-group">
-		                    <label for="ltc_workers">Scrypt worker name</label>
-		                    <input class="form-control" id="ltc_workers" name="ltc_workers" value="<?php echo $ltc_workers?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
+		                    <label for="ltc_worker">Scrypt worker name</label>
+		                    <input class="form-control" id="ltc_worker" name="ltc_worker" value="<?php echo $ltc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
 		                </div> 
 		                <div class="form-group">
 		                    <label for="ltc_pass">Scrypt worker password</label>
@@ -337,7 +309,7 @@ if(isset($_GET["i"]))
 								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
 		                     </select>
 		                </div>
-		                <div class="form-group">
+		                <div class="form-group" style="display:none">
 		                	<div class="checkbox">
 		                        <label>
 		                            <input type="checkbox" name="ltc_enable" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> >
@@ -345,7 +317,9 @@ if(isset($_GET["i"]))
 		                        </label>
 		                    </div>
 		                </div>
+		                <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div>
+                <!-- 
                 
                  <div class="panel-heading">
                 	 <h4 class="panel-title">BTC pool configuration</h4>
@@ -373,6 +347,7 @@ if(isset($_GET["i"]))
 		                </div>
 		                <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div>
+                 -->
                 </form>
                 </div>
             </div>
@@ -404,7 +379,7 @@ if(isset($_GET["i"]))
 										var rejrate = ltcdevice.rejectrate;
 										$("#" + ltcdevice.dev).data('easyPieChart').update(percentage);
 										$("#" + ltcdevice.dev + " b.value").html(hash);
-										$("").html(" Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										$("#" + ltcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
 										totalHashLTC += parseInt(hash);
 									}
 								}
@@ -421,7 +396,7 @@ if(isset($_GET["i"]))
 										var rejrate = btcdevice.rejectrate;
 										$("#" + btcdevice.dev).data('easyPieChart').update(percentage);
 										$("#" + btcdevice.dev + " b.value").html(hash);
-										$("").html(" Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										$("#" + btcdevice.dev + " a").siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
 										totalHashBTC += parseInt(hash);
 									}
 								}
