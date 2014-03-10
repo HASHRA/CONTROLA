@@ -18,8 +18,8 @@ $iniArr = parse_ini_file(FILE_CONFIG);
 $runmode = "IDLE";
 
 
-if ($iniArr["model"] == 1) {$runmode = 'BTC';}
-if ($iniArr["model"] == 2) {$runmode = 'LTC';}
+if ($iniArr["model"] == 1) {$runmode = 'SHA256';}
+if ($iniArr["model"] == 2) {$runmode = 'SCRYPT';}
 if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
 
 $devices = $cache->get(CACHE_DEVICE);
@@ -144,7 +144,7 @@ if(!empty($devices))
 	{
 		$totalhash += $stat["hashrate"];
 	}
-	$color = $runmode === 'BTC' || $runmode === 'DUAL' ? '1F8A70' : 'F94743';
+	$color = $runmode === 'SHA256' || $runmode === 'DUAL' ? '1F8A70' : 'F94743';
 	foreach($devices["devids"] as $devid)
 	{
 		if(isset($statsui[$devid]))
@@ -290,7 +290,7 @@ if(isset($_GET["i"]))
             </div>
         
             <div class="panel ">
-            	 <?php if ($runmode == "LTC" || $runmode == "DUAL") {?>
+            	 <?php if ($runmode == "SCRYPT" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
                     <h3 class="panel-title">SCRYPT Miners hashrate <b id="ltc_totalhash" class="value"><?php echo $totalhash ?></b> Kh/s</h3>
                 </div>
@@ -298,7 +298,7 @@ if(isset($_GET["i"]))
                 	<?php echo $table ?>
                 </div>
                 <?php }?>
-                <?php if ($runmode == "BTC" || $runmode == "DUAL") {?>
+                <?php if ($runmode == "SHA256" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
                     <h3 class="panel-title">SHA256 Miners hashrate <b id="btc_totalhash" class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
                 </div>
@@ -423,6 +423,7 @@ if(isset($_GET["i"]))
 										$("#" + ltcdevice.dev).data('easyPieChart').update(percentage);
 										$("#" + ltcdevice.dev + " b.value").html(hash);
 										$("#" + ltcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										$("#" + ltcdevice.dev ).siblings("a").attr("title" , "lastcommit " + ltcdevice.lastcommit + " minutes ago ");
 										totalHashLTC += parseInt(hash);
 									}
 								}
@@ -439,7 +440,8 @@ if(isset($_GET["i"]))
 										var rejrate = btcdevice.rejectrate;
 										$("#" + btcdevice.dev).data('easyPieChart').update(percentage);
 										$("#" + btcdevice.dev + " b.value").html(hash);
-										$("#" + btcdevice.dev + " a").siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										$("#" + btcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
+										$("#" + btcdevice.dev ).siblings("a").attr("title" , "lastcommit " + btcdevice.lastcommit.toFixed(2) + " minutes ago ");
 										totalHashBTC += parseInt(hash);
 									}
 								}

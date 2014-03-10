@@ -45,7 +45,6 @@ class Miner {
 	// Available USB/ACM device IDs
 	function getAvailableDevice($api = false)
 	{
-		syslog(LOG_INFO,memory_get_usage(true). " >  getting available devices from system");
 		exec("ls -1 /dev | grep ttyUSB", $devices);
 		if(!empty($devices))
 		{
@@ -66,7 +65,6 @@ class Miner {
 			}
 		}
 		if(count ($devices) == 0){
-			syslog(LOG_INFO, memory_get_usage(true). " > no ttyACM or ttmUSB found getting usb bus");
 			$devs = Miner::getUsbBus();
 			if(is_iterable($devs))
 			{
@@ -81,12 +79,6 @@ class Miner {
 		return $devices;
 	}
 	
-	function restartPower( $_intTime = 1000000 )
-	{
-		@exec('stty -F /dev/ttyATH0 raw speed 9600; echo "O(00,05,0)E" > /dev/ttyATH0 &' );
-		usleep( $_intTime );
-		@exec('stty -F /dev/ttyATH0 raw speed 9600; echo "O(00,05,1)E" > /dev/ttyATH0 &' );
-	}
 	
 	// Get Bus:Dev from miners
 	function getUsbBus()
@@ -142,7 +134,6 @@ class Miner {
 	// Running LTC miners
 	function getRunningLtcProcess()
 	{
-		syslog(LOG_INFO, "Getting Running LTC Processes");
 		$process = array();
 		exec("ps agx | grep " . BIN_LTC . " | grep scrypt | grep -v SCREEN | grep -v sudo | grep -v grep | awk '{print $1}'", $lines);
 		if(!empty($lines))

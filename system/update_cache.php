@@ -42,15 +42,14 @@ class UpdateCache {
 		$timeNow = time();
 		$proc = $cache->get(CACHE_PROCESS);
 
+		$array = array(
+			"stats" => null,
+			"devices" => array()
+		);
+		
 		if(isset($statsMiners["devices"]) && is_iterable($statsMiners["devices"])){
-			syslog(LOG_INFO, "Got cgminer stats ". count($statsMiners["devices"]));
-			foreach($statsMiners["devices"] as $stat)
-			{
-				//syslog(LOG_INFO, "Got cgminer stats ". json_encode($stat));
-				$array[] = $stat; 
-			}
+			$cache->set(CACHE_STATS, $statsMiners);
 		}
-		$cache->set(CACHE_STATS, $array);
 
 	}
 	

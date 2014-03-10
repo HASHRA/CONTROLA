@@ -44,9 +44,11 @@ if(!empty($devices))
 			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
+			$time = $statsui["devices"][$devid]["time"];
+			$lastcommittime = ($time > 0) ? (time() - $time) / 60 : 0;
 			$comma = ($counter == 0)? '':',';
-			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" , "hash" : "'.$hash.'", "valids" : "'.$valids.'" , "totals" : "'.$totals.'", "rejectrate" : "'.$rejrate.'"}';
-			$counter++;
+			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" , "hash" : "'.$hash.'", "valids" : "'.$valids.'" , "totals" : "'.$totals.'", "rejectrate" : "'.$rejrate.'" , "time" : "'.$time.'", "lastcommit" : "'.$lastcommittime.'"}';
+			$counter++; 
 		}
 		
 	}

@@ -19,12 +19,22 @@ foreach($process['ltc'] as $pid => $proc) {
 	}
 }
 
+//check the elapsed time. restart miners after 2 hours
+
+$stats = $cache->get(CACHE_STATS);
+if (isset($tats["summary"])){
+	$elapsed = intval($stats["summary"]["elapsed"]);
+	if ($elapsed > 3600) {
+		//restart cgminer
+		syslog(LOG_INFO, "Maintenance cgminer restart started");
+		Miner::shutdownLtcProc();
+	}
+}
+
 if(empty($process['ltc']) && !empty($devices['bus'])) {
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
-	$stats = $cache->get(CACHE_STATS);
-	$stats['lastcommit']['ltc'] = array();
-	$cache->set(CACHE_STATS, $stats);
+
 	//starting up ltc process
 	syslog(LOG_INFO, "Starting single LTC Process");
 	$re = Miner::startupLtcProc($config['ltc_url'], $config['ltc_worker'], $config['ltc_pass'], $config['freq']);
