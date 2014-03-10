@@ -101,13 +101,13 @@ if($_POST)
         syslog(LOG_INFO, " selected mode is " .$iniArr["model"]);
 		if(($model == 1 || $model == 3) && $model == 2)
 		{
-			exec("sleep 1 && reboot");
+			exec("sudo reboot &");
 			header('Location: /?i=1');
 			exit;
 		}
 		else
 		{
-			//exec('wget http://localhost/system/monitor.php');
+			exec('wget http://localhost/system/monitor.php');
 			header('Location: /?i=2');
 			exit;
 		}
@@ -154,11 +154,11 @@ if(!empty($devices))
 			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>Scrypt Miner '.$devid.' </div> <a href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 		}
 		else
 		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>LTC Miner '.$devid.' </div> <a href="#'.$devid.'"> Offline :(</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.$devid.' </div> <a href="#'.$devid.'"> Offline :(</a></div>';
 			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
@@ -245,7 +245,50 @@ if(isset($_GET["i"]))
 <div class="main-content">
 
 	 <div class="row">
+
+	 	
         <div class="col-md-6">
+        
+        <div class="panel">
+        		<div class="panel-heading">
+                    <h3 class="panel-title">Mining Session Overview (<span id="stat-state">LOADING..</span>)</h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="col-md-12 stats">
+                    	 <li id ="stat-mh" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Mh/s current hashrate</span>
+                        </li>
+                        <li id ="stat-avgmh" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Mh/s avg hashrate in last 5m</span>
+                        </li>
+                        <li id ="stat-acc" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Acc./Rej.</span>
+                            <em>LOADING..</em>
+                        </li>
+                        <li id = "stat-wu" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Work utility</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="panel-body">
+                    <ul class="col-md-12 stats">
+                    	 <li id ="stat-found" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Found blocks.</span>
+                        </li>
+                        <li id ="stat-discarded" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Work discarded</span>
+                        </li>
+                        <li id ="stat-stale" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Work stale</span>
+                            <em>LOADING..</em>
+                        </li>
+                        <li id = "stat-hw" class="stat col-md-3 col-sm-3 col-xs-6">
+                            <span><b class="value">LOADING..</b> Hardware errors</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        
             <div class="panel ">
             	 <?php if ($runmode == "LTC" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
@@ -257,7 +300,7 @@ if(isset($_GET["i"]))
                 <?php }?>
                 <?php if ($runmode == "BTC" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
-                    <h3 class="panel-title">BTC Miners hashrate <b id="btc_totalhash" class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
+                    <h3 class="panel-title">SHA256 Miners hashrate <b id="btc_totalhash" class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
                 </div>
                 <div class="panel-body">
                 	<?php echo $tablebtc ?>
@@ -369,8 +412,8 @@ if(isset($_GET["i"]))
 					  url: "ajaxController.php"
 					}).done(function (data) {
 								var totalHashLTC = 0;
-								for (i = 0 ; i < data.LTCdevices.length ; i++) {
-									var ltcdevice = data.LTCdevices[i];
+								for (i = 0 ; i < data.LTCDevices.length ; i++) {
+									var ltcdevice = data.LTCDevices[i];
 									if (ltcdevice) {
 										var hash = ltcdevice.hash;
 										var percentage = (hash / 500) * 100;
@@ -401,11 +444,26 @@ if(isset($_GET["i"]))
 									}
 								}
 								$("#btc_totalhash").html(totalHashBTC);	
+
+								//do summary
+								$("#stat-mh b.value").html(data.Summary.mh);
+								$("#stat-avgmh b.value").html(data.Summary.avgmh);
+								$("#stat-acc b.value").html( data.Summary.acc + " / " + data.Summary.rej);
+								$("#stat-acc em").html( (data.Summary.rej / data.Summary.acc * 100).toFixed(2) + " % rejection rate");
+								$("#stat-wu b.value").html(data.Summary.wu);
+
+								$("#stat-found b.value").html(data.Summary.found);
+								$("#stat-discarded b.value").html(data.Summary.discarded);
+								$("#stat-stale b.value").html(data.Summary.stale);
+								$("#stat-hw b.value").html(data.Summary.hw);
+								$("#stat-state").html(data.Summary.elapsed + " seconds ");
+								
 							}) ;
 			}
+			
 			setInterval(function(){
 					updateScreen();
-				}, 15000);
+				}, 5000);
         </script>
         
        <?php include 'includes/footer.php';?>

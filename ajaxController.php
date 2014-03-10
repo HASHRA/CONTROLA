@@ -28,10 +28,6 @@ if(!empty($devices))
 	$tablebtc = "";
 	
 	$statsui = Miner::getCGMinerStats();
-	foreach($statsui as $stat)
-	{
-		$totalhash += $stat["hashrate"];
-	}
 	$counter = 0;
 	$runType = "ltc";
 	if($iniArr["model"] == 1 || $iniArr["model"] == 3)
@@ -40,11 +36,12 @@ if(!empty($devices))
 	}
 	foreach($devices["devids"] as $devid)
 	{
-		if(isset($statsui[$devid]))
+		if(isset($statsui["devices"][$devid]))
 		{
-			$hash = isset($statsui[$devid]["hashrate"]) ? $statsui[$devid]["hashrate"] : 0;
-			$valids = isset($statsui[$devid]["valid"]) ? $statsui[$devid]["valid"] : 0;
-			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
+			
+			$hash = isset($statsui["devices"][$devid]["hashrate"]) ? $statsui["devices"][$devid]["hashrate"] : 0;
+			$valids = isset($statsui["devices"][$devid]["valid"]) ? $statsui["devices"][$devid]["valid"] : 0;
+			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
 			$comma = ($counter == 0)? '':',';
@@ -53,7 +50,10 @@ if(!empty($devices))
 		}
 		
 	}
-	
+	$summary = "{}";
+	if (isset($statsui["summary"])) {
+		$summary = json_encode($statsui["summary"]);		
+	}
 	if(count($devices) == $offline)
 	{
 		$uptime = 0;
@@ -71,6 +71,9 @@ $syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/mo
 ?>
 
 {
-	"LTCdevices" : [<?php if($runmode === 'LTC') echo $table;?>],
+	"Summary" : <?php echo $summary?>,
+	"LTCDevices" : [<?php if($runmode === 'LTC') echo $table?>],
 	"BTCDevices" : [<?php if ($runmode === 'DUAL' || $runmode === 'BTC') echo $table?>]
 }
+
+

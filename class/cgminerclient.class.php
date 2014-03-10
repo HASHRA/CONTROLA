@@ -114,5 +114,9 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			return CGMinerClient::request("devs");
 		}
 		
+		function requestSummary() {
+			return CGMinerClient::request("summary");
+		}
+		
 	}
 ?>

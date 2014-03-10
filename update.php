@@ -39,7 +39,7 @@
                     <h3 class="panel-title">Update</h3>
                 </div>
                 <div class="panel-body">
-                <?php if ($_REQUEST['doupdate'] !== 'true'){?>
+
                 	<div class="alert alert-success">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             <i class="fa fa-check-circle"></i>
@@ -47,30 +47,32 @@
 		                	exec("curl https://bitbucket.org/api/1.0/repositories/purplefox/hashra-public-firmware" , $out);
 		                	$obj = json_decode($out[0]);
 		                	
-		                	$age =   time() - strtotime($obj->last_updated) ;
+		                	$age =   getlastmod() - strtotime($obj->last_updated) ;
 		                	
 		                	if ($age > 0 ) {
 								echo "<p>You have the most current version</p>";
-								echo '<p><a href="update.php?doupdate=true" class="btn btn-primary btn-lg" role="button">Update Anyway</a></p>';
+								
 							}else {
 								echo "A newer version is available, do you want to Update? <br/>";
-								echo '<p><a "update.php?doupdate=true" class="btn btn-primary btn-lg" role="button">Update</a></p>';
 							}
 		                	?>
 		               </div>
-		              <?php }else {?>
-		              
-		              	<div class="alert alert-success">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            Backing up, this can take a while.
-		               </div>
-		               
-
-		             <?php }?>
-                    
+					 <a href="doupdate.php" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                        Update!
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<div id="myModal" class="modal hide fade in">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>Update console</h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer">
+        <input type="submit" class="btn btn-success" value="Save"/>
     </div>
 </div>
 <!-- END: CONTENT -->

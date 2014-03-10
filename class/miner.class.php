@@ -116,7 +116,7 @@ class Miner {
 	{
 		syslog(LOG_INFO, "Getting Running BTC Processes");
 		$process = array();
-		exec("ps agx | grep " . BIN_BTC . " | grep -v screen | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'", $lines);
+		exec("ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'", $lines);
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
@@ -144,7 +144,7 @@ class Miner {
 	{
 		syslog(LOG_INFO, "Getting Running LTC Processes");
 		$process = array();
-		exec("ps agx | grep " . BIN_LTC . " | grep scrypt | grep -v screen | grep -v sudo | grep -v grep | awk '{print $1}'", $lines);
+		exec("ps agx | grep " . BIN_LTC . " | grep scrypt | grep -v SCREEN | grep -v sudo | grep -v grep | awk '{print $1}'", $lines);
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
@@ -167,10 +167,11 @@ class Miner {
 		return $process;
 	}
 	
+	
 	// Start BTC miner
 	function startupBtcProc($url, $worker, $password, $freq, $cores = 0)
 	{
-		$cmd = 'sudo '. BIN_BTC . " --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
+		$cmd = 'sudo screen -dmS SHA256 '. BIN_BTC . " --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
 		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} &";
 		
 		$cache = new Cache(PATH_CACHE);
@@ -218,7 +219,7 @@ class Miner {
 	// Start LTC miner
 	function startupLtcProc($url, $worker, $password, $freq)
 	{
-		$cmd = 'sudo '. BIN_LTC . " --scrypt --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options freq={$freq}";
+		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --scrypt --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options freq={$freq}";
 		$cmd .= " -o {$url} -u {$worker} -p {$password} &";
 		
 		$cache = new Cache(PATH_CACHE);
@@ -305,7 +306,7 @@ class Miner {
 		}
 		else
 		{
-			$cmd = "kill -9 {$pid}";
+			$cmd = "sudo kill -9 {$pid}";
 		}
 		return exec($cmd);
 	}
@@ -331,7 +332,21 @@ class Miner {
 	function getCGMinerStats()
 	{
 		syslog(LOG_INFO, "Getting CGMiner stats");
-		$stats = array();
+		
+		$summary = array (
+			"status" => "OFFLINE",
+			"elapsed" => 0,
+			"mh" => 0,
+			"avgmh" => 0,
+			"acc" => 0,
+			"rej" => 0,
+			"hw" => 0,
+			"wu" => 0,
+			"hw" => 0,
+			"found" => 0,
+			"discarded" => 0,
+			"stale" => 0
+		);
 		$ltcProc = Miner::getRunningLtcProcess();
 		$btcProc = Miner::getRunningBtcProcess();
 		
@@ -342,12 +357,14 @@ class Miner {
 		
 		syslog(LOG_INFO, "Found a live CGMINER process, getting stats");
 		
+		$devices = array();
+		
 		$devs = CGMinerClient::requestDevices();
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
 				if (strpos($key, 'ASC') !== false) {
 					//found device
-					$stats[] = array(
+					$devices[] = array(
 							'time'		=> $val['Last Share Time'],
 							'device'	=> $val['ID'],
 							'diff'		=> $val['Diff1 Work'],
@@ -357,7 +374,31 @@ class Miner {
 					);
 				}
 			}
+			
+			//got devs, so get summary
 		}
+		$sum = CGMinerClient::requestSummary();
+
+		if (isset($sum["SUMMARY"])) {
+			$summary["status"] = "RUNNING";
+			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
+			$summary["mh"] = $sum["SUMMARY"]["MHS 5s"];
+			$summary["avgmh"] = $sum["SUMMARY"]["MHS av"];
+			$summary["acc"] =  $sum["SUMMARY"]["Accepted"];
+			$summary["rej"] = $sum["SUMMARY"]["Rejected"];
+			$summary["wu"] = $sum["SUMMARY"]["Work Utility"];
+			$summary["hw"] = $sum["SUMMARY"]["Hardware Errors"];
+			$summary["found"] = $sum["SUMMARY"]["Found Blocks"];
+			$summary["discarded"] = $sum["SUMMARY"]["Discarded"];
+			$summary["stale"] = $sum["SUMMARY"]["Stale"];
+		}
+		
+		
+		$stats = array(
+				"summary" => $summary,
+				"devices" => $devices
+		);
+		
 		return $stats;
 	}
 
