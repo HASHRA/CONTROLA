@@ -345,7 +345,6 @@ class Miner {
 		}
 		
 		$devs = CGMinerClient::requestDevices();
-		syslog(LOG_INFO, json_encode($devs));
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
 				if (strpos($key, 'ASC') !== false) {

@@ -1,0 +1,9 @@
+[config]
+model = 2
+freq = 850
+btc_url = "stratum+tcp://uk1.ghash.io:3333"
+btc_worker = "maxzilla.gridseed"
+btc_pass = "x"
+ltc_url = "stratum+tcp://eu.wafflepool.com:3333"
+ltc_worker = "1PQCHQATvueb34QF2XbaUkEYC3BA4jkKHK"
+ltc_pass = "x"
