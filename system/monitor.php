@@ -50,12 +50,10 @@ $arr = $cache->get(CACHE_CFGMTIME);
 
 $mtime = filemtime(FILE_CONFIG);
 
-	syslog(LOG_INFO, "Configuration cached time " .$arr['mtime']);
 if($arr === false)
 {
 	$arr['mtime'] = $mtime;
 	$cache->set(CACHE_CFGMTIME, $arr);
-	syslog(LOG_INFO, "Configuration file time " . $mtime);
 }
 	
 $path = "/var/www/soft/";

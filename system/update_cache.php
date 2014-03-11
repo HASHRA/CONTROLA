@@ -8,12 +8,12 @@ class UpdateCache {
 	
 	function device()
 	{
-		syslog(LOG_INFO, "Updating device cache");
+
 		$array = array(
 			'devids'	=> Miner::getAvailableDevice(),
 			'bus'		=> Miner::getUsbBus(),
 		);
-		syslog(LOG_INFO, "Finished device cache");
+
 		$cache = new Cache(PATH_CACHE);
 		$cache->set(CACHE_DEVICE, $array);
 		return;
@@ -21,7 +21,7 @@ class UpdateCache {
 	
 	function process()
 	{
-		syslog(LOG_INFO, "Updating process cache");
+
 		$array = array(
 			'btc'	=> Miner::getRunningBtcProcess(),
 			'ltc'	=> Miner::getRunningLtcProcess(),
@@ -33,7 +33,7 @@ class UpdateCache {
 	
 	function stats()
 	{
-		syslog(LOG_INFO, "Updating stats cache");
+
 		$cache = new Cache(PATH_CACHE);
 		$array = array();
 		$statsMiners = Miner::getCGMinerStats();

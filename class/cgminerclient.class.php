@@ -49,7 +49,6 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			$socket = CGMinerClient::getsock('127.0.0.1', 4001);
 			if ($socket != null)
 			{
-				syslog(LOG_INFO, "Connected to  CGMiner!! ");
 				socket_write($socket, $cmd, strlen($cmd));
 				$line = CGMinerClient::readsockline($socket);
 				socket_close($socket);

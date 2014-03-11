@@ -75,7 +75,6 @@ class Miner {
 			}
 		}
 		sort($devices);
- 		syslog(LOG_INFO," exiting getting available devices");
 		return $devices;
 	}
 	
@@ -83,7 +82,6 @@ class Miner {
 	// Get Bus:Dev from miners
 	function getUsbBus()
 	{
-		syslog(LOG_INFO, "Fetching USB bus");
 		$array = array();
 		$temp = false;
 		exec('lsusb -d  "0483:5740" | awk \'{print $2,":", $4}\'', $lines);
@@ -97,16 +95,13 @@ class Miner {
 				$array[] = $cBus.":".$cDev;
 			}
 		}
-		syslog(LOG_INFO, memory_get_usage(true). " > Found USB devices hello " . count($array));
 		sort($array);
-		syslog(LOG_INFO, memory_get_usage(true). " > sorted");
 		return $array;
 	}
 	
 	// Running BTC miners
 	function getRunningBtcProcess()
 	{
-		syslog(LOG_INFO, "Getting Running BTC Processes");
 		$process = array();
 		exec("ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'", $lines);
 		if(!empty($lines))
@@ -236,19 +231,16 @@ class Miner {
 			{
 				
 				//get answer from cgminerclient
-				syslog(LOG_INFO, "Requesting devices from cgminer");
 				$devs = CGMinerClient::requestDevices();
 				
 				if(is_iterable($devs))
 				{
 					$devids = array();
-					syslog(LOG_INFO, "found " . count($devs) . " devices");
 					foreach ($devs as $key=>$val) {
 						if (strpos($key,'ASC') !== false){
 							$devids[] = $val['ID'];
 						}
 					}
-					syslog(LOG_INFO, "Continuing process");
 					$is_run = true;
 					break;
 				}
@@ -315,14 +307,13 @@ class Miner {
 		}
 		syslog(LOG_INFO, "Shutting down LTC process with this command: " . $cmd);
 		$executed = exec($cmd , $out);
-		syslog(LOG_INFO, "LTC Process shut down with return code ". json_encode($out));
 		return $executed;
 	}
 	
 	// BTC stats
 	function getCGMinerStats()
 	{
-		syslog(LOG_INFO, "Getting CGMiner stats");
+		
 		
 		$summary = array (
 			"status" => "OFFLINE",
@@ -338,17 +329,20 @@ class Miner {
 			"discarded" => 0,
 			"stale" => 0
 		);
+		
+		$devices = array();
+		
+		$stats = array(
+				"summary" => $summary,
+				"devices" => $devices
+		);
+		
 		$ltcProc = Miner::getRunningLtcProcess();
 		$btcProc = Miner::getRunningBtcProcess();
 		
 		if (count($ltcProc) == 0 && count($btcProc) == 0){
-			syslog(LOG_INFO, "No mining processes running, waiting for another time");
 			return $stats;
 		}
-		
-		syslog(LOG_INFO, "Found a live CGMINER process, getting stats");
-		
-		$devices = array();
 		
 		$devs = CGMinerClient::requestDevices();
 		if (is_iterable($devs)) {
@@ -383,12 +377,6 @@ class Miner {
 			$summary["discarded"] = $sum["SUMMARY"]["Discarded"];
 			$summary["stale"] = $sum["SUMMARY"]["Stale"];
 		}
-		
-		
-		$stats = array(
-				"summary" => $summary,
-				"devices" => $devices
-		);
 		
 		return $stats;
 	}
