@@ -154,11 +154,11 @@ if(!empty($devices))
 			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>Scrypt Miner '.$devid.' </div> <a href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 		}
 		else
 		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.$devid.' </div> <a href="#'.$devid.'"> Offline :(</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a href="#'.$devid.'"> Offline :(</a></div>';
 			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
@@ -280,7 +280,6 @@ if(isset($_GET["i"]))
                         </li>
                         <li id ="stat-stale" class="stat col-md-3 col-sm-3 col-xs-6">
                             <span><b class="value">LOADING..</b> Work stale</span>
-                            <em>LOADING..</em>
                         </li>
                         <li id = "stat-hw" class="stat col-md-3 col-sm-3 col-xs-6">
                             <span><b class="value">LOADING..</b> Hardware errors</span>
@@ -288,6 +287,16 @@ if(isset($_GET["i"]))
                     </ul>
                 </div>
             </div>
+        	
+        	<?php if ($runmode == "SHA256" || $runmode == "DUAL") {?>
+                    <div class="jumbotron">
+                        <h1>SHA256 Mining Active</h1>
+                        <p>Per device mining statistics are currently not available when mining in SHA256 or DUAL Mode</p>
+                        <p>Sorry for this. We are still working on it.</p>
+                    </div> 
+                <div class="panel-body">
+                </div>
+           <?php }?>
         
             <div class="panel ">
             	 <?php if ($runmode == "SCRYPT" || $runmode == "DUAL") {?>
@@ -296,14 +305,6 @@ if(isset($_GET["i"]))
                 </div>
                 <div class="panel-body">
                 	<?php echo $table ?>
-                </div>
-                <?php }?>
-                <?php if ($runmode == "SHA256" || $runmode == "DUAL") {?>
-                <div class="panel-heading">
-                    <h3 class="panel-title">SHA256 Miners hashrate <b id="btc_totalhash" class="value"><?php echo $totalhashbtc ?></b> Gh/s</h3>
-                </div>
-                <div class="panel-body">
-                	<?php echo $tablebtc ?>
                 </div>
                 <?php }?>
             	<div class="panel-heading">
@@ -334,7 +335,7 @@ if(isset($_GET["i"]))
 		                </div>
 		                <div class="form-group">
 		                    <label for="ltc_worker">Scrypt worker name</label>
-		                    <input class="form-control" id="ltc_worker" name="ltc_worker" value="<?php echo $ltc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
+		                    <input class="form-control" id="ltc_worker" name="ltc_worker" value="<?php echo $ltc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address.">
 		                </div> 
 		                <div class="form-group">
 		                    <label for="ltc_pass">Scrypt worker password</label>
@@ -352,7 +353,7 @@ if(isset($_GET["i"]))
 								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
 		                     </select>
 		                </div>
-		                <div class="form-group" style="display:none">
+		                <div class="form-group">
 		                	<div class="checkbox">
 		                        <label>
 		                            <input type="checkbox" name="ltc_enable" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> >
@@ -360,9 +361,8 @@ if(isset($_GET["i"]))
 		                        </label>
 		                    </div>
 		                </div>
-		                <button type="submit" class="btn btn-primary">Save and restart</button>
-                </div>
-                <!-- 
+		                
+                </div> 
                 
                  <div class="panel-heading">
                 	 <h4 class="panel-title">BTC pool configuration</h4>
@@ -374,7 +374,7 @@ if(isset($_GET["i"]))
 		                </div>
 		                <div class="form-group">
 		                    <label for="btc_worker">BTC worker name</label>
-		                    <input class="form-control" id="btc_worker" name="btc_worker" value="<?php echo $btc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address. This field is a comma delimited list! Ideally one should assign each miner a different worker name.">
+		                    <input class="form-control" id="btc_worker" name="btc_worker" value="<?php echo $btc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address.">
 		                </div> 
 		                <div class="form-group">
 		                    <label for="btc_pass">SHA256 worker password</label>
@@ -390,7 +390,6 @@ if(isset($_GET["i"]))
 		                </div>
 		                <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div>
-                 -->
                 </form>
                 </div>
             </div>

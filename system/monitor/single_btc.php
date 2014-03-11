@@ -9,6 +9,13 @@ $process	= $GLOBALS['process'];
 
 openlog("single_btc_monitor", LOG_PID, LOG_LOCAL0);
 
+$hasRunningLTCProc = count(Miner::getRunningLtcProcess()) > 0;
+
+if ($hasRunningLTCProc) {
+	syslog(LOG_INFO, "Running LTC Process found, shutting down");
+	Miner::shutdownLtcProc();
+}
+
 $count = 0;
 foreach($process['btc'] as $pid => $proc) {
 	$count++;
@@ -22,12 +29,12 @@ foreach($process['btc'] as $pid => $proc) {
 if(empty($process['btc']) && !empty($devices['bus'])) {
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
-	$stats = $cache->get(CACHE_STATS);
-	$stats['lastcommit']['btc'] = array();
-	$cache->set(CACHE_STATS, $stats);
 	//starting up btc process
 	syslog(LOG_INFO, "Starting single BTC Process");
 	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
+	
+	syslog(LOG_INFO, "Running startup returned this !!!!!! " . json_encode($re));
+	
 	if($re === false) {
 		writeLog("BTC process fails to start");
 		//Miner::restartPower();

@@ -22,13 +22,17 @@ foreach($process['ltc'] as $pid => $proc) {
 //check the elapsed time. restart miners after 2 hours
 
 $stats = $cache->get(CACHE_STATS);
-if (isset($tats["summary"])){
-	$elapsed = intval($stats["summary"]["elapsed"]);
-	if ($elapsed > 3600) {
-		//restart cgminer
-		syslog(LOG_INFO, "Maintenance cgminer restart started");
-		Miner::shutdownLtcProc();
-	}
+// if (isset($stats["summary"])){
+// 	$elapsed = intval($stats["summary"]["elapsed"]);
+// 	if ($elapsed > 3600) {
+// 		//restart cgminer
+// 		syslog(LOG_INFO, "Maintenance cgminer restart started");
+// 		Miner::shutdownLtcProc();
+// 	}
+// }
+if (isset($stats["devices"])) {
+	//monitor devices, restart it when needed
+	Miner::deviceMonitor($stats["devices"]);
 }
 
 if(empty($process['ltc']) && !empty($devices['bus'])) {
@@ -46,4 +50,5 @@ if(empty($process['ltc']) && !empty($devices['bus'])) {
 	//Log
 	writeLog("LTC process startup: Pid={$re['pid']} Worker={$config['ltc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
 }
+
 ?>

@@ -103,7 +103,8 @@ class Miner {
 	function getRunningBtcProcess()
 	{
 		$process = array();
-		exec("ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'", $lines);
+		exec("ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep -v grep | awk '{print $1}'", $lines);
+		syslog(LOG_INFO, "getting running process with : " . "ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'");
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
@@ -160,39 +161,35 @@ class Miner {
 		$cmd = 'sudo screen -dmS SHA256 '. BIN_BTC . " --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
 		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} &";
 		
-		$cache = new Cache(PATH_CACHE);
-		$stats = $cache->get(CACHE_STATSUI);
-		$stats['btc'] = array();
-		$stats['time'] = time();
-		$cache->set(CACHE_STATSUI, $stats);
+		syslog(LOG_INFO, "starting BTC proc with this command : ". $cmd);
 		
+		$cache = new Cache(PATH_CACHE);
+		
+		syslog(LOG_INFO, "waiting for 10 seconds");
 		$p = popen($cmd, 'r');
 		pclose($p);
+		
 		usleep(100000);
-		exec('ps | grep ' . BIN_BTC . ' | grep -v grep | awk \'{print $1}\'', $out);
+		exec('ps agx | grep ' . BIN_BTC . ' | grep -v grep | awk \'{print $1}\'', $out);
 		if(!empty($out))
 		{
+			syslog(LOG_INFO, " BTC Process executed, waiting for start up  ");
 			$pid = intval(trim($out[0]));
 			$waitsec = 120;
 			$is_run = false;
 			while($waitsec > 0)
 			{
 				//get answer from cgminerclient
-				$devs = CGMinerClient::requestDevices();
-				if(is_iterable($devs))
+				$summary = CGMinerClient::requestSummary();
+				if(count($summary) > 0)
 				{
-					$devids = array();
-					foreach ($devs as $key=>$val) {
-						if (strpos($key,'ASC') !== false){
-							$devids[] = $val['ID'];
-						}
-					}
+					syslog(LOG_INFO, "Connected to BTC miner, process running"); 
 					$is_run = true;
 					break;
 				}
 				$waitsec--;
 				sleep(1);
-			}
+			} 
 			if(!$is_run)
 			{
 				exec("kill -9 {$pid}");
@@ -221,7 +218,7 @@ class Miner {
 		
 		syslog(LOG_INFO, "Started LTC PRocess waiting 10 seconds to boot cgminer");
 		usleep(100000);
-		exec('ps | grep ' . BIN_LTC . ' | grep sudo | grep -v grep | awk \'{print $1}\'', $out);
+		exec('ps agx | grep ' . BIN_LTC . ' | grep sudo | grep -v grep | awk \'{print $1}\'', $out);
 		if(!empty($out))
 		{
 			$pid = intval(trim($out[0]));
@@ -355,7 +352,8 @@ class Miner {
 							'diff'		=> $val['Diff1 Work'],
 							'hashrate'  => $val['MHS 5s'] * 1000,
 							'valid'		=> $val['Accepted'],
-							'invalid'	=> $val['Rejected']
+							'invalid'	=> $val['Rejected'],
+							'enabled'	=> $val["Enabled"]
 					);
 				}
 			}
@@ -385,6 +383,28 @@ class Miner {
 		);
 		
 		return $stats;
+	}
+	
+	function deviceMonitor ($devs) {
+		$deviceFreezeTime = 450; //7,5 minutes
+		
+		if (isset($devs) && is_iterable($devs)) {
+			foreach ($devs as $dev) {
+				$enabled = ($dev["enabled"] === 'Y') ? true : false;
+				if(!$enabled) {
+					//was disabled before, so enable it.
+					syslog(LOG_INFO, "Found a sleeping device, starting..");
+					CGMinerClient::enableDevice($dev["device"]);
+				}else{
+					//check if the devices lastcommit has been stale
+					$lastCommitTime = intval($dev["time"]);
+					if (($lastCommitTime > 0) && (time() - $lastCommitTime) > $deviceFreezeTime){
+						syslog(LOG_INFO, "Lazy miner, restarting..");
+						CGMinerClient::disableDevice($dev["device"]);
+					}	
+				}
+			}
+		}
 	}
 
 }

@@ -109,6 +109,14 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 		return null;
 		}
 		
+		function disableDevice($devid) {
+			return CGMinerClient::request("ascdisable|".$devid); 
+		}
+		
+		function enableDevice($devid) {
+			return CGMinerClient::request("ascenable|".$devid);
+		}
+		
 		function requestDevices() {
 			return CGMinerClient::request("devs");
 		}
