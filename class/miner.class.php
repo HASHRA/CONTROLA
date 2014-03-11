@@ -345,6 +345,7 @@ class Miner {
 		}
 		
 		$devs = CGMinerClient::requestDevices();
+		syslog(LOG_INFO, json_encode($devs));
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
 				if (strpos($key, 'ASC') !== false) {
@@ -377,6 +378,12 @@ class Miner {
 			$summary["discarded"] = $sum["SUMMARY"]["Discarded"];
 			$summary["stale"] = $sum["SUMMARY"]["Stale"];
 		}
+		
+		
+		$stats = array(
+				"summary" => $summary,
+				"devices" => $devices
+		);
 		
 		return $stats;
 	}
