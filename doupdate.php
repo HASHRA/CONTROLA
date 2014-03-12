@@ -24,7 +24,9 @@ Wait for it!!!.....Close this dialog at your own risk!<br/>
 		
 		require 'config/define.php';
 		echo "Update completed! you now have version <strong> ". VERSION ." </strong><br/>";
-		exec("sudo reboot");
+		
+		flush();
+		ob_flush();
 	?>
 
 	The system is rebooting, when you close this dialog, you will be redirected to the homepage. <br/>
@@ -32,6 +34,14 @@ Wait for it!!!.....Close this dialog at your own risk!<br/>
 <script type="text/javascript">
 $("#update-button-close").html("Ah, updated, you can close me now");
 $("#update-button-close").removeAttr('disabled');
+
+<?php 
+	flush();
+	ob_flush();
+	
+	exec("sudo reboot");
+	
+	?>
 
 </script>
 
