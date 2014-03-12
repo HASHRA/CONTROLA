@@ -236,7 +236,7 @@ if(isset($_GET["i"]))
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">CONTROLA</h3>
+        <h3 class="header-title">CONTROLA </h3>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
     </div>
 </div>
@@ -316,6 +316,7 @@ if(isset($_GET["i"]))
 		                    <textarea class="form-control log" rows="4"><?php echo $syslog ?>
 		                    </textarea>
 		            </div>
+		            <em>version : <?php echo VERSION?></em>
 	            </div>
 	        
                 
@@ -398,10 +399,10 @@ if(isset($_GET["i"]))
 
 </div>
 <!-- END: CONTENT -->
-                </section>
+
             </div>
             <!-- END: BODY -->
-        </div>
+   
 
         <script>
 			//update stats script

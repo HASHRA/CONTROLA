@@ -4,7 +4,7 @@ require_once PATH_CLASS . '/miner.class.php';
 require_once PATH_CLASS . '/cache.class.php';
 
 $proc_count = 0;
-exec("ps | grep monitor.php | grep -v grep", $out);
+exec("ps agx | grep monitor.php | grep -v grep", $out);
 if(!empty($out))
 {
 	$proc_count = count($out);

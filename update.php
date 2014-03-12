@@ -57,7 +57,7 @@
 							}
 		                	?>
 		               </div>
-					 <a href="doupdate.php" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+					 <a class="btn btn-primary"  href="doupdate.php" data-toggle="modal" data-target="#myModal">
                         Update!
                     </a>
                 </div>
@@ -65,16 +65,23 @@
         </div>
     </div>
 </div>
-<div id="myModal" class="modal hide fade in">
-    <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h3>Update console</h3>
-    </div>
-    <div class="modal-body"></div>
-    <div class="modal-footer">
-        <input type="submit" class="btn btn-success" value="Save"/>
-    </div>
-</div>
+ <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+<!--                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+                                    <h4 class="modal-title" id="myModalLabel">Updating... Please be quiet</h4>
+                                </div>
+                                <div class="modal-body">
+                                   
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="update-button-close" class="btn btn-default" disabled data-dismiss="modal">Cannot close this yet!</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
 <!-- END: CONTENT -->
                 </section>
             </div>

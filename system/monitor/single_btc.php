@@ -33,8 +33,6 @@ if(empty($process['btc']) && !empty($devices['bus'])) {
 	syslog(LOG_INFO, "Starting single BTC Process");
 	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
 	
-	syslog(LOG_INFO, "Running startup returned this !!!!!! " . json_encode($re));
-	
 	if($re === false) {
 		writeLog("BTC process fails to start");
 		//Miner::restartPower();

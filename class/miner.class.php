@@ -104,7 +104,6 @@ class Miner {
 	{
 		$process = array();
 		exec("ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep -v grep | awk '{print $1}'", $lines);
-		syslog(LOG_INFO, "getting running process with : " . "ps agx | grep " . BIN_BTC . " | grep -v SCREEN | grep -v scrypt | grep sudo | grep -v grep | awk '{print $1}'");
 		if(!empty($lines))
 		{
 			foreach($lines as $line)
@@ -161,8 +160,6 @@ class Miner {
 		$cmd = 'sudo screen -dmS SHA256 '. BIN_BTC . " --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
 		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} &";
 		
-		syslog(LOG_INFO, "starting BTC proc with this command : ". $cmd);
-		
 		$cache = new Cache(PATH_CACHE);
 		
 		syslog(LOG_INFO, "waiting for 10 seconds");
@@ -173,7 +170,6 @@ class Miner {
 		exec('ps agx | grep ' . BIN_BTC . ' | grep -v grep | awk \'{print $1}\'', $out);
 		if(!empty($out))
 		{
-			syslog(LOG_INFO, " BTC Process executed, waiting for start up  ");
 			$pid = intval(trim($out[0]));
 			$waitsec = 120;
 			$is_run = false;
