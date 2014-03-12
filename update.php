@@ -30,6 +30,7 @@
     </div>
 </div>
 
+
 <!-- CONTENT -->
 <div class="main-content">
 	 <div class="row">
@@ -57,7 +58,7 @@
 							}
 		                	?>
 		               </div>
-					 <a class="btn btn-primary"  href="doupdate.php" data-toggle="modal" data-target="#myModal">
+					 <a class="btn btn-primary" id="updateLink" href="#">
                         Update!
                     </a>
                 </div>
@@ -73,8 +74,8 @@
 <!--                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
                                     <h4 class="modal-title" id="myModalLabel">Updating... Please be quiet</h4>
                                 </div>
-                                <div class="modal-body">
-                                   
+                                <div id="modalContent" class="modal-body">
+                                   Loading... close this dialog at your own risk.
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" id="update-button-close" class="btn btn-default" disabled data-dismiss="modal">Cannot close this yet!</button>
@@ -87,7 +88,28 @@
             </div>
             <!-- END: BODY -->
         </div>
-
+        
+        
        <?php include 'includes/footer.php';?>
+       
+         <script>
+        $('#updateLink').click(function(e) {
+
+    		
+      	  e.preventDefault();
+        	  var url = 'doupdate.php'
+        	  $("#myModal").modal({
+					backdrop:'static'
+            	  });
+        	  $("#myModal").on("hidden.bs.modal" , function () {
+            	  	setTimeout(function(){
+							document.location.href = 'index.php';
+                	  	}, 10000);
+            	  });
+        	  $.get(url, function(data) {
+        	      $('#modalContent').html(data);
+        	  });
+        	});
+        </script>
     </body>
 </html>
