@@ -354,7 +354,7 @@ if(isset($_GET["i"]))
 								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
 		                     </select>
 		                </div>
-		                <div class="form-group">
+		                <div class="form-group" style="display:none">
 		                	<div class="checkbox">
 		                        <label>
 		                            <input type="checkbox" name="ltc_enable" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> >
@@ -362,13 +362,13 @@ if(isset($_GET["i"]))
 		                        </label>
 		                    </div>
 		                </div>
-		                
+		                <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div> 
                 
-                 <div class="panel-heading">
+                 <div class="panel-heading" style="display: none">
                 	 <h4 class="panel-title">BTC pool configuration</h4>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" style="display:none">
 		                <div class="form-group">
 		                    <label for="btc_url">BTC Pool address</label>
 		                    <input class="form-control" id="btc_url" name="btc_url" placeholder="stratum+tcp://..." value="<?php echo $btc_url?>"  data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
