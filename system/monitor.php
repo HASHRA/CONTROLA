@@ -3,20 +3,9 @@ require_once '/var/www/config/define.php';
 require_once PATH_CLASS . '/miner.class.php';
 require_once PATH_CLASS . '/cache.class.php';
 
-$proc_count = 0;
-exec("ps agx | grep monitor.php | grep -v grep", $out);
-if(!empty($out))
-{
-	$proc_count = count($out);
-}
-if($proc_count > 1)
-{
-	exit;
-}
 
 define('DEF_MONITOR', 1);
 $cache = new Cache(PATH_CACHE);
-
 array_shift($_SERVER['argv']);
 if(!empty($_SERVER['argv']))
 {
@@ -30,8 +19,8 @@ if(!empty($_SERVER['argv']))
 				$cache->set(CACHE_RUNTIME, false);
 				$cache->set(CACHE_STATS, false);
 				$cache->set(CACHE_STATSUI, false);
-				writeLog("Initializing... please wait");
-				return;
+				//writeLog("Initializing... please wait");
+				//return;
 			}
 		}
 	}
@@ -90,6 +79,7 @@ if($arr['mtime'] != $mtime)
 $process = $cache->get(CACHE_PROCESS);
 
 $devices = $cache->get(CACHE_DEVICE);
+
 
 if(empty($devices['bus']))
 {
