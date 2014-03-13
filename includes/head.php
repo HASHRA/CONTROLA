@@ -20,6 +20,14 @@
         <link href="scripts/vendor/fullcalendar/fullcalendar.css" rel="stylesheet" />
         <link href="scripts/vendor/fullcalendar/fullcalendar.print.css" rel="stylesheet" media="print" />
         <link href="scripts/css/ark.css" rel="stylesheet" type="text/css" />
+        <script src="https://google-code-prettify.googlecode.com/svn/loader/prettify.js"></script>
+        
+                <script src="scripts/vendor/jquery/jquery.min.js"></script>
+        <script src="scripts/vendor/jquery-ui/js/jquery-ui.min.js"></script>
+        <script src="scripts/vendor/jquery.uniform/jquery.uniform.min.js"></script>
+        <script src="scripts/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="scripts/vendor/bootstrap-jasny/dist/extend/js/jasny-bootstrap.min.js"></script>
+        <script src="scripts/vendor/jquery-autosize/jquery.autosize.min.js"></script>
 
         		<!-- Remove this line on production-->
         		<link href="scripts/css/examples.css" rel="stylesheet" type="text/css" />
@@ -36,5 +44,14 @@
             		font-size: 9;
             	}
             </style>
+            
+            <script type="text/javascript">
+            ! function ($) {
+                $(function () {
+                    window.prettyPrint && prettyPrint();
+                })
+            }(window.jQuery)
+            </script>
+            
             </head>
 

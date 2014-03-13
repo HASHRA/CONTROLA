@@ -321,7 +321,7 @@ if(isset($_GET["i"]))
 		        	<div class="form-group">
 		                    <label>Log</label>
 		                    
-		                    <pre id="logger" class="prettyprint linenumbers" style="overflow:auto;">
+		                    <pre id="logger" class="prettyprint linenum" style="overflow:auto;height:100px">
 		                    	Loading...
 		                    </pre>
 		                    
@@ -471,7 +471,9 @@ if(isset($_GET["i"]))
 								
 							}) ;
 				
-				$("#logger").load("syslogreader.php");
+				$("#logger").load("syslogreader.php", function() {
+					prettyPrint();
+					});
 			}
 
 			updateScreen();
