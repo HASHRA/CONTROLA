@@ -35,7 +35,7 @@ if (isset($stats["devices"])) {
 	Miner::deviceMonitor($stats["devices"]);
 }
 
-if(empty($process['ltc']) && !empty($devices['bus'])) {
+if(count(Miner::getRunningLtcProcess()) == 0 && !empty($devices['bus'])) {
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
 
