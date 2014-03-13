@@ -18,9 +18,10 @@ Wait for it!!!.....Close this dialog at your own risk!<br/>
 		flush();
 		ob_flush();
 		exec('sudo cp -Rfv /var/tmp/updatework/* /var/www');
+		exec('sudo chmod -R 755 /var/www/soft');
 		flush();
 		ob_flush();
-		exec('sudo rm -rf /var/www/git; sudo rm -rf /var/www/.git');
+		exec('sudo rm -rf /var/www/git; sudo rm -rf /var/www/.git; sudo rm -rf /var/tmp/updatework');
 		
 		require 'config/define.php';
 		echo "Update completed! you now have version <strong> ". VERSION ." </strong><br/>";

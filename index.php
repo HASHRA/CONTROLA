@@ -107,7 +107,7 @@ if($_POST)
 		}
 		else
 		{
-			exec('wget http://localhost/system/monitor.php');
+			exec('wget http://localhost/system/monitor.php > /dev/null');
 			header('Location: /?i=2');
 			exit;
 		}
@@ -140,7 +140,7 @@ if(!empty($devices))
 	$tablebtc = "";
 
 	$statsui = Miner::getCGMinerStats();
-	foreach($statsui as $stat)
+	foreach($statsui["devices"] as $stat)
 	{
 		$totalhash += $stat["hashrate"];
 	}
@@ -245,9 +245,16 @@ if(isset($_GET["i"]))
 <div class="main-content">
 
 	 <div class="row">
-
 	 	
         <div class="col-md-6">
+        
+        <?php if(isset($_GET["i"])) {?>
+		<div class="alert alert-success">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <i class="fa fa-check-circle"></i>
+                          <?php  echo $info ?>
+       </div>
+       <?php }?>
         
         <div class="panel">
         		<div class="panel-heading">
@@ -313,8 +320,11 @@ if(isset($_GET["i"]))
             	<div class="panel-body">
 		        	<div class="form-group">
 		                    <label>Log</label>
-		                    <textarea class="form-control log" rows="4"><?php echo $syslog ?>
-		                    </textarea>
+		                    
+		                    <pre id="logger" class="prettyprint linenumbers" style="overflow:auto;">
+		                    	Loading...
+		                    </pre>
+		                    
 		            </div>
 		            <em>version : <?php echo VERSION?></em>
 	            </div>
@@ -401,10 +411,9 @@ if(isset($_GET["i"]))
 <!-- END: CONTENT -->
 
             </div>
-            <!-- END: BODY -->
-   
-
-        <script>
+            <!-- END: BODY --> 
+       <?php include 'includes/footer.php';?>
+       <script>
 			//update stats script
 			function updateScreen() {
 				$.ajax({
@@ -461,13 +470,16 @@ if(isset($_GET["i"]))
 								$("#stat-state").html(data.Summary.elapsed + " seconds ");
 								
 							}) ;
+				
+				$("#logger").load("syslogreader.php");
 			}
-			
+
+			updateScreen();
 			setInterval(function(){
 					updateScreen();
 				}, 5000);
+
+			
         </script>
-        
-       <?php include 'includes/footer.php';?>
     </body>
 </html>

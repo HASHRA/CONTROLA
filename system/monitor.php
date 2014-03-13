@@ -6,24 +6,26 @@ require_once PATH_CLASS . '/cache.class.php';
 
 define('DEF_MONITOR', 1);
 $cache = new Cache(PATH_CACHE);
-array_shift($_SERVER['argv']);
-if(!empty($_SERVER['argv']))
-{
-	foreach($_SERVER['argv'] as $arg)
+if(isset($_SERVER['argv'])){
+	array_shift($_SERVER['argv']);
+	if(!empty($_SERVER['argv']))
 	{
-		list($key, $value) = explode("=", $arg);
-		if($key == "c")
+		foreach($_SERVER['argv'] as $arg)
 		{
-			if($value == 0)
+			list($key, $value) = explode("=", $arg);
+			if($key == "c")
 			{
-				$cache->set(CACHE_RUNTIME, false);
-				$cache->set(CACHE_STATS, false);
-				$cache->set(CACHE_STATSUI, false);
-				//writeLog("Initializing... please wait");
-				//return;
+				if($value == 0)
+				{
+					$cache->set(CACHE_RUNTIME, false);
+					$cache->set(CACHE_STATS, false);
+					$cache->set(CACHE_STATSUI, false);
+					//writeLog("Initializing... please wait");
+					//return;
+				}
 			}
 		}
-	}
+	}	
 }
 
 if(!file_exists(FILE_CONFIG))
