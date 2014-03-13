@@ -2,7 +2,7 @@
 
 error_reporting(E_ALL ^ E_STRICT);
 
-define('VERSION' , '1.0');
+define('VERSION' , '1.0.1');
 
 //è¾“å‡ºè°ƒè¯•ä¿¡æ�¯
 //define('DEBUG', true);
