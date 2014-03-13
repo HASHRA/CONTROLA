@@ -389,14 +389,14 @@ class Miner {
 				$enabled = ($dev["enabled"] === 'Y') ? true : false;
 				if(!$enabled) {
 					//was disabled before, so enable it.
-					syslog(LOG_INFO, "Found a sleeping device, starting..");
-					CGMinerClient::enableDevice($dev["device"]);
+					//syslog(LOG_INFO, "Found a sleeping device, starting..");
+					//CGMinerClient::enableDevice($dev["device"]);
 				}else{
 					//check if the devices lastcommit has been stale
 					$lastCommitTime = intval($dev["time"]);
 					if (($lastCommitTime > 0) && (time() - $lastCommitTime) > $deviceFreezeTime){
-						syslog(LOG_INFO, "Lazy miner, restarting..");
-						CGMinerClient::disableDevice($dev["device"]);
+						//syslog(LOG_INFO, "Lazy miner, restarting..");
+						//CGMinerClient::disableDevice($dev["device"]);
 					}	
 				}
 			}
