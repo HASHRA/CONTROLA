@@ -157,7 +157,7 @@ class Miner {
 	// Start BTC miner
 	function startupBtcProc($url, $worker, $password, $freq, $cores = 0)
 	{
-		$cmd = 'sudo screen -dmS SHA256 '. BIN_BTC . " --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
+		$cmd = 'sudo screen -dmS SHA256 '. BIN_BTC . " --api-listen --syslog --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
 		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} &";
 		
 		$cache = new Cache(PATH_CACHE);
@@ -198,7 +198,7 @@ class Miner {
 	// Start LTC miner
 	function startupLtcProc($url, $worker, $password, $freq)
 	{
-		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --scrypt --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options freq={$freq}";
+		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --scrypt --syslog --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options freq={$freq}";
 		$cmd .= " -o {$url} -u {$worker} -p {$password} &";
 		
 		$cache = new Cache(PATH_CACHE);
