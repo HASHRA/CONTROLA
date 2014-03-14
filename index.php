@@ -314,22 +314,7 @@ if(isset($_GET["i"]))
                 	<?php echo $table ?>
                 </div>
                 <?php }?>
-            	<div class="panel-heading">
-                	 <h4 class="panel-title">System logs:</h4>
-                </div>
-            	<div class="panel-body">
-		        	<div class="form-group">
-		                    <label>Log</label>
-		                    
-		                    <pre id="logger" class="prettyprint linenum" style="white-space:nowrap; overflow:auto;height:150px">
-		                    	Loading...
-		                    </pre>
-		                    
-		            </div>
-		            <em>version : <?php echo VERSION?></em>
-	            </div>
-	        
-                
+
             </div>
             
         </div>
@@ -402,6 +387,22 @@ if(isset($_GET["i"]))
 		                <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div>
                 </form>
+                </div>
+                <div class="panel">
+                <div class="panel-heading">
+                	 <h4 class="panel-title">System logs:</h4>
+                </div>
+            	<div class="panel-body">
+		        	<div class="form-group">
+		                    <label>Log</label>
+		                    
+		                    <pre id="logger" class="prettyprint linenum" style="white-space:nowrap; overflow:auto;height:150px">
+		                    	Loading...
+		                    </pre>
+		                    
+		            </div>
+		            <em>version : <?php echo VERSION?></em>
+	            </div>
                 </div>
             </div>
         </div>
