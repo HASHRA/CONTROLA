@@ -25,8 +25,8 @@
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">Update Script</h3>
-        <p class="header-info">Firmware update</p>
+        <h3 class="header-title">CONTROLA </h3>
+        <p class="header-info"></p>
     </div>
 </div>
 
@@ -59,7 +59,7 @@
 		                	?>
 		               </div>
 					 <a class="btn btn-primary" id="updateLink" href="#">
-                        Update!
+                        Update me
                     </a>
                 </div>
             </div>
@@ -73,10 +73,10 @@
                             <div class="modal-content">
                                 <div class="modal-header">
 <!--                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
-                                    <h4 class="modal-title" id="myModalLabel">Updating... Please be quiet</h4>
+                                    <h4 class="modal-title" id="myModalLabel">I'm now updating… Please wait for me.</h4>
                                 </div>
                                 <div id="modalContent" class="modal-body">
-                                   Loading... close this dialog at your own risk.
+                                   Please hold on… Do not close this dialog box before I'm finished, Thanks.
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" id="update-button-close" class="btn btn-default" disabled data-dismiss="modal">Cannot close this yet!</button>

@@ -15,6 +15,11 @@ body {
   line-height: 1.5;
   background-color: #ffffff;
 }
+
+.minerLink {
+	font-size: 11px;
+}
+
 .wrapper {
   overflow: hidden;
 }
@@ -680,7 +685,7 @@ a:focus {
 }
 .btn.btn-primary:active,
 .btn.btn-primary .active {
-  background-color: #4489c5;
+  background-color: #ccc;
 }
 .btn.btn-success {
   background-color: #84ce84;
@@ -1063,6 +1068,7 @@ a.list-group-item:focus {
 .navbar-default.navbar-main {
   background-color: #ffffff;
   border-bottom: solid 1px #f7f7f7;
+  border-top: 5px solid black;
   margin: 0 0 0 0;
 }
 .navbar-default.navbar-main span.hidden-small {

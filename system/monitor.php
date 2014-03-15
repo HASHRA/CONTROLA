@@ -75,7 +75,7 @@ if($arr['mtime'] != $mtime)
 	Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
 	writeLog("All process shutdown - monitor (1)");
-	return;
+	sleep(2);
 }
 
 $process = $cache->get(CACHE_PROCESS);

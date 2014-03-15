@@ -1,7 +1,7 @@
 <?php
 header ( 'Content-type: text/html; charset=utf-8' );
 ?>
-Wait for it!!!.....Close this dialog at your own risk!<br/>
+Please hold on… Do not close this dialog box before I'm finished, Thanks.<br/>
 	<?php
 	flush();
 	ob_flush();	
@@ -14,7 +14,7 @@ Wait for it!!!.....Close this dialog at your own risk!<br/>
 		exec ('sudo killall -9 cgminer');
 		usleep('1000');
 		exec('sudo rm -rf /var/tmp/updatework/; sudo mkdir /var/tmp/updatework ; sudo git clone --depth=1 -b pi-controller https://bitbucket.org/purplefox/hashra-public-firmware.git /var/tmp/updatework', $output);
-		echo "done with downloading <br/>";
+		echo "Now done with downloading <br/>";
 		flush();
 		ob_flush();
 		exec('sudo cp -Rfv /var/tmp/updatework/* /var/www');
@@ -24,16 +24,18 @@ Wait for it!!!.....Close this dialog at your own risk!<br/>
 		exec('sudo rm -rf /var/www/git; sudo rm -rf /var/www/.git; sudo rm -rf /var/tmp/updatework');
 		
 		require 'config/define.php';
-		echo "Update completed! you now have version <strong> ". VERSION ." </strong><br/>";
+		echo "Update is completed! you now have version <strong> ". VERSION ." </strong><br/>
+			  System is rebooting. <br/>
+				";
 		
 		flush();
 		ob_flush();
 	?>
 
-	The system is rebooting, when you close this dialog, you will be redirected to the homepage. <br/>
-	<h3>Have a good day.</h3>
+	When you close this dialogue box you will be redirected to the Dashboard in 10 seconds.<br/>
+	<h3>Happy Hashing!</h3>
 <script type="text/javascript">
-$("#update-button-close").html("Ah, updated, you can close me now");
+$("#update-button-close").html("All updated, you can close me now.");
 $("#update-button-close").removeAttr('disabled');
 
 <?php 

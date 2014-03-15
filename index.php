@@ -154,11 +154,11 @@ if(!empty($devices))
 			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a class="minerLink" href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
 		}
 		else
 		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a href="#'.$devid.'"> Offline :(</a></div>';
+			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
 			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
@@ -231,12 +231,12 @@ if(isset($_GET["i"]))
                 <section class="content">
                     
 <ol class="breadcrumb">
-    <li class="active"><i class="fa fa-home fa-fw"></i> Home</li>
+    <li class="active"></li>
 </ol>
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">CONTROLA </h3>
+        <h3 class="header-title">CONTROLA</h3>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
     </div>
 </div>
@@ -419,7 +419,7 @@ if(isset($_GET["i"]))
 			function updateScreen() {
 				$.ajax({
 					  dataType: "json",
-					  url: "ajaxController.php"
+					  url: "ajaxController.php?action=GetStats"
 					}).done(function (data) {
 								var totalHashLTC = 0;
 								for (i = 0 ; i < data.LTCDevices.length ; i++) {
@@ -468,11 +468,11 @@ if(isset($_GET["i"]))
 								$("#stat-discarded b.value").html(data.Summary.discarded);
 								$("#stat-stale b.value").html(data.Summary.stale);
 								$("#stat-hw b.value").html(data.Summary.hw);
-								$("#stat-state").html(data.Summary.elapsed + " seconds ");
+								$("#stat-state").html(parseTime(data.Summary.elapsed));
 								
 							}) ;
 				
-				$("#logger").load("syslogreader.php", function() {
+				$("#logger").load("ajaxController.php?action=GetSysLog", function() {
 					$("#logger").scrollTop($("#logger").prop("scrollHeight"));
 					});
 			}
@@ -482,6 +482,18 @@ if(isset($_GET["i"]))
 					updateScreen();
 				}, 5000);
 
+
+			function parseTime (seconds) {
+				var result = 0
+				if (seconds > 0){
+					var hours = parseInt( seconds / 3600 ) % 24;
+					var minutes = parseInt( seconds / 60 ) % 60;
+					var seconds = seconds % 60;
+					result = (hours < 10 ? "0" + hours : hours) + " hrs " + (minutes < 10 ? "0" + minutes : minutes) + " mins " + (seconds  < 10 ? "0" + seconds : seconds) + " seconds ";
+				}	
+
+				return result;		
+			}
 			
         </script>
     </body>

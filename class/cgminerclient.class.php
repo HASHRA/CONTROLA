@@ -113,6 +113,10 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			return CGMinerClient::request("ascdisable|".$devid); 
 		}
 		
+		function restart() {
+			return CGMinerClient::request("restart");
+		}
+		
 		function enableDevice($devid) {
 			return CGMinerClient::request("ascenable|".$devid);
 		}
