@@ -73,10 +73,10 @@
                             <div class="modal-content">
                                 <div class="modal-header">
 <!--                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
-                                    <h4 class="modal-title" id="myModalLabel">I'm now updating… Please wait for me.</h4>
+                                    <h4 class="modal-title" id="myModalLabel">I'm now updating... Please wait for me.</h4>
                                 </div>
                                 <div id="modalContent" class="modal-body">
-                                   Please hold on… Do not close this dialog box before I'm finished, Thanks.
+                                   Please hold on... Do not close this dialog box before I'm finished, Thanks.
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" id="update-button-close" class="btn btn-default" disabled data-dismiss="modal">Cannot close this yet!</button>
