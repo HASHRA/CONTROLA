@@ -33,7 +33,7 @@ if($_POST)
     $ltc_url = preg_replace('/\s+/', '', $_POST["ltc_url"]);
     $ltc_worker = preg_replace('/\s+/', '', $_POST["ltc_worker"]);
     $ltc_pass = preg_replace('/\s+/', '', $_POST["ltc_pass"]);
-    $ltc_enable = isset($_POST["ltc_enable"]);
+    $ltc_enable = ($_POST["radio_runMode"] == 'ltc');
     if(empty($ltc_url) || empty($ltc_worker) || empty($ltc_pass))
     {
         $valid = false;
@@ -42,7 +42,7 @@ if($_POST)
     $btc_url = preg_replace('/\s+/', '', $_POST["btc_url"]);
     $btc_worker = preg_replace('/\s+/', '', $_POST["btc_worker"]);
     $btc_pass = preg_replace('/\s+/', '', $_POST["btc_pass"]);
-    $btc_enable = isset($_POST["btc_enable"]);
+    $btc_enable = ($_POST["radio_runMode"] == 'btc');
     if(empty($btc_url) || empty($btc_worker) || empty($btc_pass))
     {
         $valid = false;
@@ -263,10 +263,10 @@ if(isset($_GET["i"]))
                 <div class="panel-body">
                     <ul class="col-md-12 stats">
                     	 <li id ="stat-mh" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> Mh/s current hashrate</span>
+                            <span><b class="value">LOADING..</b> <?php if($runmode == "SHA256" || $runmode == "DUAL") {?>G<?php } else {?>M<?php }?>h/s current hashrate</span>
                         </li>
                         <li id ="stat-avgmh" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> Mh/s avg hashrate in last 5m</span>
+                            <span><b class="value">LOADING..</b> <?php if($runmode == "SHA256" || $runmode == "DUAL") {?>G<?php } else {?>M<?php }?>h/s avg hashrate in last 5m</span>
                         </li>
                         <li id ="stat-acc" class="stat col-md-3 col-sm-3 col-xs-6">
                             <span><b class="value">LOADING..</b> Acc./Rej.</span>
@@ -349,21 +349,22 @@ if(isset($_GET["i"]))
 								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
 		                     </select>
 		                </div>
-		                <div class="form-group" style="display:none">
-		                	<div class="checkbox">
-		                        <label>
-		                            <input type="checkbox" name="ltc_enable" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> >
-		                           	Enable
-		                        </label>
+		                <div class="form-group" style="">
+		                	 <div class="form-control-static">
+			                	<div class="radiobox">
+			                        <label>
+			                            <input type="radio" name="radio_runMode" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> value='ltc'>
+			                           	Enable Scrypt mining
+			                        </label>
+			                    </div>
 		                    </div>
 		                </div>
-		                <button type="submit" class="btn btn-primary">Save and restart</button>
                 </div> 
-                
+               
                  <div class="panel-heading" style="display: none">
                 	 <h4 class="panel-title">BTC pool configuration</h4>
                 </div>
-                <div class="panel-body" style="display:none">
+                <div class="panel-body" style="">
 		                <div class="form-group">
 		                    <label for="btc_url">BTC Pool address</label>
 		                    <input class="form-control" id="btc_url" name="btc_url" placeholder="stratum+tcp://..." value="<?php echo $btc_url?>"  data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
@@ -377,14 +378,18 @@ if(isset($_GET["i"]))
 		                    <input class="form-control" id="btc_pass" name="btc_pass" value="<?php echo $btc_pass?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Worker password. Usually ignored by pools">
 		                </div>
 		                <div class="form-group">
-		                	<div class="checkbox">
-		                        <label>
-		                            <input type="checkbox" name="btc_enable" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> >
-		                           	Enable
-		                        </label>
+		                	 <div class="form-control-static">
+			                	<div class="radiobox">
+			                        <label>
+			                            <input type="radio" name="radio_runMode" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> value="btc">
+			                           	Enable SHA256 Mining
+			                        </label>
+			                    </div>
 		                    </div>
 		                </div>
-		                <button type="submit" class="btn btn-primary">Save and restart</button>
+		                <div class="form-group">
+		                	<button type="submit" class="btn btn-primary">Save and restart</button>
+		                </div>
                 </div>
                 </form>
                 </div>
@@ -458,8 +463,8 @@ if(isset($_GET["i"]))
 								$("#btc_totalhash").html(totalHashBTC);	
 
 								//do summary
-								$("#stat-mh b.value").html(data.Summary.mh);
-								$("#stat-avgmh b.value").html(data.Summary.avgmh);
+								$("#stat-mh b.value").html((data.Summary.mh < 1000) ?data.Summary.mh : (data.Summary.mh / 1000).toFixed(2));
+								$("#stat-avgmh b.value").html((data.Summary.avgmh < 1000) ? data.Summary.avgmh : (data.Summary.avgmh / 1000).toFixed(2));
 								$("#stat-acc b.value").html( data.Summary.acc + " / " + data.Summary.rej);
 								$("#stat-acc em").html( (data.Summary.rej / data.Summary.acc * 100).toFixed(2) + " % rejection rate");
 								$("#stat-wu b.value").html(data.Summary.wu);
