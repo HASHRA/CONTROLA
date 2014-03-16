@@ -25,17 +25,6 @@ foreach($process['btc'] as $pid => $proc) {
 		unset($process['btc'][$pid]);
 	}
 }
-//check the elapsed time. restart miners after 2 hours
-
-$stats = $cache->get(CACHE_STATS);
-if (isset($stats["summary"])){
-	$elapsed = intval($stats["summary"]["elapsed"]);
-	if ($elapsed > 7200) {
-		//restart cgminer
-		syslog(LOG_INFO, "Maintenance cgminer restart started");
-		Miner::restartMiner();
-	}
-}
 
 if(empty($process['btc']) && !empty($devices['bus'])) {
 	$runtime = array('runtime' => time());
