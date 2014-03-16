@@ -105,7 +105,7 @@
         	  $("#myModal").on("hidden.bs.modal" , function () {
             	  	setTimeout(function(){
 							document.location.href = 'index.php';
-                	  	}, 10000);
+                	  	}, 20000);
             	  });
         	  $.get(url, function(data) {
         	      $('#modalContent').html(data);
