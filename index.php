@@ -174,10 +174,10 @@ if(!empty($devices))
 // {
 	
 	
-// 	//btc part
+	//btc part
 	
-// 	foreach($devices as $devid)
-// 	{
+	foreach($devices["devids"]  as $devid)
+	{
 	
 // 		$hash = isset($btcstatsui[$devid]["hashrate"]) ? $btcstatsui[$devid]["hashrate"] : 0;
 // 		$valids = isset($btcstatsui[$devid]["valid"]) ? $btcstatsui[$devid]["valid"] : 0;
@@ -185,11 +185,11 @@ if(!empty($devices))
 // 		$totals = $valids + $invalids;
 // 		$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
 	
-// 		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/10) * 100).'" data-bar-color="#1F8A70"><span><b class="value"> '.$hash.' </b> Gh/s</span></div><div>BTC Miner '.$devid.' </div> <a href="log.php#CGMinerLog">'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
+		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Gh/s</span></div><div>SHA256 Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
 	
-// 		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
+		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
 	
-// 	}
+	}
 	
 	
 
@@ -294,24 +294,22 @@ if(isset($_GET["i"]))
                     </ul>
                 </div>
             </div>
-        	
-        	<?php if ($runmode == "SHA256" || $runmode == "DUAL") {?>
-                    <div class="jumbotron">
-                        <h1>SHA256 Mining Active</h1>
-                        <p>Per device mining statistics are currently not available when mining in SHA256 or DUAL Mode</p>
-                        <p>Sorry for this. We are still working on it.</p>
-                    </div> 
-                <div class="panel-body">
-                </div>
-           <?php }?>
-        
             <div class="panel ">
-            	 <?php if ($runmode == "SCRYPT" || $runmode == "DUAL") {?>
+            	 <?php if ($runmode == "SCRYPT") {?>
                 <div class="panel-heading">
                     <h3 class="panel-title">SCRYPT Miners hashrate <b id="ltc_totalhash" class="value"><?php echo $totalhash ?></b> Kh/s</h3>
                 </div>
                 <div class="panel-body">
                 	<?php echo $table ?>
+                </div>
+                <?php }?>
+                
+                <?php if ($runmode == "SHA256") {?>
+                <div class="panel-heading">
+                    <h3 class="panel-title">SHA256 Miners hashrate <b id="btc_totalhash" class="value"><?php echo ($totalhash / 1000000) ?></b> Kh/s</h3>
+                </div>
+                <div class="panel-body">
+                	<?php echo $tablebtc ?>
                 </div>
                 <?php }?>
 
@@ -448,15 +446,15 @@ if(isset($_GET["i"]))
 								for (i = 0 ; i < data.BTCDevices.length ; i++) {
 									var btcdevice = data.BTCDevices[i];
 									if (btcdevice) {
-										var hash = btcdevice.hash;
-										var percentage = (hash / 500) * 100;
+										var hash = (btcdevice.hash/1000000).toFixed(2);
+										var percentage = (hash / 10) * 100;
 										var totals = btcdevice.totals;
 										var valids = btcdevice.valids;
 										var rejrate = btcdevice.rejectrate;
 										$("#" + btcdevice.dev).data('easyPieChart').update(percentage);
 										$("#" + btcdevice.dev + " b.value").html(hash);
 										$("#" + btcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
-										$("#" + btcdevice.dev ).siblings("a").attr("title" , "lastcommit " + btcdevice.lastcommit.toFixed(2) + " minutes ago ");
+										$("#" + btcdevice.dev ).siblings("a").attr("title" , "lastcommit " + btcdevice.lastcommit + " minutes ago ");
 										totalHashBTC += parseInt(hash);
 									}
 								}

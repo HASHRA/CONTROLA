@@ -76,7 +76,7 @@
                                     <h4 class="modal-title" id="myModalLabel">I'm now updating... Please wait for me.</h4>
                                 </div>
                                 <div id="modalContent" class="modal-body">
-                                   Please hold on... Do not close this dialog box before I'm finished, Thanks.
+                                   Please hold on, this may take a couple of minutes...... Do not close this dialog box before I'm finished, Thanks.
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" id="update-button-close" class="btn btn-default" disabled data-dismiss="modal">Cannot close this yet!</button>

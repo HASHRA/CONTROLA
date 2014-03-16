@@ -1,7 +1,7 @@
 <?php
 header ( 'Content-type: text/html; charset=utf-8' );
 ?>
-Please hold on... Do not close this dialog box before I'm finished, Thanks.<br/>
+Please hold on, this may take a couple of minutes... Do not close this dialog box before I'm finished, Thanks.<br/>
 	<?php
 	flush();
 	ob_flush();	
