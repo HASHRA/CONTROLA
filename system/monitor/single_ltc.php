@@ -28,6 +28,7 @@ if (isset($stats["summary"])){
 		//restart cgminer
 		syslog(LOG_INFO, "Maintenance cgminer restart started");
 		Miner::shutdownLtcProc();
+		sleep(2);
 	}
 }
 if (isset($stats["devices"])) {
