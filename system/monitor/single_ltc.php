@@ -24,10 +24,10 @@ foreach($process['ltc'] as $pid => $proc) {
 $stats = $cache->get(CACHE_STATS);
 if (isset($stats["summary"])){
 	$elapsed = intval($stats["summary"]["elapsed"]);
-	if ($elapsed > 7200) {
+	if ($elapsed > 14400) {
 		//restart cgminer
 		syslog(LOG_INFO, "Maintenance cgminer restart started");
-		Miner::restartMiner();
+		Miner::shutdownLtcProc();
 	}
 }
 if (isset($stats["devices"])) {
