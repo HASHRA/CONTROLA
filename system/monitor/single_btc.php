@@ -12,7 +12,7 @@ openlog("single_btc_monitor", LOG_PID, LOG_LOCAL0);
 $hasRunningLTCProc = count(Miner::getRunningLtcProcess()) > 0;
 
 if ($hasRunningLTCProc) {
-	syslog(LOG_INFO, "Running LTC Process found, shutting down");
+	syslog(LOG_INFO, "Running BTC Process found, shutting down");
 	Miner::shutdownLtcProc();
 }
 
