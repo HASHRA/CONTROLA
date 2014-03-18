@@ -33,7 +33,7 @@ if (isset($stats["summary"])){
 }
 if (isset($stats["devices"])) {
 	//monitor devices, restart it when needed
-	Miner::deviceMonitor($stats["devices"]);
+	//Miner::deviceMonitor($stats["devices"]);
 }
 
 if(count(Miner::getRunningLtcProcess()) == 0 && !empty($devices['bus'])) {
