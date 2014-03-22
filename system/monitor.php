@@ -64,7 +64,11 @@ if($ls && !empty($files))
 		}
 	}
 }
-
+$pathBfg = '/var/www/soft/bfg';
+if (! file_exists($pathBfg)){
+	//install bfg
+	exec('sudo mkdir '.$pathBfg.' ; tar -xvf '.$path.'bfg-binary.tar -C '.$path);
+} 
 
 if($arr['mtime'] != $mtime)
 {
