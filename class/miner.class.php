@@ -198,7 +198,7 @@ class Miner {
 	// Start LTC miner
 	function startupLtcProc($url, $worker, $password, $freq)
 	{
-		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --scrypt --syslog --api-listen --api-allow W:0/0 --api-port 4001 --gridseed-options freq={$freq}";
+		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --scrypt --api-allow W:0/0 --api-port 4001 -S gridseed:all --set-device gridseed:clock={$freq} --failover-only";
 		$cmd .= " -o {$url} -u {$worker} -p {$password} &";
 		
 		$cache = new Cache(PATH_CACHE);
@@ -303,8 +303,8 @@ class Miner {
 		return $executed;
 	}
 	
-	// BTC stats
-	function getCGMinerStats()
+	//bfgminer
+	function getBFGMinerStats()
 	{
 		
 		
@@ -340,13 +340,13 @@ class Miner {
 		$devs = CGMinerClient::requestDevices();
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
-				if (strpos($key, 'ASC') !== false) {
+				if (strpos($key, 'PGA') !== false) {
 					//found device
 					$devices[] = array(
 							'time'		=> $val['Last Share Time'],
 							'device'	=> $val['ID'],
 							'diff'		=> $val['Diff1 Work'],
-							'hashrate'  => $val['MHS 5s'] * 1000,
+							'hashrate'  => $val['MHS 20s'] * 1000,
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"]
@@ -361,7 +361,7 @@ class Miner {
 		if (isset($sum["SUMMARY"])) {
 			$summary["status"] = "RUNNING";
 			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
-			$summary["mh"] = $sum["SUMMARY"]["MHS 5s"];
+			$summary["mh"] = $sum["SUMMARY"]["MHS 20s"];
 			$summary["avgmh"] = $sum["SUMMARY"]["MHS av"];
 			$summary["acc"] =  $sum["SUMMARY"]["Accepted"];
 			$summary["rej"] = $sum["SUMMARY"]["Rejected"];
@@ -379,6 +379,84 @@ class Miner {
 		);
 		
 		return $stats; 
+	}
+	
+	//bfgminer
+	function getCGMinerStats()
+	{
+	
+	
+		$summary = array (
+				"status" => "OFFLINE",
+				"elapsed" => 0,
+				"mh" => 0,
+				"avgmh" => 0,
+				"acc" => 0,
+				"rej" => 0,
+				"hw" => 0,
+				"wu" => 0,
+				"hw" => 0,
+				"found" => 0,
+				"discarded" => 0,
+				"stale" => 0
+		);
+	
+		$devices = array();
+	
+		$stats = array(
+				"summary" => $summary,
+				"devices" => $devices
+		);
+	
+		$ltcProc = Miner::getRunningLtcProcess();
+		$btcProc = Miner::getRunningBtcProcess();
+	
+		if (count($ltcProc) == 0 && count($btcProc) == 0){
+			return $stats;
+		}
+	
+		$devs = CGMinerClient::requestDevices();
+		if (is_iterable($devs)) {
+			foreach ($devs as $key=>$val){
+				if (strpos($key, 'ASC') !== false) {
+					//found device
+					$devices[] = array(
+							'time'		=> $val['Last Share Time'],
+							'device'	=> $val['ID'],
+							'diff'		=> $val['Diff1 Work'],
+							'hashrate'  => $val['MHS 5s'] * 1000,
+							'valid'		=> $val['Accepted'],
+							'invalid'	=> $val['Rejected'],
+							'enabled'	=> $val["Enabled"]
+					);
+				}
+			}
+				
+			//got devs, so get summary
+		}
+		$sum = CGMinerClient::requestSummary();
+	
+		if (isset($sum["SUMMARY"])) {
+			$summary["status"] = "RUNNING";
+			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
+			$summary["mh"] = $sum["SUMMARY"]["MHS 5s"];
+			$summary["avgmh"] = $sum["SUMMARY"]["MHS av"];
+			$summary["acc"] =  $sum["SUMMARY"]["Accepted"];
+			$summary["rej"] = $sum["SUMMARY"]["Rejected"];
+			$summary["wu"] = $sum["SUMMARY"]["Work Utility"];
+			$summary["hw"] = $sum["SUMMARY"]["Hardware Errors"];
+			$summary["found"] = $sum["SUMMARY"]["Found Blocks"];
+			$summary["discarded"] = $sum["SUMMARY"]["Discarded"];
+			$summary["stale"] = $sum["SUMMARY"]["Stale"];
+		}
+	
+	
+		$stats = array(
+				"summary" => $summary,
+				"devices" => $devices
+		);
+	
+		return $stats;
 	}
 	
 	function restartMiner() {

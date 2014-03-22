@@ -34,7 +34,7 @@ define('RUN_MODEL_LTC', 0x02);
 
 
 define('BIN_BTC', '/var/www/soft/sha/cgminer');
-define('BIN_LTC', '/var/www/soft/scrypt/cgminer');
+define('BIN_LTC', '/var/www/soft/bfg/bfgminer');
 define('BIN_CPUMINER', '/var/www/soft/minerd');
 
 

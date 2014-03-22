@@ -11,14 +11,16 @@ Please hold on, this may take a couple of minutes... Do not close this dialog bo
 		echo "Killing all miner processes<br/>";
 		flush();
 		ob_flush();
+		exec ('sudo killall -9 bfgminer');
 		exec ('sudo killall -9 cgminer');
 		usleep('1000');
-		exec('sudo rm -rf /var/tmp/updatework/; sudo mkdir /var/tmp/updatework ; sudo git clone --depth=1 -b pi-controller https://bitbucket.org/purplefox/hashra-public-firmware.git /var/tmp/updatework', $output);
+		exec('sudo rm -rf /var/tmp/updatework/; sudo mkdir /var/tmp/updatework ; sudo git clone --depth=1 -b pi-controller https://purplefox:Maxalot1@bitbucket.org/purplefox/hashra-firmware.git /var/tmp/updatework', $output);
 		echo "Now done with downloading <br/>";
 		flush();
 		ob_flush();
 		exec('sudo cp -Rfv /var/tmp/updatework/* /var/www');
 		exec('sudo chmod -R 755 /var/www/soft');
+		exec('sudo chown -R 755 /var/www/soft');
 		flush();
 		ob_flush();
 		exec('sudo rm -rf /var/www/git; sudo rm -rf /var/www/.git; sudo rm -rf /var/tmp/updatework');

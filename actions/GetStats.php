@@ -14,6 +14,13 @@ $success = false;
 
 $iniArr = parse_ini_file(FILE_CONFIG);
 
+
+$runmode = "IDLE";
+
+if ($iniArr["model"] == 1) {$runmode = 'BTC';}
+if ($iniArr["model"] == 2) {$runmode = 'LTC';}
+if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
+
 $runtime = $cache->get(CACHE_RUNTIME);
 $uptime = time() - $runtime["runtime"];
 $li = '';
@@ -28,7 +35,11 @@ if(!empty($devices))
 	$table = "";
 	$tablebtc = "";
 
-	$statsui = Miner::getCGMinerStats();
+	if ($runmode == 'BTC'){
+		$statsui = Miner::getCGMinerStats();
+	}else if ($runmode == 'LTC'){
+		$statsui = Miner::getBFGMinerStats();
+	}
 	$counter = 0;
 	$runType = "ltc";
 	if($iniArr["model"] == 1 || $iniArr["model"] == 3)
@@ -63,12 +74,6 @@ if(!empty($devices))
 	}
 
 }
-
-$runmode = "IDLE";
-
-if ($iniArr["model"] == 1) {$runmode = 'BTC';}
-if ($iniArr["model"] == 2) {$runmode = 'LTC';}
-if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
 
 $syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/monitor.log") : '';
 ?>
