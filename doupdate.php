@@ -19,8 +19,11 @@ Please hold on, this may take a couple of minutes... Do not close this dialog bo
 		flush();
 		ob_flush();
 		exec('sudo cp -Rfv /var/tmp/updatework/* /var/www');
+		exec('sudo rm -rf /var/www/soft/bfg');
+		exec('sudo tar -xvf /var/www/soft/bfg-binary.tar');
 		exec('sudo chmod -R 755 /var/www/soft');
-		exec('sudo chown -R 755 /var/www/soft');
+		exec('sudo chmod -R 755 /var/config');
+		exec('sudo chown -R www-data /var/config/');
 		flush();
 		ob_flush();
 		exec('sudo rm -rf /var/www/git; sudo rm -rf /var/www/.git; sudo rm -rf /var/tmp/updatework');
