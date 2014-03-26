@@ -33,7 +33,7 @@ if($_POST)
     $ltc_url = preg_replace('/\s+/', '', $_POST["ltc_url"]);
     $ltc_worker = preg_replace('/\s+/', '', $_POST["ltc_worker"]);
     $ltc_pass = preg_replace('/\s+/', '', $_POST["ltc_pass"]);
-    $ltc_enable = ($_POST["radio_runMode"] == 'ltc');
+    $ltc_enable = (isset($_POST["check_ltc"]));
     if(empty($ltc_url) || empty($ltc_worker) || empty($ltc_pass))
     {
         $valid = false;
@@ -42,7 +42,7 @@ if($_POST)
     $btc_url = preg_replace('/\s+/', '', $_POST["btc_url"]);
     $btc_worker = preg_replace('/\s+/', '', $_POST["btc_worker"]);
     $btc_pass = preg_replace('/\s+/', '', $_POST["btc_pass"]);
-    $btc_enable = ($_POST["radio_runMode"] == 'btc');
+    $btc_enable = (isset($_POST["check_btc"]));
     if(empty($btc_url) || empty($btc_worker) || empty($btc_pass))
     {
         $valid = false;
@@ -98,19 +98,10 @@ if($_POST)
         fwrite($outfile, $iniStr);
         fclose($outfile);
 		
-        syslog(LOG_INFO, " selected mode is " .$iniArr["model"]);
-		if(($model == 1 || $model == 3) && $model == 2)
-		{
-			exec("sudo reboot &");
-			header('Location: /?i=1');
-			exit;
-		}
-		else
-		{
-			exec('wget http://localhost/system/monitor.php > /dev/null');
-			header('Location: /?i=2');
-			exit;
-		}
+		exec('wget http://localhost/system/monitor.php > /dev/null');
+		header('Location: /?i=2');
+		exit;
+		
     }
 }
 else
@@ -238,6 +229,13 @@ if(isset($_GET["i"]))
     <div class="col-md-12">
         <h3 class="header-title">CONTROLA</h3>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
+        <?php if ($runmode == "DUAL"){?>
+         <div class="alert alert-warning">
+                          
+                            <i class="fa fa-exclamation-triangle"></i>
+                            <strong>Warning!</strong> Only SHA256 mining statistics are available in DUAL mode. Please check your remote pool for Scrypt mining statistics.
+                        </div> 
+        <?php }?>
     </div>
 </div>
 
@@ -304,9 +302,9 @@ if(isset($_GET["i"]))
                 </div>
                 <?php }?>
                 
-                <?php if ($runmode == "SHA256") {?>
+                <?php if ($runmode == "SHA256" || $runmode == "DUAL") {?>
                 <div class="panel-heading">
-                    <h3 class="panel-title">SHA256 Miners hashrate <b id="btc_totalhash" class="value"><?php echo ($totalhash / 1000000) ?></b> Kh/s</h3>
+                    <h3 class="panel-title">SHA256 Miners hashrate <b id="btc_totalhash" class="value"><?php echo ($totalhash / 1000000) ?></b> Gh/s</h3>
                 </div>
                 <div class="panel-body">
                 	<?php echo $tablebtc ?>
@@ -349,9 +347,9 @@ if(isset($_GET["i"]))
 		                </div>
 		                <div class="form-group" style="">
 		                	 <div class="form-control-static">
-			                	<div class="radiobox">
+			                	<div class="checkbox">
 			                        <label>
-			                            <input type="radio" name="radio_runMode" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> value='ltc'>
+			                            <input type="checkbox" name="check_ltc" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> value='ltc'>
 			                           	Enable Scrypt mining
 			                        </label>
 			                    </div>
@@ -377,9 +375,9 @@ if(isset($_GET["i"]))
 		                </div>
 		                <div class="form-group">
 		                	 <div class="form-control-static">
-			                	<div class="radiobox">
+			                	<div class="checkbox">
 			                        <label>
-			                            <input type="radio" name="radio_runMode" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> value="btc">
+			                            <input type="checkbox" name="check_btc" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> value="btc">
 			                           	Enable SHA256 Mining
 			                        </label>
 			                    </div>

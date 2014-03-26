@@ -37,7 +37,7 @@ Please hold on, this may take a couple of minutes... Do not close this dialog bo
 		ob_flush();
 	?>
 
-	When you close this dialogue box you will be redirected to the Dashboard in 10 seconds.<br/>
+	When you close this dialogue box you will be redirected to the Dashboard in 20 seconds.<br/>
 	<h3>Happy Hashing!</h3>
 <script type="text/javascript">
 $("#update-button-close").html("All updated, you can close me now.");

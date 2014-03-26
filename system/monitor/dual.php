@@ -10,7 +10,7 @@ $cache		= $GLOBALS['cache'];
 $devices	= $GLOBALS['devices'];
 $process	= $GLOBALS['process'];
 
-
+openlog("dual_monitor", LOG_PID, LOG_LOCAL0);
 
 // //å�œæ­¢è¿›ç¨‹ - BTC
 // if(!empty($process['btc']) && !empty($devices['devids'])) {
@@ -27,13 +27,13 @@ foreach($process['btc'] as $pid => $proc) {
 	if($count > 1) {
 		//å�œæ­¢é‡�å¤�è¿›ç¨‹
 		Miner::shutdownBtcProc($pid);
-		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
+		syslog(LOG_INFO, "BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
 		unset($process['btc'][$pid]);
 	}
 }
 
 
-//å�œæ­¢è¿›ç¨‹ - LTC
+//shutdown LTC
 if(empty($process['btc'])) {
 	foreach($process['ltc'] as $pid => $proc) {
 		Miner::shutdownLtcProc($pid);
@@ -45,7 +45,7 @@ if(empty($process['btc'])) {
 	foreach($process['ltc'] as $pid => $proc) {
 		$busid = $proc['devid'];
 		$excess[$busid][] = $pid;
-		//å¯¹åº”æ— æ•ˆè®¾å¤‡çš„è¿›ç¨‹
+		//excess devices
 		if(!in_array($busid, $devices['bus'])) {
 			Miner::shutdownLtcProc($pid);
 			writeLog("LTC process shutdown: Bus={$busid} Pid={$pid} Worker={$proc['worker']}");
@@ -53,13 +53,13 @@ if(empty($process['btc'])) {
 		}
 	}
 	foreach($excess as $busid => $pids) {
-		//æ£€æŸ¥é‡�å¤�å¼€å�¯çš„è¿›ç¨‹
+		//shutting down excess devices
 		if(count($pids) > 1) {
 			for($i=1; $i<count($pids); $i++) {
 				$pid = $pids[$i];
 				$proc = $process['ltc'][$pid];
 				Miner::shutdownLtcProc($pid);
-				writeLog("LTC process shutdown: Bus={$busid} Pid={$pid} Worker={$proc['worker']}");
+				syslog(LOG_INFO, "LTC process shutdown: Bus={$busid} Pid={$pid} Worker={$proc['worker']}");
 				unset($process['ltc'][$pid]);
 			}
 		}
@@ -67,7 +67,7 @@ if(empty($process['btc'])) {
 }
 
 
-//å�¯åŠ¨è¿›ç¨‹ - BTC
+//startup BTC
 if(empty($process['btc'])) {
 	//å†™ç¼“å­˜
 	$runtime = array('runtime' => time());
@@ -75,29 +75,15 @@ if(empty($process['btc'])) {
 	$stats = $cache->get(CACHE_STATS);
 	$stats['lastcommit']['btc'] = array();
 	$cache->set(CACHE_STATS, $stats);
-	//å�¯åŠ¨
+	//startup btc instance
 	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 13);
-	if($re === false) {
-		writeLog("BTC process fails to start");
-		//å…³é—­æ‰€æœ‰è¿›ç¨‹
-		Miner::shutdownBtcProc();
-		Miner::shutdownLtcProc();
-		writeLog("All process shutdown");
-		//é‡�å�¯USBç”µæº�
-		Miner::closePower();
-		writeLog("Close the USB controller power");
-		usleep(1000000);
-		Miner::openPower();
-		writeLog("Open the USB controller power");
-		return;
-	}
 	//Log
-	writeLog("BTC process startup: Pid={$re['pid']} Worker={$config['btc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
+	syslog(LOG_INFO, "BTC process startup: Pid={$re['pid']} Worker={$config['btc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
 }
 
 
 
-//æ›´æ–°LTCå�¯ç”¨çŸ¿å·¥
+//start LTC
 $workers = $unusedWorkers = explode(',', $config['ltc_worker']);
 foreach($unusedWorkers as $k => $worker) {
 	$unusedWorkers[$k] = trim($worker);
@@ -112,7 +98,7 @@ foreach($process['ltc'] as $proc) {
 	}
 }
 sort($unusedWorkers);
-//å�¯åŠ¨ - LTC
+//check for free miners - LTC
 $usedBus = array();
 $unusedBus = array();
 foreach($process['ltc'] as $proc) {
@@ -124,16 +110,16 @@ foreach($devices['bus'] as $bus) {
 	}
 }
 if(!empty($unusedBus)) {
-	//å†™ç¼“å­˜
+	//found free miners
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
 	$stats = $cache->get(CACHE_STATS);
 	$stats['lastcommit']['ltc'] = array();
 	$cache->set(CACHE_STATS, $stats);
 	foreach($unusedBus as $bus) {
-		//å�¯åŠ¨
+		//starting cpu miner
 		$worker = !empty($unusedWorkers) ? array_shift($unusedWorkers) : $workers[0];
-		$pid = Miner::startupLtcProc(
+		$pid = Miner::startupCPUMinerProc(
 			$bus,
 			$config['ltc_url'],
 			$worker,
@@ -141,88 +127,6 @@ if(!empty($unusedBus)) {
 			$config['freq'],
 			true
 		);
-		writeLog("LTC process startup: Bus={$bus} Pid={$pid} Worker={$worker} Frequency={$config['freq']}");
+		syslog(LOG_INFO, "LTC process startup: Bus={$bus} Pid={$pid} Worker={$worker} Frequency={$config['freq']}");
 	}
 }
-
-
-//å®•æœºæ£€æµ‹ - BTC
-$freezeTime = 900;
-$timeNow = time();
-$arr = $cache->get(CACHE_RUNTIME);
-if($arr===false) {
-	$arr = array('runtime' => $timeNow);
-}
-if(($arr['runtime'] + $freezeTime) > $timeNow) {
-	return;
-}
-$arr = $cache->get(CACHE_STATS);
-$diedBus = array();
-foreach($devices['bus'] as $bus) {
-	if(!isset($arr['lastcommit']['btc'][$bus])) {
-		$diedBus[] = $bus;
-		continue;
-	}
-	if(($arr['lastcommit']['btc'][$bus] + $freezeTime) < $timeNow) {
-		$diedBus[] = $bus;
-		continue;
-	}
-}
-if(!empty($diedBus)) {
-	writeLog("Device downtime (BTC): DiedBus=".implode(',',$diedBus));
-	//å…³é—­æ‰€æœ‰è¿›ç¨‹
-	Miner::shutdownBtcProc();
-	Miner::shutdownLtcProc();
-	writeLog("All process shutdown");
-	//é‡�å�¯USBç”µæº�
-	Miner::restartPower();
-	return;
-}
-
-
-//å®•æœºæ£€æµ‹ - LTC
-$freezeTime = 600;
-$timeNow = time();
-$runtime = $cache->get(CACHE_RUNTIME);
-if($runtime===false) {
-	$runtime = array('runtime' => $timeNow);
-}
-if(($runtime['runtime'] + $freezeTime) > $timeNow) {
-	return;
-}
-$stats = $cache->get(CACHE_STATS);
-$diedBus = array();
-foreach($devices['bus'] as $bus) {
-	if(!isset($stats['lastcommit']['ltc'][$bus])) {
-		continue;
-	}
-	if(($stats['lastcommit']['ltc'][$bus] + $freezeTime) < $timeNow) {
-		
-		foreach($process['ltc'] as $pid => $proc)
-		{
-			$currentDev = $proc['devid'];
-			if($currentDev == $devid)
-			{
-				Miner::shutdownLtcProc($pid);
-				writeLog("Last commit took longer than 7,5 mins, restarting machine DeviceID={$proc['devid']} Pid={$pid} Worker={$proc['worker']}");
-				unset($process['ltc'][$pid]);
-			}
-		}
-		
-		continue;
-	}
-}
-// if(!empty($diedBus)) {
-// 	writeLog("Device downtime (LTC): DiedBus=".implode(',',$diedBus));
-// 	//å…³é—­æ‰€æœ‰è¿›ç¨‹
-// 	Miner::shutdownBtcProc();
-// 	Miner::shutdownLtcProc();
-// 	writeLog("All process shutdown");
-// 	//é‡�å�¯USBç”µæº�
-// 	Miner::closePower();
-// 	writeLog("Close the USB controller power");
-// 	usleep(1000000);
-// 	Miner::openPower();
-// 	writeLog("Open the USB controller power");
-// }
-

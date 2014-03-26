@@ -35,7 +35,7 @@ if(!empty($devices))
 	$table = "";
 	$tablebtc = "";
 
-	if ($runmode == 'BTC'){
+	if ($runmode == 'BTC' || $runmode == 'DUAL'){
 		$statsui = Miner::getCGMinerStats();
 	}else if ($runmode == 'LTC'){
 		$statsui = Miner::getBFGMinerStats();

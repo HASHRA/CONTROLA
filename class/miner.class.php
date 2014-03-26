@@ -250,12 +250,13 @@ class Miner {
 		}
 	}
 	
-	// Start LTC miner
-	function startupDualProc($devid, $url, $worker, $password, $freq)
+	// Start CPU miner
+	function startupCPUMinerProc($devid, $url, $worker, $password, $freq)
 	{
 		$logid = str_replace(':' , '', $devid);
 		
-		$cmd = 'sudo ' .BIN_CPUMINER . " --dual -o {$url} -u {$worker} -p {$password} -q 2> " . PATH_LOG . "/ltc{$devid}.log &";
+		$cmd = BIN_CPUMINER . " --syslog --dual -o {$url} -u {$worker} -p {$password}  &";
+		syslog(LOG_INFO, "starting cpu miner with cmd: " .$cmd);
 		$cache = new Cache(PATH_CACHE);
 		$stats = $cache->get(CACHE_STATSUI);
 		$stats['ltc'] = array();
@@ -303,10 +304,25 @@ class Miner {
 		return $executed;
 	}
 	
+	// Kill LTC miner(s)
+	function shutdownCPUMinerProc($pid = -1)
+	{
+		if($pid == -1)
+		{
+			$cmd = 'sudo killall -9 ' . basename(BIN_CPUMINER);
+		}
+		else
+		{
+			$cmd = "sudo kill -9 {$pid}";
+		}
+		syslog(LOG_INFO, "Shutting down CPU Miner process with this command: " . $cmd);
+		$executed = exec($cmd , $out);
+		return $executed;
+	}
+	
 	//bfgminer
 	function getBFGMinerStats()
 	{
-		
 		
 		$summary = array (
 			"status" => "OFFLINE",
@@ -381,7 +397,7 @@ class Miner {
 		return $stats; 
 	}
 	
-	//bfgminer
+	//cgminer
 	function getCGMinerStats()
 	{
 	

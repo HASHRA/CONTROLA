@@ -78,7 +78,8 @@ if($arr['mtime'] != $mtime)
 	syslog(LOG_INFO, "Configuration file modified, shutting down");
 	Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
-	writeLog("All process shutdown - monitor (1)");
+	Miner::shutdownCPUMinerProc();
+	syslog(LOG_INFO, "All process shutdown - monitor (1)");
 	sleep(2);
 }
 
