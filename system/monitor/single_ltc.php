@@ -19,7 +19,7 @@ foreach($process['ltc'] as $pid => $proc) {
 	}
 }
 
-//check the elapsed time. restart miners after 2 hours
+//check the elapsed time. restart miners after 4 hours
 
 $stats = $cache->get(CACHE_STATS);
 if (isset($stats["summary"])){
