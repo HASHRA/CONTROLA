@@ -149,6 +149,28 @@ class Miner {
 				}
 				$out = null;
 			}
+		}else{
+			//cpu miners?
+			exec("ps agx | grep " . BIN_CPUMINER . " | grep -v grep | awk '{print $1}'", $lines);
+			if(!empty($lines))
+			{
+				foreach($lines as $line)
+				{
+					$pid = trim($line);
+					exec("cat /proc/".$pid."/cmdline", $out);
+					if(!empty($out))
+					{
+						$cmdline = $out[0];
+						preg_match('/\-u\x00([\.a-zA-Z0-9]+)/', $cmdline, $out);
+						$worker = $out[1];
+						$process[$pid] = array(
+								'pid'		=> $pid,
+								'worker'	=> $worker
+						);
+					}
+					$out = null;
+				}
+			}
 		}
 		return $process;
 	}
