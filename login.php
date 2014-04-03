@@ -16,7 +16,7 @@
 					<h3 class="panel-title">Sign In</h3>
 				</div>
 				<div class="panel-body">
-					Default user name and password is root root.
+					Default user name and password is hashra hashra.
 					<form action="index.html">
 						<div class="form-group">
 							<input class="form-control" id="username" name="username"

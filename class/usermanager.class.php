@@ -22,17 +22,31 @@
 			if (!file_exists(FILE_USERS)){
 				//create file and add default values.
 				fopen(FILE_USERS , "w");
-				$user = array 
-				(	
-					"user" => "root",
-					"password" => md5("root")		
-				);
-				$users = array($user);
-				file_put_contents(FILE_USERS, json_encode($users));				
+				$userManager->createUser("hashra", "hashra");			
 			}
 				
 			$userManager->users = json_decode(file_get_contents(FILE_USERS));
+			//delete root user ... the boss doesn't like "root" ;)
+			if ($userManager->getUser("root") != null){
+				$userManager->deleteUser("root");
+				$userManager->users = json_decode(file_get_contents(FILE_USERS));
+				if (count($userManager->users) == 0) {
+					//change root user to hashra
+					$userManager->createUser("hashra", "hashra");
+				}
+			}
 			return $userManager;
+		}
+		
+		
+		function createUser($login, $password) {
+			$user = array
+			(
+					"user" => $login,
+					"password" => md5($password)
+			);
+			$this->users = array($user);
+			$this->save();
 		}
 		
 		function login ($username , $password) {
@@ -40,7 +54,6 @@
 			if (empty($user)) {
 				return false;
 			}else{
-				syslog(LOG_INFO, "password ". $user->password . " {$password} " . md5($password));
 				return $user->password === md5($password);
 			}
 		}
@@ -62,12 +75,21 @@
 			foreach ($this->users as &$user) {
 				if ($user->user === $username) {
 					$user->password = md5($password);
-					syslog(LOG_INFO, "password changed for user " .$username . " password $password ". md5($password) );
 					break;
 				}
 			}
 			$this->save();
 			
+		}
+		
+		function deleteUser($userName) {
+			foreach ($this->users as $key=>$user){
+				if($user->user == $userName){
+					unset($this->users[$key]);
+					$this->save();
+					break;
+				}
+			}
 		}
 		
 		/**

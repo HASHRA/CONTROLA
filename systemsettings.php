@@ -51,13 +51,13 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
                 <div class="panel-body">
                 	<form id="usform" action="/ajaxController.php?action=ChangePassword">
                 		<div class="form-group">
-		                    <label for="us_password">Change root password</label>
+		                    <label for="us_password">Change password</label>
 		                    <input type="password" class="form-control" id="us_password" name="us_password" >
 		                    <span class="help-block"> 
 		                    </span>
 		                </div>
 		                <div class="form-group">
-		                    <label for="us_confirm">Confirm root password</label>
+		                    <label for="us_confirm">Confirm password</label>
 		                    <input type="password" class="form-control" id="us_confirm" name="us_password" >
 		                    <span class="help-block"> 
 		                    </span>
@@ -137,7 +137,7 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
 						$("#us_confirm").parent().addClass("has-error");
 						$("#us_confirm").next(".help-block" ).html( data.MESSAGE );
 					  }else{
-							$("#us_confirm").next(".help-block" ).html("Root password has been changed");
+							$("#us_confirm").next(".help-block" ).html("Password has been changed");
 						}
 					}, "json").fail(function() {
 						$("#us_confirm").parent().addClass("has-error");
