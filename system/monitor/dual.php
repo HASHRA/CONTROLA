@@ -12,6 +12,8 @@ $process	= $GLOBALS['process'];
 
 openlog("dual_monitor", LOG_PID, LOG_LOCAL0);
 
+$sysSettings = ConfigurationManager::instance()->getSystemSettings();
+
 $count = 0;
 foreach($process['btc'] as $pid => $proc) {
 	$count++;
@@ -23,6 +25,18 @@ foreach($process['btc'] as $pid => $proc) {
 	}
 }
 
+//check the elapsed time. restart miners after x hours
+
+$stats = $cache->get(CACHE_STATS);
+if (isset($stats["summary"]) && $systemSettings->restartevery > 0){
+	$elapsed = intval($stats["summary"]["elapsed"]);
+	if ($elapsed > ($systemSettings->restartevery * 60 * 60 ) ) {
+		syslog(LOG_INFO, "Maintenance restart started");
+		Miner::shutdownBtcProc();
+		Miner::shutdownCPUMinerProc();
+		sleep(10);
+	}
+}
 
 //shutdown excess CPU miner processes
 if(empty($process['btc'])) {
@@ -52,7 +66,7 @@ if(empty($process['btc'])) {
 //startup BTC
 if(empty($process['btc'])) {
 	//startup BTC
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 13);
+	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], $sysSettings->btccoresdual);
 	//Log
 	syslog(LOG_INFO, "BTC process startup: Pid={$re['pid']} Worker={$config['btc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
 }

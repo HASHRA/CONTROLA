@@ -2,7 +2,7 @@
 
 error_reporting(E_ALL ^ E_STRICT);
 
-define('VERSION' , '1.2.7');
+define('VERSION' , '1.3.0');
 
 
 //define('DEBUG', true);
@@ -24,10 +24,11 @@ define('PATH_LOG', '/var/log');
 
 
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
-
+define('FILE_USERS', PATH_CONFIG.'/users.json');
+define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
+define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');
 
 define('FILE_LOG', PATH_LOG.'/monitor.log');
-
 
 define('RUN_MODEL_BTC', 0x01);
 define('RUN_MODEL_LTC', 0x02);
@@ -62,6 +63,12 @@ function writeLog($msg)
 	$fp = fopen(FILE_LOG, 'a');
 	fwrite($fp, $msg);
 	fclose($fp);
+}
+
+function require_with($pg, $vars)
+{
+	extract($vars);
+	require $pg;
 }
 
 /**

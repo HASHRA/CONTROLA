@@ -1,5 +1,5 @@
 <?php
-
+require_once 'config/define.php';
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +15,7 @@
             <!-- BODY -->
             <div class="body">
 
-                <?php include 'includes/menu.php';?>
+                <?php require_with('includes/menu.php', array('selected' => 'help'));?>
 
                 <section class="content">
                     

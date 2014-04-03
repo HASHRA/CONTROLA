@@ -2,6 +2,7 @@
 require_once '/var/www/config/define.php';
 require_once PATH_CLASS . '/miner.class.php';
 require_once PATH_CLASS . '/cache.class.php';
+require_once PATH_CLASS. '/configmanager.class.php';
 
 
 define('DEF_MONITOR', 1);

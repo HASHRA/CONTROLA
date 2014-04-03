@@ -128,6 +128,20 @@ a:focus {
 	height: 36px;
 	background-image: url(../../img/logo.png);
 }
+#logowhite {
+	width: 250px;
+	height: 36px;
+	background-image: url(../../img/logowhite.png);
+	margin-left:auto;
+	margin-right:auto;
+}
+.center {
+	margin-left:auto;
+	margin-right:auto;
+}
+.tiny {
+	font-size: 0.5em;
+}
 .table {
   font-size: 12px;
   border-top: solid 1px #EEE;

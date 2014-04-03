@@ -1,4 +1,11 @@
 <?php
+
+require_once 'class/accesscontrol.class.php';
+
+if (!AccessControl::hasAccess()){
+	header('Location: login.php');
+	die();
+}
 header ( 'Content-type: text/html; charset=utf-8' );
 ?>
 Please hold on, this may take a couple of minutes... Do not close this dialog box before I'm finished, Thanks.<br/>

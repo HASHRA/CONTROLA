@@ -26,6 +26,18 @@ foreach($process['btc'] as $pid => $proc) {
 	}
 }
 
+//check the elapsed time. restart miners after x hours
+
+$stats = $cache->get(CACHE_STATS);
+if (isset($stats["summary"]) && $systemSettings->restartevery > 0){
+	$elapsed = intval($stats["summary"]["elapsed"]);
+	if ($elapsed > ($systemSettings->restartevery * 60 * 60 ) ) {
+		syslog(LOG_INFO, "Maintenance restart started");
+		Miner::shutdownBtcProc();
+		sleep(2);
+	}
+}
+
 if(empty($process['btc']) && !empty($devices['bus'])) {
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);

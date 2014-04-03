@@ -1,5 +1,12 @@
 <?php
 
+require_once 'class/accesscontrol.class.php';
+require_once 'config/define.php';
+
+if (!AccessControl::hasAccess()){
+	header('Location: login.php');
+	die();
+}
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +22,7 @@
             <!-- BODY -->
             <div class="body">
 
-                <?php include 'includes/menu.php';?>
+                <?php require_with('includes/menu.php', array('selected' => 'update'));?>
 
                 <section class="content">
                     

@@ -2,6 +2,12 @@
 require_once 'config/define.php';
 require_once 'class/miner.class.php';
 require_once 'class/cache.class.php';
+require_once 'class/accesscontrol.class.php';
+
+if (!AccessControl::hasAccess()){
+	header('Location: login.php');
+	die();
+}
 
 $cache = new Cache(PATH_CACHE);
 
@@ -39,6 +45,7 @@ if($_POST)
         $valid = false;
     }
     
+    
     $btc_url = preg_replace('/\s+/', '', $_POST["btc_url"]);
     $btc_worker = preg_replace('/\s+/', '', $_POST["btc_worker"]);
     $btc_pass = preg_replace('/\s+/', '', $_POST["btc_pass"]);
@@ -68,7 +75,7 @@ if($_POST)
     
     $freq = (int) $_POST["freq"];
     $freq = $freq - $freq % 25;
-    if($freq < 600 || $freq > 900)
+    if($freq < 600 || $freq > 1300)
     {
         $freq = 600;
     }
@@ -98,7 +105,7 @@ if($_POST)
         fwrite($outfile, $iniStr);
         fclose($outfile);
 		
-		exec('wget http://localhost/system/monitor.php > /dev/null');
+		exec('wget http://localhost/system/monitor.php > /dev/null &');
 		header('Location: /?i=2');
 		exit;
 		
@@ -150,7 +157,6 @@ if(!empty($devices))
 		else
 		{
 			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
-			//$table .= '<tr><td>LTC Miner '.$devid.'</td><td class="hidden-480"><span class="label label-danger arrowed">Offline</span></td><td>0</td><td>0/0</td></tr>';
 			$offline++;
 		}
 	}
@@ -160,31 +166,13 @@ if(!empty($devices))
 		$uptime = 0;
 	}
 }
-// $uptime = formatTime($uptime);
-// if($iniArr["model"] == 1 || $iniArr["model"] == 3)
-// {
-	
-	
-	//btc part
-	
-	foreach($devices["devids"]  as $devid)
-	{
-	
-// 		$hash = isset($btcstatsui[$devid]["hashrate"]) ? $btcstatsui[$devid]["hashrate"] : 0;
-// 		$valids = isset($btcstatsui[$devid]["valid"]) ? $btcstatsui[$devid]["valid"] : 0;
-// 		$invalids = isset($btcstatsui[$devid]["invalid"]) ? $btcstatsui[$devid]["invalid"] : 0;
-// 		$totals = $valids + $invalids;
-// 		$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-	
-		$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Gh/s</span></div><div>SHA256 Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
-	
-		//$table .= '<tr><td>LTC Miner '.$devid.' ('.$devproc[$devid].')</td><td class="hidden-480"><span class="label label-info arrowed-right arrowed-in">Running</span></td><td>'.$hash.'</td><td>'.$valids.'/'.$totals.' ('.$rejrate.'%)</td></tr>';
-	
-	}
-	
-	
 
-// }
+foreach($devices["devids"]  as $devid)
+{
+
+	$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Gh/s</span></div><div>SHA256 Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
+}
+
 
 $syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/monitor.log") : '';
 
@@ -217,7 +205,7 @@ if(isset($_GET["i"]))
             <!-- BODY -->
             <div class="body">
 
-                <?php include 'includes/menu.php';?>
+                <?php require_with('includes/menu.php', array('selected' => 'index'));?>
 
                 <section class="content">
                     
@@ -264,33 +252,21 @@ if(isset($_GET["i"]))
                             <span><b class="value">LOADING..</b> <?php if($runmode == "SHA256" || $runmode == "DUAL") {?>G<?php } else {?>M<?php }?>h/s current hashrate</span>
                         </li>
                         <li id ="stat-avgmh" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> <?php if($runmode == "SHA256" || $runmode == "DUAL") {?>G<?php } else {?>M<?php }?>h/s avg hashrate in last 5m</span>
+                            <span><b class="value">LOADING..</b> <?php if($runmode == "SHA256" || $runmode == "DUAL") {?>G<?php } else {?>M<?php }?>h/s avg hashrate</span>
                         </li>
                         <li id ="stat-acc" class="stat col-md-3 col-sm-3 col-xs-6">
                             <span><b class="value">LOADING..</b> Acc./Rej.</span>
                             <em>LOADING..</em>
                         </li>
-                        <li id = "stat-wu" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> Work utility</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="panel-body">
-                    <ul class="col-md-12 stats">
-                    	 <li id ="stat-found" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> Found blocks.</span>
-                        </li>
-                        <li id ="stat-discarded" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> Work discarded</span>
-                        </li>
-                        <li id ="stat-stale" class="stat col-md-3 col-sm-3 col-xs-6">
-                            <span><b class="value">LOADING..</b> Work stale</span>
-                        </li>
                         <li id = "stat-hw" class="stat col-md-3 col-sm-3 col-xs-6">
                             <span><b class="value">LOADING..</b> Hardware errors</span>
                         </li>
                     </ul>
+
+                    <button type="button" id="actionbutton-restart" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Only restarts the current mining session, not the whole system!"><i class="fa fa-retweet"></i> Restart </button>
+		            <button type="button" id="actionbutton-reboot" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Reboots CONTROLA, may take a while!"><i class="fa fa-power-off"></i> Reboot </button>
                 </div>
+              
             </div>
             <div class="panel ">
             	 <?php if ($runmode == "SCRYPT") {?>
@@ -316,11 +292,14 @@ if(isset($_GET["i"]))
         </div>
         <div class="col-md-6">
             <div class="panel ">
+            
+            
                 <form role="form" action="." method="post" id="config_form">
                 <div class="panel-heading">
                 	 <h4 class="panel-title">SCRYPT pool configuration</h4>
                 </div>
                 <div class="panel-body">
+
 		                <div class="form-group">
 		                    <label for="ltc_url">Scrypt Pool address</label>
 		                    <input class="form-control" id="ltc_url" name="ltc_url" placeholder="stratum+tcp://..." value="<?php echo $ltc_url?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
@@ -343,6 +322,15 @@ if(isset($_GET["i"]))
 								<option value="800" <?php $tbool = $freq == 800 ? 'selected="selected"' : ''; echo $tbool; ?> >800</option>
 								<option value="850" <?php $tbool = $freq == 850 ? 'selected="selected"' : ''; echo $tbool; ?> >850</option>
 								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
+								<option value="950" <?php $tbool = $freq == 950 ? 'selected="selected"' : ''; echo $tbool; ?> >950</option>
+								<option value="1000" <?php $tbool = $freq == 1000 ? 'selected="selected"' : ''; echo $tbool; ?> >1000</option>
+								<option value="1050" <?php $tbool = $freq == 1050 ? 'selected="selected"' : ''; echo $tbool; ?> >1050</option>
+								<option value="1100" <?php $tbool = $freq == 1100 ? 'selected="selected"' : ''; echo $tbool; ?> >1100</option>
+								<option value="1150" <?php $tbool = $freq == 1150 ? 'selected="selected"' : ''; echo $tbool; ?> >1150</option>
+								<option value="1200" <?php $tbool = $freq == 1200 ? 'selected="selected"' : ''; echo $tbool; ?> >1200</option>
+								<option value="1250" <?php $tbool = $freq == 1250 ? 'selected="selected"' : ''; echo $tbool; ?> >1250</option>
+								<option value="1200" <?php $tbool = $freq == 1300 ? 'selected="selected"' : ''; echo $tbool; ?> >1300</option>
+								
 		                     </select>
 		                </div>
 		                <div class="form-group" style="">
@@ -410,12 +398,75 @@ if(isset($_GET["i"]))
     </div>
 
 </div>
+
+ <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+<!--                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+                                    <h4 class="modal-title" id="myModalLabel"></h4>
+                                </div>
+                                <div id="modalContent" class="modal-body">
+                                   
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="update-button-close" class="btn btn-default" data-dismiss="modal">Close this dialog</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+
 <!-- END: CONTENT -->
 
             </div>
             <!-- END: BODY --> 
        <?php include 'includes/footer.php';?>
        <script>
+			var myModal = $("#myModal");
+			var myModalLabel = $("#myModalLabel");
+			var modalContent = $("#modalContent");
+			
+			$("#actionbutton-restart").on("click" , function(event) {
+					event.preventDefault();
+					myModalLabel.html("Restarting miner");
+					modalContent.html("Sending restart signal");
+					myModal.modal();
+					$.post('/ajaxController.php?action=RestartMiner' , function(data) {
+						if (data.STATUS == 'NOTOK') {
+							myModalLabel.html("Restarting miner failed");
+							modalContent.html(data.MESSAGE);
+							
+						}else{
+							myModalLabel.html("Miner is restarting");
+							modalContent.html("The miner is restarting right now. Check the syslog panel for progress");
+						}
+					}, 'json').fail(function() {
+						myModalLabel.html("Restarting miner failed");
+						modalContent.html("System error has occured");
+					}); 
+				});
+
+			$("#actionbutton-reboot").on("click" , function(event) {
+				event.preventDefault();
+				myModalLabel.html("Rebooting CONTROLA");
+				modalContent.html("Sending reboot signal");
+				myModal.modal();
+				$.post('/ajaxController.php?action=Reboot' , function(data) {
+					if (data.STATUS == 'NOTOK') {
+						myModalLabel.html("Rebooting CONTROLA failed");
+						modalContent.html(data.MESSAGE);
+						
+					}else{
+						myModalLabel.html("CONTROLA is rebooting");
+						modalContent.html("The CONTROLA device is rebooting right now. This may take a while");
+					}
+				}, 'json').fail(function() {
+					myModalLabel.html("Rebooting CONTROLA failed");
+					modalContent.html("System error has occured");
+				}); 
+			});
+       
 			//update stats script
 			function updateScreen() {
 				$.ajax({
