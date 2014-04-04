@@ -21,7 +21,6 @@ foreach($process['btc'] as $pid => $proc) {
 	$count++;
 	if($count > 1) {
 		Miner::shutdownBtcProc($pid);
-		writeLog("BTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
 		unset($process['btc'][$pid]);
 	}
 }
@@ -47,11 +46,8 @@ if(empty($process['btc']) && !empty($devices['bus'])) {
 	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
 	
 	if($re === false) {
-		writeLog("BTC process fails to start");
 		//Miner::restartPower();
 		return;
 	}
-	//Log
-	writeLog("BTC process startup: Pid={$re['pid']} Worker={$config['btc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
 }
 ?>

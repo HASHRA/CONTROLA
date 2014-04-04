@@ -57,14 +57,6 @@ define('ERRNO_LTC_URL',	'A0006');	//LTC urlè¾“å…¥é”™è¯¯
 define('ERRNO_LTC_USER','A0007');	//LTC ç”¨æˆ·å��è¾“å…¥é”™è¯¯
 define('ERRNO_LTC_PASS','A0008');	//LTC å¯†ç �è¾“å…¥é”™
 
-function writeLog($msg)
-{
-	$msg = sprintf("[%s] %s\r\n", date('Y-m-d H:i:s'), $msg);
-	$fp = fopen(FILE_LOG, 'a');
-	fwrite($fp, $msg);
-	fclose($fp);
-}
-
 function require_with($pg, $vars)
 {
 	extract($vars);

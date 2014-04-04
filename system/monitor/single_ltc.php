@@ -16,7 +16,6 @@ foreach($process['ltc'] as $pid => $proc) {
 	$count++;
 	if($count > 1) {
 		Miner::shutdownLtcProc($pid);
-		writeLog("LTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
 		unset($process['ltc'][$pid]);
 	}
 }
@@ -42,12 +41,8 @@ if(count(Miner::getRunningLtcProcess()) == 0 && !empty($devices['bus'])) {
 	syslog(LOG_INFO, "Starting single LTC Process");
 	$re = Miner::startupLtcProc($config['ltc_url'], $config['ltc_worker'], $config['ltc_pass'], $config['freq']);
 	if($re === false) {
-		writeLog("LTC process fails to start");
-
 		return;
 	}
-	//Log
-	writeLog("LTC process startup: Pid={$re['pid']} Worker={$config['ltc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
 }
 
 ?>

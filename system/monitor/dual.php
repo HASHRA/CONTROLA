@@ -42,7 +42,6 @@ if (isset($stats["summary"]) && $systemSettings->restartevery > 0){
 if(empty($process['btc'])) {
 	foreach($process['ltc'] as $pid => $proc) {
 		Miner::shutdownCPUMinerProc($pid);
-		writeLog("LTC process shutdown: Pid={$pid} Worker={$proc['worker']}");
 	}
 	$process['ltc'] = array();
 } else {

@@ -58,10 +58,6 @@ if($ls && !empty($files))
 		if($perm != "755")
 		{
 			$cm = chmod($path, 0755);
-			if($cm)
-				writeLog("Chmod 0755 '".$path.$file."'");
-			else
-				writeLog("Failed to Chmod 0755 '".$path.$file."'");
 		}
 	}
 }
@@ -75,7 +71,6 @@ if($arr['mtime'] != $mtime)
 {
 	$arr['mtime'] = $mtime;
 	$cache->set(CACHE_CFGMTIME, $arr);
-	writeLog("Configuration file is modified");
 	syslog(LOG_INFO, "Configuration file modified, shutting down");
 	Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
@@ -88,11 +83,6 @@ $process = $cache->get(CACHE_PROCESS);
 
 $devices = $cache->get(CACHE_DEVICE);
 
-
-if(empty($devices['bus']))
-{
-	writeLog("USB bus not found, try to open the USB controller power");
-}
 
 $GLOBALS['config']	= $config;
 $GLOBALS['cache']	= $cache;
