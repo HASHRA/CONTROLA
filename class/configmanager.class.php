@@ -1,6 +1,5 @@
 <?php 
-define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
-define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');
+require_once 'config/define.php';
 	/**
 	 * Configuration management class
 	 * @author maxzilla

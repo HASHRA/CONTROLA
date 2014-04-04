@@ -1,5 +1,5 @@
 <?php
-
+require_once 'config/define.php';
 require_once 'class/accesscontrol.class.php';
 require_once 'class/configmanager.class.php';
 
