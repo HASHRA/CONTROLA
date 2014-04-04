@@ -39,7 +39,7 @@ Please hold on, this may take a couple of minutes... Do not close this dialog bo
 		exec('sudo rm -rf /var/www/git; sudo rm -rf /var/www/.git; sudo rm -rf /var/tmp/updatework');
 		
 		require 'config/define.php';
-		echo "Update is completed! you now have version <strong> ". VERSION ." </strong><br/>
+		echo "Update is completed! you now have version <strong> ". file_get_contents('version') ." </strong><br/>
 			  System is rebooting. <br/>
 				";
 		

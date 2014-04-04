@@ -2,7 +2,7 @@
 
 error_reporting(E_ALL ^ E_STRICT);
 
-define('VERSION' , '1.3.1');
+define('VERSION' , file_get_contents('../version'));
 
 
 //define('DEBUG', true);
