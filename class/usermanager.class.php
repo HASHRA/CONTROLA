@@ -1,5 +1,5 @@
 <?php 
-	require_once 'config/define.php';
+	define('FILE_USERS', PATH_CONFIG.'/users.json');
 	session_start();
 	/**
 	 * User management class

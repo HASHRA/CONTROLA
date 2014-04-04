@@ -1,6 +1,7 @@
 <?php
 
 require_once 'class/accesscontrol.class.php';
+require_once 'class/configmanager.class.php';
 
 if (!AccessControl::hasAccess()){
 	header('Location: login.php');
@@ -22,7 +23,8 @@ Please hold on, this may take a couple of minutes... Do not close this dialog bo
 		exec ('sudo killall -9 cgminer');
 		exec ('sudo killall -9 cpuminer');
 		usleep('1000');
-		exec('sudo rm -rf /var/tmp/updatework/; sudo mkdir /var/tmp/updatework ; sudo git clone --depth=1 -b pi-controller https://bitbucket.org/purplefox/hashra-public-firmware.git /var/tmp/updatework', $output);
+		$config = ConfigurationManager::instance()->getSystemSettings();
+		exec('sudo rm -rf /var/tmp/updatework/; sudo mkdir /var/tmp/updatework ; sudo git clone --depth=1 -b pi-controller '.$config->updateurl.' /var/tmp/updatework', $output);
 		echo "Now done with downloading <br/>";
 		flush();
 		ob_flush();

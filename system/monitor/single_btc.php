@@ -29,6 +29,7 @@ foreach($process['btc'] as $pid => $proc) {
 //check the elapsed time. restart miners after x hours
 
 $stats = $cache->get(CACHE_STATS);
+$systemSettings = ConfigurationManager::instance()->getSystemSettings();
 if (isset($stats["summary"]) && $systemSettings->restartevery > 0){
 	$elapsed = intval($stats["summary"]["elapsed"]);
 	if ($elapsed > ($systemSettings->restartevery * 60 * 60 ) ) {
