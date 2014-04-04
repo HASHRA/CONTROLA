@@ -2,14 +2,15 @@
 
 error_reporting(E_ALL ^ E_STRICT);
 
-define('VERSION' , file_get_contents('../version'));
-
 
 //define('DEBUG', true);
 define('DEBUG', false);
 
 //ç›®å½•
 define('PATH_ROOT', dirname(dirname(__FILE__)));
+
+define('VERSION' , file_get_contents(PATH_ROOT.'/version'));
+
 define('PATH_CONFIG', PATH_ROOT.'/config');
 define('PATH_CONTROL', PATH_ROOT.'/controller');
 define('PATH_VIEW', PATH_ROOT.'/view');
@@ -21,7 +22,6 @@ define('PATH_TEMP', '/tmp');
 
 
 define('PATH_LOG', '/var/log');
-
 
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
 define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
