@@ -20,7 +20,7 @@
 				$settings = array (
 					"restartevery" => 0,
 					"btccoresdual" => 11,
-					"updateurl" => "https://bitbucket.org/purplefox/hashra-public-firmware.git"
+					"updateurl" => DEFAULT_UPDATE_URL
 				);
 				file_put_contents(FILE_SYSTEM_SETTNGS, json_encode($settings));
 			}

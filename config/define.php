@@ -46,16 +46,38 @@ define('CACHE_STATS', 'stats');
 define('CACHE_STATSUI', 'statsui');
 define('CACHE_RUNTIME', 'runtime');
 
+//-------------------product settings
+define('SCRYPT' , 1);
+define('SHA' , 2);
 
-define('ERRNO_SUCC',	'A0000');	
-define('ERRNO_MODEL',	'A0001');	
-define('ERRNO_FREQ',	'A0002');	
-define('ERRNO_BTC_URL',	'A0003');	
-define('ERRNO_BTC_USER','A0004');	
-define('ERRNO_BTC_PASS','A0005');	//BTC å¯†ç �è¾“å…¥é”™è¯¯
-define('ERRNO_LTC_URL',	'A0006');	//LTC urlè¾“å…¥é”™è¯¯
-define('ERRNO_LTC_USER','A0007');	//LTC ç”¨æˆ·å��è¾“å…¥é”™è¯¯
-define('ERRNO_LTC_PASS','A0008');	//LTC å¯†ç �è¾“å…¥é”™
+define('BY_CORE', 1);
+define('BY_DIFF1', 2);
+
+define('KHS', 1);
+define('MHS', 2);
+define('GHS' , 3);
+
+
+define('SUPPORTS' , SCRYPT | SHA);
+define('PRODUCT_NAME' , 'DUAL CONTROLA');
+define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
+define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
+define('SCRYPT_UNIT', KHS);
+define('SHA_UNIT', GHS);
+define('MINER_NAME' , 'miner');
+define ('MINER_MAX_HASHRATE' , 500);
+define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
+
+define('DEFAULT_UPDATE_URL' , 'https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
+
+//-----------------end product settings
+/**
+ * @param int $algoMask
+ * @return boolean
+ */
+function supportedAlgo($algoMask) {
+	return ($algoMask & SUPPORTS);	
+}
 
 function require_with($pg, $vars)
 {

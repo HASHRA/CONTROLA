@@ -50,7 +50,7 @@ if(!empty($devices))
 	{
 		if(isset($statsui["devices"][$devid]))
 		{
-				
+			
 			$hash = isset($statsui["devices"][$devid]["hashrate"]) ? $statsui["devices"][$devid]["hashrate"] : 0;
 			$valids = isset($statsui["devices"][$devid]["valid"]) ? $statsui["devices"][$devid]["valid"] : 0;
 			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
@@ -74,8 +74,6 @@ if(!empty($devices))
 	}
 
 }
-
-$syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/monitor.log") : '';
 ?>
 
 {

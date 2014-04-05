@@ -127,7 +127,6 @@ else
 $runtime = $cache->get(CACHE_RUNTIME);
 $uptime = time() - $runtime["runtime"];
 $li = '';
-$offline = 0;
 $totalhash = 0;
 $totalhashbtc = 0;
 $info = "";
@@ -145,36 +144,18 @@ if(!empty($devices))
 	$color = $runmode === 'SHA256' || $runmode === 'DUAL' ? '1F8A70' : 'F94743';
 	foreach($devices["devids"] as $devid)
 	{
-		if(isset($statsui[$devid]))
-		{
-			$hash = isset($statsui[$devid]["hashrate"]) ? $statsui[$devid]["hashrate"] : 0;
-			$valids = isset($statsui[$devid]["valid"]) ? $statsui[$devid]["valid"] : 0;
-			$invalids = isset($statsui[$devid]["invalid"]) ? $statsui[$devid]["invalid"] : 0;
-			$totals = $valids + $invalids;
-			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="'.(($hash/500) * 100).'" data-bar-color="#'.$color.'"><span><b class="value"> '.$hash.' </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a class="minerLink" href="#LTC'.$devid.'"> Mining...'.$valids.'/'.$totals.' ('.$rejrate.'%)</a></div>';
-		}
-		else
-		{
-			$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Kh/s</span></div><div>Scrypt Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
-			$offline++;
-		}
+		$unit = (SCRYPT_UNIT === KHS) ? 'Kh/s' : 'Mh/s'; 
+		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> '.$unit.'</span></div><div>Scrypt '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
+		
 	}
 
-	if(count($devices) == $offline)
-	{
-		$uptime = 0;
-	}
 }
 
 foreach($devices["devids"]  as $devid)
 {
 
-	$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Gh/s</span></div><div>SHA256 Miner '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
+	$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Gh/s</span></div><div>SHA256 '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
 }
-
-
-$syslog = file_exists(PATH_LOG."/monitor.log") ? file_get_contents(PATH_LOG."/monitor.log") : '';
 
 if(isset($_GET["i"]))
 {
@@ -215,8 +196,10 @@ if(isset($_GET["i"]))
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">CONTROLA</h3>
+        <h3 class="header-title"><?php echo PRODUCT_NAME;?></h3>
+        <?php if (DUAL_SUPPORT) {?>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
+        <?php }?>
         <?php if ($runmode == "DUAL"){?>
          <div class="alert alert-warning">
                           
@@ -296,7 +279,7 @@ if(isset($_GET["i"]))
             
                 <form role="form" action="." method="post" id="config_form">
                 <div class="panel-heading">
-                	 <h4 class="panel-title">SCRYPT pool configuration</h4>
+                	 <h4 class="panel-title"><?php if (DUAL_SUPPORT) { echo 'SCRYPT'; }?> pool configuration</h4>
                 </div>
                 <div class="panel-body">
 
@@ -315,40 +298,31 @@ if(isset($_GET["i"]))
 		                <div class="form-group">
 		                	<label for="freq">Core clock speed (Mhz)</label>
 		                	<select class="form-control" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
-		                        <option value="600" <?php $tbool = $freq == 600 ? 'selected="selected"' : ''; echo $tbool; ?> >600</option>
-								<option value="650" <?php $tbool = $freq == 650 ? 'selected="selected"' : ''; echo $tbool; ?> >650</option>
-								<option value="700" <?php $tbool = $freq == 700 ? 'selected="selected"' : ''; echo $tbool; ?> >700</option>
-								<option value="750" <?php $tbool = $freq == 750 ? 'selected="selected"' : ''; echo $tbool; ?> >750</option>
-								<option value="800" <?php $tbool = $freq == 800 ? 'selected="selected"' : ''; echo $tbool; ?> >800</option>
-								<option value="850" <?php $tbool = $freq == 850 ? 'selected="selected"' : ''; echo $tbool; ?> >850</option>
-								<option value="900" <?php $tbool = $freq == 900 ? 'selected="selected"' : ''; echo $tbool; ?> >900</option>
-								<option value="950" <?php $tbool = $freq == 950 ? 'selected="selected"' : ''; echo $tbool; ?> >950</option>
-								<option value="1000" <?php $tbool = $freq == 1000 ? 'selected="selected"' : ''; echo $tbool; ?> >1000</option>
-								<option value="1050" <?php $tbool = $freq == 1050 ? 'selected="selected"' : ''; echo $tbool; ?> >1050</option>
-								<option value="1100" <?php $tbool = $freq == 1100 ? 'selected="selected"' : ''; echo $tbool; ?> >1100</option>
-								<option value="1150" <?php $tbool = $freq == 1150 ? 'selected="selected"' : ''; echo $tbool; ?> >1150</option>
-								<option value="1200" <?php $tbool = $freq == 1200 ? 'selected="selected"' : ''; echo $tbool; ?> >1200</option>
-								<option value="1250" <?php $tbool = $freq == 1250 ? 'selected="selected"' : ''; echo $tbool; ?> >1250</option>
-								<option value="1200" <?php $tbool = $freq == 1300 ? 'selected="selected"' : ''; echo $tbool; ?> >1300</option>
-								
+								<?php for ($i = 600 ; $i <= 1300 ; $i += 50) {?>
+									<option value="<?php echo $i?>" <?php $tbool = $freq == $i ? 'selected="selected"' : ''; echo $tbool; ?> ><?php echo $i?></option>
+								<?php }?>
 		                     </select>
 		                </div>
-		                <div class="form-group" style="">
+		                
+		                <div class="form-group"  <?php if (!DUAL_SUPPORT) {echo 'style="display:none"';}?>>
 		                	 <div class="form-control-static">
 			                	<div class="checkbox">
 			                        <label>
-			                            <input type="checkbox" name="check_ltc" <?php $tmpstring = $ltc_enable ? 'checked' : ''; echo $tmpstring; ?> value='ltc'>
+			                            <input type="checkbox" name="check_ltc" <?php $tmpstring = ((!DUAL_SUPPORT && supportedAlgo(SCRYPT)) || $ltc_enable) ? 'checked' : ''; echo $tmpstring; ?> value='ltc'>
 			                           	Enable Scrypt mining
 			                        </label>
 			                    </div>
 		                    </div>
 		                </div>
+		                <div class="form-group" <?php if (DUAL_SUPPORT) {echo 'style="display:none"';}?>>
+		                	<button type="submit" class="btn btn-primary">Save and restart</button>
+		                </div>
                 </div> 
-               
-                 <div class="panel-heading" style="display: none">
+                
+                 <div class="panel-heading" <?php if (!supportedAlgo(SHA)) {echo 'style="display:none"';}?>>
                 	 <h4 class="panel-title">BTC pool configuration</h4>
                 </div>
-                <div class="panel-body" style="">
+                <div class="panel-body" <?php if (!supportedAlgo(SHA)) {echo 'style="display:none"';}?>>
 		                <div class="form-group">
 		                    <label for="btc_url">BTC Pool address</label>
 		                    <input class="form-control" id="btc_url" name="btc_url" placeholder="stratum+tcp://..." value="<?php echo $btc_url?>"  data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
@@ -396,7 +370,7 @@ if(isset($_GET["i"]))
             </div>
         </div>
     </div>
-
+    </section>
 </div>
 
  <!-- Modal -->
@@ -478,7 +452,7 @@ if(isset($_GET["i"]))
 									var ltcdevice = data.LTCDevices[i];
 									if (ltcdevice) {
 										var hash = ltcdevice.hash;
-										var percentage = (hash / 500) * 100;
+										var percentage = (hash / <?php echo MINER_MAX_HASHRATE?>) * 100;
 										var totals = ltcdevice.totals;
 										var valids = ltcdevice.valids;
 										var rejrate = ltcdevice.rejectrate;
@@ -486,17 +460,21 @@ if(isset($_GET["i"]))
 										$("#" + ltcdevice.dev + " b.value").html(hash);
 										$("#" + ltcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
 										$("#" + ltcdevice.dev ).siblings("a").attr("title" , "lastcommit " + ltcdevice.lastcommit + " minutes ago ");
-										totalHashLTC += parseInt(hash);
+										totalHashLTC += parseFloat(hash);
 									}
 								}
+								<?php if (SCRYPT_UNIT === KHS) {?>
 								$("#ltc_totalhash").html(totalHashLTC);	
+								<?php } else { ?>
+								$("#ltc_totalhash").html((totalHashLTC * 1000));
+								<?php }?>
 
 								var totalHashBTC = 0;
 								for (i = 0 ; i < data.BTCDevices.length ; i++) {
 									var btcdevice = data.BTCDevices[i];
 									if (btcdevice) {
-										var hash = (btcdevice.hash/1000000).toFixed(2);
-										var percentage = (hash / 10) * 100;
+										var hash = btcdevice.hash;
+										var percentage = (hash / 15) * 100;
 										var totals = btcdevice.totals;
 										var valids = btcdevice.valids;
 										var rejrate = btcdevice.rejectrate;
@@ -504,10 +482,10 @@ if(isset($_GET["i"]))
 										$("#" + btcdevice.dev + " b.value").html(hash);
 										$("#" + btcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
 										$("#" + btcdevice.dev ).siblings("a").attr("title" , "lastcommit " + btcdevice.lastcommit + " minutes ago ");
-										totalHashBTC += parseInt(hash);
+										totalHashBTC += parseFloat(hash);
 									}
 								}
-								$("#btc_totalhash").html(totalHashBTC);	
+								$("#btc_totalhash").html(totalHashBTC.toFixed(2));	
 
 								//do summary
 								$("#stat-mh b.value").html((data.Summary.mh < 1000) ?data.Summary.mh : (data.Summary.mh / 1000).toFixed(2));

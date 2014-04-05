@@ -384,7 +384,7 @@ class Miner {
 							'time'		=> $val['Last Share Time'],
 							'device'	=> $val['ID'],
 							'diff'		=> $val['Diff1 Work'],
-							'hashrate'  => $val['MHS 20s'] * 1000,
+							'hashrate'  => Miner::calculateSCRYPTHashrate($val),
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"]
@@ -399,8 +399,19 @@ class Miner {
 		if (isset($sum["SUMMARY"])) {
 			$summary["status"] = "RUNNING";
 			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
-			$summary["mh"] = $sum["SUMMARY"]["MHS 20s"];
-			$summary["avgmh"] = $sum["SUMMARY"]["MHS av"];
+			
+			$mh = $sum["SUMMARY"]["MHS 20s"];
+			$avgmh = $sum["SUMMARY"]["MHS av"];
+			if (CALCULATE_HASHRATE_SCRYPT === BY_DIFF1) {
+				$mh = 0;
+				foreach ($devices as $d) {
+					$mh += $d["hashrate"];
+				}
+				$avgmh = $mh;
+			}
+			
+			$summary["mh"] = $mh;
+			$summary["avgmh"] = $avgmh;
 			$summary["acc"] =  $sum["SUMMARY"]["Accepted"];
 			$summary["rej"] = $sum["SUMMARY"]["Rejected"];
 			$summary["wu"] = $sum["SUMMARY"]["Work Utility"];
@@ -462,7 +473,7 @@ class Miner {
 							'time'		=> $val['Last Share Time'],
 							'device'	=> $val['ID'],
 							'diff'		=> $val['Diff1 Work'],
-							'hashrate'  => $val['MHS 5s'] * 1000,
+							'hashrate'  => Miner::calculateSHAHashrate($val),
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"]
@@ -475,10 +486,21 @@ class Miner {
 		$sum = CGMinerClient::requestSummary();
 	
 		if (isset($sum["SUMMARY"])) {
+			
+			$mh = $sum["SUMMARY"]["MHS 5s"];
+			$avgmh = $sum["SUMMARY"]["MHS av"];
+			if (CALCULATE_HASHRATE_SHA === BY_DIFF1) {
+				$mh = 0;
+				foreach ($devices as $d) {
+					$mh += $d["hashrate"];
+				}
+				$avgmh = $mh;
+			}
+			
 			$summary["status"] = "RUNNING";
 			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
-			$summary["mh"] = $sum["SUMMARY"]["MHS 5s"];
-			$summary["avgmh"] = $sum["SUMMARY"]["MHS av"];
+			$summary["mh"] = $mh;
+			$summary["avgmh"] = $avgmh;
 			$summary["acc"] =  $sum["SUMMARY"]["Accepted"];
 			$summary["rej"] = $sum["SUMMARY"]["Rejected"];
 			$summary["wu"] = $sum["SUMMARY"]["Work Utility"];
@@ -497,32 +519,29 @@ class Miner {
 		return $stats;
 	}
 	
+	function calculateSCRYPTHashrate ($aStats) {
+		$multiplier = 1000;
+		if (SCRYPT_UNIT === MHS) {
+			$multiplier = 1;
+		}
+		if (CALCULATE_HASHRATE_SCRYPT === BY_CORE) {
+			return $aStats['MHS 20s'] * $multiplier;
+		}
+		return round(pow(2,32) * $aStats['Diff1 Work'] / $aStats['Device Elapsed'] / 1E6, 2) * $multiplier;
+	}
+	
+	function calculateSHAHashrate ($aStats) {
+	
+		if (CALCULATE_HASHRATE_SHA === BY_CORE) {
+			return $aStats['MHS 5s'] * 1000;
+		}
+		return round(pow(2,32) * $aStats['Diff1 Work'] / $aStats['Device Elapsed'] / 1E9, 2); 
+	} 
+	
 	function restartMiner() {
 		
 		CGMinerClient::restart();
 		
-	}
-	
-	function deviceMonitor ($devs) {
-		$deviceFreezeTime = 450; //7,5 minutes
-		
-		if (isset($devs) && is_iterable($devs)) {
-			foreach ($devs as $dev) {
-				$enabled = ($dev["enabled"] === 'Y') ? true : false;
-				if(!$enabled) {
-					//was disabled before, so enable it.
-					syslog(LOG_INFO, "Found a sleeping device, starting..");
-					CGMinerClient::enableDevice($dev["device"]);
-				}else{
-					//check if the devices lastcommit has been stale
-					$lastCommitTime = intval($dev["time"]);
-					if (($lastCommitTime > 0) && (time() - $lastCommitTime) > $deviceFreezeTime){
-						syslog(LOG_INFO, "Lazy miner, shutting down..");
-						CGMinerClient::disableDevice($dev["device"]);
-					}	
-				}
-			}
-		}
 	}
 
 }
