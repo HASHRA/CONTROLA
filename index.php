@@ -466,7 +466,7 @@ if(isset($_GET["i"]))
 								<?php if (SCRYPT_UNIT === KHS) {?>
 								$("#ltc_totalhash").html(totalHashLTC);	
 								<?php } else { ?>
-								$("#ltc_totalhash").html((totalHashLTC * 1000));
+								$("#ltc_totalhash").html(parseInt(totalHashLTC * 1000));
 								<?php }?>
 
 								var totalHashBTC = 0;

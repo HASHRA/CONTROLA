@@ -7,10 +7,10 @@
 <body class="cover">
 
 	<div class="login-wrap">
-		<span class="brand">
+		<div class="brand">
 	        <div id="logowhite"></div>
-	        <div class="center">CONTROLA</div> 
-	    </span>
+	        <div class="center"><?php echo PRODUCT_NAME?></div> 
+	    </div>
 	    <div class="panel">
 				<div class="panel-heading">
 					<h3 class="panel-title">Sign In</h3>

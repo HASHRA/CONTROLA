@@ -77,13 +77,13 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
                 <div class="panel-body">
                 	<form id="ssform" action="/ajaxController.php?action=SaveSystemSettings">
                 		<div class="form-group">
-		                    <label for="ss_restartevery">Restart miner every n hours (0 means never)</label>
+		                    <label for="ss_restartevery">Restart miner every x hours (0 means never)</label>
 		                    <input class="form-control" id="ss_restartevery" name="ss_restartevery" value="<?php echo $sysSettings->restartevery; ?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The frequency of restarts. 0 will disable automatic restarts">
 		                    <span class="help-block"> 
 		                    </span>
 		                </div>
-		                <div class="form-group">
-		                    <label for="ss_btccoresdual">BTC Cores on dual mode</label>
+		                <div class="form-group"  <?php if (!DUAL_SUPPORT) echo "style='display:none'"?>>
+		                    <label for="ss_btccoresdual">SHA Cores on dual mode</label>
 		                    <select class="form-control" id="ss_btccoresdual" name="ss_btccoresdual" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="This is the amount of SHA cores on the chip to be activated. A higher number increases SHA mining hashrate, but consumes more energy and reduces scrypt hashrate">
 		                       
 		                        <?php for ($i = 1 ; $i <= 16 ; $i++) {?>
