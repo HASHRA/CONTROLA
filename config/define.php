@@ -58,17 +58,17 @@ define('MHS', 2);
 define('GHS' , 3);
 
 
-define('SUPPORTS' , SCRYPT | SHA);
-define('PRODUCT_NAME' , 'DUAL CONTROLA');
-define('CALCULATE_HASHRATE_SCRYPT', BY_CORE);
+define('SUPPORTS' , SCRYPT);
+define('PRODUCT_NAME' , 'BLADE CONTROLA');
+define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
-define('SCRYPT_UNIT', KHS);
+define('SCRYPT_UNIT', MHS);
 define('SHA_UNIT', GHS);
-define('MINER_NAME' , 'miner');
-define ('MINER_MAX_HASHRATE' , 500);
+define('MINER_NAME' , 'Blade');
+define ('MINER_MAX_HASHRATE' , 5);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
-define('DEFAULT_UPDATE_URL' , 'https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
+define('DEFAULT_UPDATE_URL' , '-b pi-controller-blades https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
 
 //-----------------end product settings
 /**
