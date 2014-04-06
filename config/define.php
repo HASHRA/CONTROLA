@@ -59,7 +59,7 @@ define('GHS' , 3);
 
 
 define('SUPPORTS' , SCRYPT | SHA);
-define('PRODUCT_NAME' , 'DUAL CONTROLA');
+define('PRODUCT_NAME' , 'MINI CONTROLA');
 define('CALCULATE_HASHRATE_SCRYPT', BY_CORE);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', KHS);
