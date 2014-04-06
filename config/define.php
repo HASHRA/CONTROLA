@@ -59,12 +59,12 @@ define('GHS' , 3);
 
 
 define('SUPPORTS' , SCRYPT);
-define('PRODUCT_NAME' , 'MINI CONTROLA');
+define('PRODUCT_NAME' , 'ATLANTIS CONTROLA');
 define('CALCULATE_HASHRATE_SCRYPT', BY_CORE);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', KHS);
 define('SHA_UNIT', GHS);
-define('MINER_NAME' , 'MINI');
+define('MINER_NAME' , 'ATLANTIS');
 define ('MINER_MAX_HASHRATE' , 500);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
