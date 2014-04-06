@@ -64,7 +64,7 @@ define('CALCULATE_HASHRATE_SCRYPT', BY_CORE);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', KHS);
 define('SHA_UNIT', GHS);
-define('MINER_NAME' , 'miner');
+define('MINER_NAME' , 'MINI');
 define ('MINER_MAX_HASHRATE' , 500);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
