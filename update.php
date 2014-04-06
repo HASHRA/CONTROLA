@@ -32,7 +32,7 @@ if (!AccessControl::hasAccess()){
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title">CONTROLA </h3>
+        <h3 class="header-title"><?php echo PRODUCT_NAME?> </h3>
         <p class="header-info"></p>
     </div>
 </div>
