@@ -112,7 +112,9 @@
 		function setSystemSettings ($restartevery, $updateUrl , $btccoresdual) {
 			$this->systemSettings->restartevery = $restartevery;
 			$this->systemSettings->btccoresdual = $btccoresdual;
-			$this->systemSettings->updateurl = $updateUrl;
+			if(trim($updateUrl) != '') {
+				$this->systemSettings->updateurl = $updateUrl;
+			}
 			$this->save();
 		}
 		

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+	<?php include_once 'config/define.php';?>
     <?php include 'includes/head.php';?>
-    <?php include_once 'config/define.php';?>
 
            
 <body class="cover">
