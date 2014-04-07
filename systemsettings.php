@@ -96,7 +96,7 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
 		                </div>
 		                <div class="form-group">
 		                    <label for="ss_updateurl">Update URL</label>
-		                    <input class="form-control" id="ss_updateurl" name="ss_updateurl" value="<?php echo $sysSettings->updateurl; ?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The url of the update location. When you're a BETA user you will get development builds">
+		                    <input class="form-control" id="ss_updateurl" name="ss_updateurl" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The url of the update location. When you're a BETA user you will get development builds">
 		                    <span class="help-block"> 
 		                    </span>
 		                </div>
