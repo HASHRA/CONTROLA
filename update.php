@@ -36,8 +36,6 @@ if (!AccessControl::hasAccess()){
         <p class="header-info"></p>
     </div>
 </div>
-
-
 <!-- CONTENT -->
 <div class="main-content">
 	 <div class="row">
