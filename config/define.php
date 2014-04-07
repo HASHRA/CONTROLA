@@ -23,6 +23,7 @@ define('PATH_TEMP', '/tmp');
 
 define('PATH_LOG', '/var/log');
 
+
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
 define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
 define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');

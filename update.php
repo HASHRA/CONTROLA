@@ -52,7 +52,7 @@ if (!AccessControl::hasAccess()){
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             <i class="fa fa-check-circle"></i>
                             <?php 
-		                	exec("curl https://bitbucket.org/api/1.0/repositories/purplefox/hashra-public-firmware" , $out);
+		                	exec("curl --user hashracustomer:hashra1 https://bitbucket.org/api/1.0/repositories/purplefox/hashra-firmware" , $out);
 		                	$obj = json_decode($out[0]);
 		                	
 		                	$age =   getlastmod() - strtotime($obj->last_updated) ;
