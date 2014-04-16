@@ -177,10 +177,19 @@ class Miner {
 	
 	
 	// Start BTC miner
-	function startupBtcProc($url, $worker, $password, $freq, $cores = 0)
+	function startupBtcProc($freq, $cores = 0)
 	{
+
+		$pools = ConfigurationManager::instance()->getPools('sha');
+		
 		$cmd = 'sudo screen -dmS SHA256 '. BIN_BTC . " --api-listen --syslog --api-allow W:0/0 --api-port 4001 --gridseed-options=baud=115200,freq={$freq},chips=5,modules=1,usefifo=0,btc={$cores}";
-		$cmd .= " --hotplug=0 -o {$url} -u {$worker} -p {$password} &";
+		$cmd .= " --hotplug=0 ";
+		
+		foreach ($pools as &$pool){
+			$cmd .= " -o {$pool->url} -u {$pool->worker} -p {$pool->password} ";
+		}
+		
+		$cmd .= " &";
 		
 		$cache = new Cache(PATH_CACHE);
 		
@@ -218,10 +227,18 @@ class Miner {
 	}
 	
 	// Start LTC miner
-	function startupLtcProc($url, $worker, $password, $freq)
+	function startupLtcProc($freq)
 	{
+		
+		$pools = ConfigurationManager::instance()->getPools('scrypt');
+		
 		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --scrypt --api-allow W:0/0 --api-port 4001 -S gridseed:all --set-device gridseed:clock={$freq} --failover-only";
-		$cmd .= " -o {$url} -u {$worker} -p {$password} &";
+		
+		foreach ($pools as &$pool){
+			$cmd .= " -o {$pool->url} -u {$pool->worker} -p {$pool->password} ";
+		}
+		
+		$cmd .= " &";
 		
 		$cache = new Cache(PATH_CACHE);
 		$stats = $cache->get(CACHE_STATS);
@@ -362,10 +379,12 @@ class Miner {
 		);
 		
 		$devices = array();
+		$pools = array();
 		
 		$stats = array(
 				"summary" => $summary,
-				"devices" => $devices
+				"devices" => $devices,
+				"pools" => $pools
 		);
 		
 		$ltcProc = Miner::getRunningLtcProcess();
@@ -421,10 +440,23 @@ class Miner {
 			$summary["stale"] = $sum["SUMMARY"]["Stale"];
 		}
 		
+		$pls = CGMinerClient::requestPools();
+		if(is_iterable($pls)) {
+			foreach ($pls as $pl) {
+				if(isset($pl["POOL"])){
+					$pools [] = array(
+							"id" => $pl["POOL"],
+							"URL" => $pl["URL"],
+							"Status" => $pl["Stratum Active"] == 'true'? "ALIVE" : "SLEEPING"
+					);
+				}
+			}
+		}
 		
 		$stats = array(
 				"summary" => $summary,
-				"devices" => $devices
+				"devices" => $devices,
+				"pools" => $pools
 		);
 		
 		return $stats; 
@@ -451,10 +483,12 @@ class Miner {
 		);
 	
 		$devices = array();
+		$pools = array();
 	
 		$stats = array(
 				"summary" => $summary,
-				"devices" => $devices
+				"devices" => $devices,
+				"pools" => $pools
 		);
 	
 		$ltcProc = Miner::getRunningLtcProcess();
@@ -510,10 +544,26 @@ class Miner {
 			$summary["stale"] = $sum["SUMMARY"]["Stale"];
 		}
 	
-	
+		$pls = CGMinerClient::requestPools();
+		
+		if(is_iterable($pls)) {
+			foreach ($pls as $pl) {
+				
+			if(isset($pl["POOL"])){
+					$pools [] = array(
+							"id" => $pl["POOL"],
+							"URL" => $pl["URL"],
+							"Status" => $pl["Stratum Active"] == 'true'? "ALIVE" : "SLEEPING"
+					);
+				}
+				
+			}
+		}
+		
 		$stats = array(
 				"summary" => $summary,
-				"devices" => $devices
+				"devices" => $devices,
+				"pools" => $pools
 		);
 	
 		return $stats;

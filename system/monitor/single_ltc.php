@@ -39,7 +39,7 @@ if(count(Miner::getRunningLtcProcess()) == 0 && !empty($devices['bus'])) {
 	
 	//starting up ltc process
 	syslog(LOG_INFO, "Starting single LTC Process");
-	$re = Miner::startupLtcProc($config['ltc_url'], $config['ltc_worker'], $config['ltc_pass'], $config['freq']);
+	$re = Miner::startupLtcProc($config['freq']);
 	if($re === false) {
 		return;
 	}

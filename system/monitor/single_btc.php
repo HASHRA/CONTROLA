@@ -43,7 +43,7 @@ if(empty($process['btc']) && !empty($devices['bus'])) {
 	$cache->set(CACHE_RUNTIME, $runtime);
 	//starting up btc process
 	syslog(LOG_INFO, "Starting single BTC Process");
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], 16);
+	$re = Miner::startupBtcProc($config['freq'], 16);
 	
 	if($re === false) {
 		//Miner::restartPower();

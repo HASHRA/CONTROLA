@@ -65,25 +65,26 @@ if(empty($process['btc'])) {
 //startup BTC
 if(empty($process['btc'])) {
 	//startup BTC
-	$re = Miner::startupBtcProc($config['btc_url'], $config['btc_worker'], $config['btc_pass'], $config['freq'], $sysSettings->btccoresdual);
+	$re = Miner::startupBtcProc($config['freq'], $sysSettings->btccoresdual);
 	//Log
-	syslog(LOG_INFO, "BTC process startup: Pid={$re['pid']} Worker={$config['btc_worker']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
+	syslog(LOG_INFO, "BTC process startup: Pid={$re['pid']} Frequency={$config['freq']} Devices=".implode(',',$re['devids'])." Bus=".implode(',',$devices['bus']));
 }
 
 
 $freeMinersCount = count($devices["devids"]) - count($process["ltc"]);
 if($freeMinersCount > 0) {
+	$pools = ConfigurationManager::instance()->getPools();
 	//found free miners
 	for($i = 0 ; $i < $freeMinersCount ; $i++) {
 		//starting cpu miner
 		$pid = Miner::startupCPUMinerProc(
 			$bus,
-			$config['ltc_url'],
-			$config['ltc_worker'],
-			$config['ltc_pass'],
+			$pools[0]->url,
+			$pools[0]->worker,
+			$pools[0]->password,
 			$config['freq'],
 			true
 		);
-		syslog(LOG_INFO, "LTC process startup: Bus={$bus} Pid={$pid} Worker={$worker} Frequency={$config['freq']}");
+		syslog(LOG_INFO, "LTC process startup: Bus={$bus} Pid={$pid} Frequency={$config['freq']}");
 	}
 }
