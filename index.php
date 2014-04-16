@@ -501,13 +501,24 @@ if(isset($_GET["i"]))
 											var url = $(this).find("[data-component='URLCell']").text();
 											var span = $(this).find('span');
 											if (pool.URL == url) {
-												span.removeClass('label-danger');
+												span.removeClass('label-default');
 												span.addClass('label-success');
 												span.text("Running");
 											}else{
-												span.addClass('label-danger');
+												span.addClass('label-default');
 												span.removeClass('label-success');
 												span.text("Sleeping");
+											}
+										});	
+									}else if (pool.Status == 'DEAD') {
+										$("table[data-alive] tbody tr").each(function () {
+											var url = $(this).find("[data-component='URLCell']").text();
+											var span = $(this).find('span');
+											if (pool.URL == url) {
+												span.removeClass('label-default');
+												span.removeClass('label-success');
+												span.addClass('label-danger');
+												span.text("Dead");
 											}
 										});	
 									}								
