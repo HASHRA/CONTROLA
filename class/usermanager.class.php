@@ -23,7 +23,10 @@
 				fopen(FILE_USERS , "w");
 				$userManager->createUser("hashra", "hashra");			
 			}
-				
+			
+			exec('sudo chown www-data:www-data '.FILE_USERS);
+			exec('sudo chmod 755 '.FILE_USERS);
+			
 			$userManager->users = json_decode(file_get_contents(FILE_USERS));
 			//delete root user ... the boss doesn't like "root" ;)
 			if ($userManager->getUser("root") != null){

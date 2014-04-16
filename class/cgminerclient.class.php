@@ -125,6 +125,10 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			return CGMinerClient::request("devs");
 		}
 		
+		function requestPools() {
+			return CGMinerClient::request("pools");
+		}
+		
 		function requestSummary() {
 			return CGMinerClient::request("summary");
 		}

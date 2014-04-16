@@ -34,44 +34,8 @@ $success = false;
  
 if($_POST)
 {
-	
-	$valid = true;
-    $ltc_url = preg_replace('/\s+/', '', $_POST["ltc_url"]);
-    $ltc_worker = preg_replace('/\s+/', '', $_POST["ltc_worker"]);
-    $ltc_pass = preg_replace('/\s+/', '', $_POST["ltc_pass"]);
-    $ltc_enable = (isset($_POST["check_ltc"]));
-    if(empty($ltc_url) || empty($ltc_worker) || empty($ltc_pass))
-    {
-        $valid = false;
-    }
-    
-    
-    $btc_url = preg_replace('/\s+/', '', $_POST["btc_url"]);
-    $btc_worker = preg_replace('/\s+/', '', $_POST["btc_worker"]);
-    $btc_pass = preg_replace('/\s+/', '', $_POST["btc_pass"]);
-    $btc_enable = (isset($_POST["check_btc"]));
-    if(empty($btc_url) || empty($btc_worker) || empty($btc_pass))
-    {
-        $valid = false;
-    }
-    
-    if(!$ltc_enable && !$btc_enable)
-    {
-        $model = 0;
-        $runmode = "IDLE";
-    }
-    else if(!$ltc_enable && $btc_enable)
-    {
-        $model = 1;
-    }
-    else if($ltc_enable && !$btc_enable)
-    {
-        $model = 2;
-    }
-    else if($ltc_enable && $btc_enable)
-    {
-        $model = 3;
-    }
+
+    $model = $_POST["mode"];
     
     $freq = (int) $_POST["freq"];
     $freq = $freq - $freq % 25;
@@ -79,53 +43,23 @@ if($_POST)
     {
         $freq = 600;
     }
-    
-    if( $valid &&
-		$ltc_url != $iniArr["ltc_url"] || 
-        $ltc_worker != $iniArr["ltc_worker"] ||
-        $ltc_pass != $iniArr["ltc_pass"] ||
-        $btc_url != $iniArr["btc_url"] ||
-        $btc_worker != $iniArr["btc_worker"] ||
-        $btc_pass != $iniArr["btc_pass"] ||
-        $freq != $iniArr["freq"] ||
-        $model != $iniArr["model"]
-        )
-    {
-        $iniStr = "[config]\n";
-        $iniStr .= "model = {$model}\n";
-        $iniStr .= "freq = {$freq}\n";
-        $iniStr .= "btc_url = \"{$btc_url}\"\n";
-        $iniStr .= "btc_worker = \"{$btc_worker}\"\n";
-        $iniStr .= "btc_pass = \"{$btc_pass}\"\n";
-        $iniStr .= "ltc_url = \"{$ltc_url}\"\n";
-        $iniStr .= "ltc_worker = \"{$ltc_worker}\"\n";
-        $iniStr .= "ltc_pass = \"{$ltc_pass}\"\n";
-        
-        $outfile = fopen(FILE_CONFIG,"w");
-        fwrite($outfile, $iniStr);
-        fclose($outfile);
+
+    $iniStr = "[config]\n";
+    $iniStr .= "model = {$model}\n";
+    $iniStr .= "freq = {$freq}\n";
+      
+    $outfile = fopen(FILE_CONFIG,"w");
+    fwrite($outfile, $iniStr);
+    fclose($outfile);
 		
-		exec('wget http://localhost/system/monitor.php > /dev/null &');
-		header('Location: /?i=2');
-		exit;
-		
-    }
+	exec('wget http://localhost/system/monitor.php > /dev/null &');
+	header('Location: /?i=2');
+	exit;
 }
 else
 {
-    $ltc_url = $iniArr["ltc_url"];
-    $ltc_worker = $iniArr["ltc_worker"];
-    $ltc_pass = $iniArr["ltc_pass"];
-    $ltc_enable = dechex($iniArr["model"]) & 0x2;
-    $btc_url = $iniArr["btc_url"];
-    $btc_worker = $iniArr["btc_worker"];
-    $btc_pass = $iniArr["btc_pass"];
-    $btc_enable = dechex($iniArr["model"]) & 0x1;
     $freq = $iniArr["freq"];
 }
-
-$runtime = $cache->get(CACHE_RUNTIME);
-$uptime = time() - $runtime["runtime"];
 $li = '';
 $totalhash = 0;
 $totalhashbtc = 0;
@@ -275,27 +209,51 @@ if(isset($_GET["i"]))
         </div>
         <div class="col-md-6">
             <div class="panel ">
-            
-            
+
                 <form role="form" action="." method="post" id="config_form">
                 <div class="panel-heading">
-                	 <h4 class="panel-title"><?php if (DUAL_SUPPORT) { echo 'SCRYPT'; }?> pool configuration</h4>
+                	 <h4 class="panel-title"><?php if (DUAL_SUPPORT) { echo 'SCRYPT'; }?> Pools</h4>
                 </div>
                 <div class="panel-body">
-
-		                <div class="form-group">
-		                    <label for="ltc_url">Scrypt Pool address</label>
-		                    <input class="form-control" id="ltc_url" name="ltc_url" placeholder="stratum+tcp://..." value="<?php echo $ltc_url?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
-		                </div>
-		                <div class="form-group">
-		                    <label for="ltc_worker">Scrypt worker name</label>
-		                    <input class="form-control" id="ltc_worker" name="ltc_worker" value="<?php echo $ltc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address.">
-		                </div> 
-		                <div class="form-group">
-		                    <label for="ltc_pass">Scrypt worker password</label>
-		                    <input class="form-control" id="ltc_pass" name="ltc_pass" value="<?php echo $ltc_pass?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Worker password. Usually ignored by pools">
-		                </div>
-		                <div class="form-group">
+            <a href="#"  data-add-action="scrypt"><i class="fa fa-plus"></i> add pool</a>
+			<table class="table table-striped table-hover" data-component="PoolTable" <?php if($runmode == 'SCRYPT') echo 'data-alive="true"' ?> data-pooltype="scrypt">
+                <thead>
+                    <tr>
+                        <th>Prio</th>
+                        <th>Url</th>
+                        <th>Stat</th>
+                        <th>Order</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+            </table>		               
+                </div> 
+                
+                 <div class="panel-heading" <?php if (!supportedAlgo(SHA)) {echo 'style="display:none"';}?>>
+                	 <h4 class="panel-title">SHA pools</h4>
+                </div>
+                <div class="panel-body" <?php if (!supportedAlgo(SHA)) {echo 'style="display:none"';}?>>
+                		<a href="#" data-add-action="sha"><i class="fa fa-plus"></i> add pool</a>
+		                <table class="table table-striped table-hover" data-component="PoolTable" <?php if($runmode == 'SHA256' || $runmode == 'DUAL') echo 'data-alive="true"' ?> data-pooltype="sha">
+			                <thead>
+			                    <tr>
+			                        <th>Prio</th>
+			                        <th>Url</th>
+			                        <th>Stat</th>
+			                        <th>Order</th>
+			                        <th>Action</th>
+			                    </tr>
+			                </thead>
+			                <tbody>
+			                    <tr><td colspan="5">Loading...</td></tr>
+			                </tbody>
+			            </table>	
+                </div>
+                 <div class="panel-body">
+                 	<div class="form-group">
 		                	<label for="freq">Core clock speed (Mhz)</label>
 		                	<select class="form-control" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
 								<?php for ($i = 600 ; $i <= 1300 ; $i += 50) {?>
@@ -304,51 +262,15 @@ if(isset($_GET["i"]))
 		                     </select>
 		                </div>
 		                
-		                <div class="form-group"  <?php if (!DUAL_SUPPORT) {echo 'style="display:none"';}?>>
-		                	 <div class="form-control-static">
-			                	<div class="checkbox">
-			                        <label>
-			                            <input type="checkbox" name="check_ltc" <?php $tmpstring = ((!DUAL_SUPPORT && supportedAlgo(SCRYPT)) || $ltc_enable) ? 'checked' : ''; echo $tmpstring; ?> value='ltc'>
-			                           	Enable Scrypt mining
-			                        </label>
-			                    </div>
-		                    </div>
+		                <div class="btn-group" data-component="BtnSwitch" <?php if (!DUAL_SUPPORT) echo "style='display:none;'" ?>>
+		                    <button type="button" value="2" class="btn btn-default <?php if ($runmode == "SCRYPT") echo 'active' ?>">Scrypt</button>
+		                    <button type="button" value="1" class="btn btn-default <?php if ($runmode == "SHA256") echo 'active' ?>">SHA256</i></button>
+		                    <button type="button" value="3" class="btn btn-default <?php if ($runmode == "DUAL") echo 'active' ?>">Dual</button>
+		                    <input type="hidden" id="mode" name="mode" value="2"/>
 		                </div>
-		                <div class="form-group" <?php if (DUAL_SUPPORT) {echo 'style="display:none"';}?>>
-		                	<button type="submit" class="btn btn-primary">Save and restart</button>
-		                </div>
-                </div> 
-                
-                 <div class="panel-heading" <?php if (!supportedAlgo(SHA)) {echo 'style="display:none"';}?>>
-                	 <h4 class="panel-title">BTC pool configuration</h4>
-                </div>
-                <div class="panel-body" <?php if (!supportedAlgo(SHA)) {echo 'style="display:none"';}?>>
-		                <div class="form-group">
-		                    <label for="btc_url">BTC Pool address</label>
-		                    <input class="form-control" id="btc_url" name="btc_url" placeholder="stratum+tcp://..." value="<?php echo $btc_url?>"  data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter the pool URL here">
-		                </div>
-		                <div class="form-group">
-		                    <label for="btc_worker">BTC worker name</label>
-		                    <input class="form-control" id="btc_worker" name="btc_worker" value="<?php echo $btc_worker?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Enter Worker name here. Some pools uses your BTC address.">
-		                </div> 
-		                <div class="form-group">
-		                    <label for="btc_pass">SHA256 worker password</label>
-		                    <input class="form-control" id="btc_pass" name="btc_pass" value="<?php echo $btc_pass?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Worker password. Usually ignored by pools">
-		                </div>
-		                <div class="form-group">
-		                	 <div class="form-control-static">
-			                	<div class="checkbox">
-			                        <label>
-			                            <input type="checkbox" name="check_btc" <?php $tmpstring = $btc_enable ? 'checked' : ''; echo $tmpstring; ?> value="btc">
-			                           	Enable SHA256 Mining
-			                        </label>
-			                    </div>
-		                    </div>
-		                </div>
-		                <div class="form-group">
-		                	<button type="submit" class="btn btn-primary">Save and restart</button>
-		                </div>
-                </div>
+		                
+		                <button type="submit" class="btn btn-default">Save and restart</button>
+                 </div>
                 </form>
                 </div>
                 <div class="panel">
@@ -373,33 +295,118 @@ if(isset($_GET["i"]))
     </section>
 </div>
 
- <!-- Modal -->
+<!-- END: CONTENT -->
+
+            </div>
+            
+            <!-- Modals -->
                     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-<!--                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                                     <h4 class="modal-title" id="myModalLabel"></h4>
                                 </div>
                                 <div id="modalContent" class="modal-body">
                                    
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" id="update-button-close" class="btn btn-default" data-dismiss="modal">Close this dialog</button>
+                                    <button type="button" id="update-button-close" class="btn btn-default" data-dismiss="modal">Close</button>
                                 </div>
                             </div><!-- /.modal-content -->
                         </div><!-- /.modal-dialog -->
                     </div><!-- /.modal -->
-
-<!-- END: CONTENT -->
-
-            </div>
+            
+                    <div class="modal fade" id="poolFormModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="poolModalLable"></h4>
+                                </div>
+                                <div id="modalContent" class="modal-body">
+                                   <form role="form" data-pooltype="">
+                                   	<input type="hidden" id="pool_id" name="pool_id" value="-1">
+					                <div class="form-group">
+					                    <label for="pool_url">Pool URL</label>
+					                    <input type="text" class="form-control" id="pool_url" name="pool_url" placeholder="stratum+tcp://" data-validate="mandatory">
+					                    <span class="help-block">
+					                        
+					                    </span>
+					                </div>
+					                <div class="form-group">
+					                    <label for="worker_name">Worker name</label>
+					                    <input type="text" class="form-control" id="worker_name" name="worker_name" data-validate="mandatory">
+					                    <span class="help-block">
+					                        
+					                    </span>
+					                </div>	
+					                <div class="form-group">
+					                    <label for="worker_password">Worker password</label>
+					                    <input type="text" class="form-control" id="worker_password" name="worker_password" data-validate="mandatory">
+					                    <span class="help-block">
+					                        
+					                    </span>
+					                </div>					               
+					            </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" data-component="PoolFormButton" id="update-button-close" class="btn btn-primary">Save</button> <button type="button" id="update-button-close" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+            
             <!-- END: BODY --> 
-       <?php include 'includes/footer.php';?>
+       <?php include 'includes/footer.php';?> 
+       
        <script>
 			var myModal = $("#myModal");
-			var myModalLabel = $("#myModalLabel");
-			var modalContent = $("#modalContent");
+			var myModalLabel = $("#myModal #myModalLabel");
+			var modalContent = $("#myModal #modalContent");
+
+			//serialize form to object
+			$.fn.serializeObject = function()
+			{
+			    var o = {};
+			    var a = this.serializeArray();
+			    $.each(a, function() {
+			        if (o[this.name] !== undefined) {
+			            if (!o[this.name].push) {
+			                o[this.name] = [o[this.name]];
+			            }
+			            o[this.name].push(this.value || '');
+			        } else {
+			            o[this.name] = this.value || '';
+			        }
+			    });
+			    return o;
+			};
+
+			$.fn.validate = function() {
+				$(this).find("[data-validate]").each( function (idx){
+					var validator = $(this).data('validate');
+					var res = window[validator].apply(null, [this]);
+					if (!res.valid) {
+						$(this).parent().addClass("has-error");
+						$(this).next(".help-block").html(res.message);
+					}else{
+						$(this).parent().removeClass("has-error");
+						$(this).next(".help-block").html("");
+					}
+				});
+				return !$("div.form-group").hasClass('has-error');
+			};
+
+
+			$.fn.prefill = function (pool) {
+				$(this).find(".form-group .help-block").html('');
+				$(this).find(".has-error").removeClass("has-error");
+				$(this).find("[name='pool_url']").val(pool.url);
+				$(this).find("[name='pool_id']").val(pool.id);
+				$(this).find("[name='worker_name']").val(pool.worker);
+				$(this).find("[name='worker_password']").val(pool.password);								
+			}
 			
 			$("#actionbutton-restart").on("click" , function(event) {
 					event.preventDefault();
@@ -485,6 +492,38 @@ if(isset($_GET["i"]))
 										totalHashBTC += parseFloat(hash);
 									}
 								}
+
+								//detect which pool is alive
+								for (var i = 0 ; i < data.pools.length ; i++) {
+									var pool = data.pools[i];
+									if (pool.Status =='ALIVE'){
+										$("table[data-alive] tbody tr").each(function () {
+											var url = $(this).find("[data-component='URLCell']").text();
+											var span = $(this).find('span');
+											if (pool.URL == url) {
+												span.removeClass('label-default');
+												span.addClass('label-success');
+												span.text("Running");
+											}else{
+												span.addClass('label-default');
+												span.removeClass('label-success');
+												span.text("Sleeping");
+											}
+										});	
+									}else if (pool.Status == 'DEAD') {
+										$("table[data-alive] tbody tr").each(function () {
+											var url = $(this).find("[data-component='URLCell']").text();
+											var span = $(this).find('span');
+											if (pool.URL == url) {
+												span.removeClass('label-default');
+												span.removeClass('label-success');
+												span.addClass('label-danger');
+												span.text("Dead");
+											}
+										});	
+									}								
+								}
+								
 								$("#btc_totalhash").html(totalHashBTC.toFixed(2));	
 
 								//do summary
@@ -524,7 +563,191 @@ if(isset($_GET["i"]))
 
 				return result;		
 			}
+
+
+			function PoolTable (el) {
+				this.poolTable = $(el);
+				this.poolTableBody = this.poolTable.find('tbody');
+				this.pools;
+				this.poolType = this.poolTable.data('pooltype');
+				var ctx = this;
+				this.loadTable = function () {
+					$.post('/ajaxController.php?action=GetPools' , {pooltype : ctx.poolType}, function(data) {
+						if (data.STATUS == 'NOTOK') {
+							//application error handling
+							console.log("Failed at getting pools");
+						}else{
+							//load the table
+							ctx.pools = data.PAYLOAD;
+							ctx.populate();
+						}
+					}, 'json').fail(function() {
+						//error handling
+						console.log("http fail");
+					});
+				};
+				this.bind = function () {
+					ctx.poolTableBody.find("[data-pooltable-action]").on('click' , function (ev) {
+						ev.preventDefault();
+						var id = $(ev.target).closest('tr').data('id');
+						$(document).trigger('action-'+ $(ev.target).closest('a').data('pooltable-action'), [ctx.poolType, ctx.pools[id]]);
+				});	
+				};
+
+				this.populate = function () {
+					var tbody = ctx.poolTableBody;
+					var rows = '';
+					for (var i = 0 ; i < ctx.pools.length ; i++) {
+						ctx.pools[i].id = i;
+						var isFirst = (i == 0);
+						var isLast = (i == ctx.pools.length -1);
+						rows += "<tr data-id='"+i+"'><td>"+i+"</td><td data-component='URLCell'>"+ctx.pools[i].url+"</td><td><span class='label label-default'>not active</span></td><td class='actions'>";
+						if (!isFirst){
+							rows += "<a data-pooltable-action='re-up' href='#'><li class='fa fa-arrow-up'></li></a>";
+						}
+						if (!isLast) {
+							rows +=	"<a data-pooltable-action='re-down' href='#'><li class='fa fa-arrow-down'></li></a>";
+						}
+						rows += "</td><td class='actions'><a data-pooltable-action='edit' href='#'><li class='fa fa-pencil'></li></a><a data-pooltable-action='delete' href='#'><li class='fa fa-fw fa-times'></li></a></td></tr>";
+					}
+					tbody.html(rows);
+					ctx.bind();
+				};
+				
+				this.loadTable();
+				$(document).on('add-pool', function (evt, pooltype, pool) {
+					if(pooltype == ctx.poolType){
+
+						$.post('/ajaxController.php?action=SetPool' , 
+								{pool : {id:pool.pool_id, type: pooltype , url:pool.pool_url, worker:pool.worker_name, password: pool.worker_password  }}, function(data) {
+							if (data.STATUS == 'NOTOK') {
+								//application error handling
+								console.log("Failed at adding pool");
+							}else{
+								//load the table
+								ctx.pools = data.PAYLOAD;
+								ctx.populate();
+							}
+						}, 'json').fail(function() {
+							//error handling
+							console.log("http fail");
+						});
+					}
+				});
+
+				$(document).on('delete-pool', function (evt, pooltype, pool) {
+					if(pooltype == ctx.poolType){
+
+						$.post('/ajaxController.php?action=DeletePool' , 
+								{type : pooltype , id:pool.id}, function(data) {
+							if (data.STATUS == 'NOTOK') {
+								//application error handling
+								console.log("Failed at deleting pool");
+							}else{
+								//load the table
+								ctx.pools = data.PAYLOAD;
+								ctx.populate();
+							}
+						}, 'json').fail(function() {
+							//error handling
+							console.log("http fail");
+						});
+					}
+				});
+				
+				$(document).on('rearrange-pool', function (evt, pooltype, pool, target) {
+					if(pooltype == ctx.poolType){
+
+						$.post('/ajaxController.php?action=ReorderPool' , 
+								{type : pooltype , old:pool.id, target:target}, function(data) {
+							if (data.STATUS == 'NOTOK') {
+								//application error handling
+								console.log("Failed at deleting pool");
+							}else{
+								//load the table
+								ctx.pools = data.PAYLOAD;
+								ctx.populate();
+							}
+						}, 'json').fail(function() {
+							//error handling
+							console.log("http fail");
+						});
+					}
+				});
+			} 
+
 			
+			$(document).on('action-re-up', function (evt, poolType, payload) {
+				$(document).trigger('rearrange-pool', [poolType, payload, payload.id - 1]);
+			});
+			$(document).on('action-re-down', function (evt, poolType, payload) {
+				$(document).trigger('rearrange-pool', [poolType, payload, payload.id + 1]);
+			});
+
+			$(document).on('action-edit', function (evt, poolType,  payload) {
+				var poolFormModal = $("#poolFormModal");
+				$("#poolModalLable").html("Edit " + poolType + " Pool " );
+				poolFormModal.find("[data-pooltype]").data('pooltype' , poolType);
+				var form = poolFormModal.find("form");
+				form.prefill(payload);
+				poolFormModal.modal();
+			});
+
+			$(document).on('action-delete', function (evt, poolType, payload) {
+				if(confirm("Are you sure you want to delete " + payload.url +  ' ?'  )){
+					$(document).trigger('delete-pool', [poolType, payload]);
+				}
+			});
+			
+			$("[data-component='PoolFormButton']").on('click', function (evt) {
+				modal = $("#poolFormModal");
+				form = modal.find("form");
+				var valid = form.validate();
+				if (valid) {
+					modal.modal('hide');
+					$(document).trigger('add-pool', [form.data('pooltype'),form.serializeObject()]);
+				}
+			});
+			
+			//activate add pool buttons
+			$("[data-add-action]").each(function (idx, element) {
+				$(element).on('click', function (ev) {
+					ev.preventDefault();
+					var poolFormModal = $("#poolFormModal");
+					$("#poolModalLable").html("Add " + $(this).data('add-action')+ " Pool " );
+					poolFormModal.find("[data-pooltype]").data('pooltype' , $(this).data('add-action'));
+					poolFormModal.find("input.form-control").val('');
+					poolFormModal.find("input[name='pool_id']").val('-1');
+					poolFormModal.find(".form-group .help-block").html('');
+					poolFormModal.find(".has-error").removeClass("has-error");
+					poolFormModal.modal();
+	        	});
+			});
+			//validator
+			var mandatory = function (field) {
+				if ($.trim(field.value) == '') {
+					var labeltext = $("label[for='"+$(field).attr('id')+"']").text();
+					return {valid:false, message: labeltext + " is mandatory "};
+				}
+				return {valid:true};
+			}
+			
+			//init all pooltables
+			var arrPoolTables = [];
+			$("[data-component='PoolTable']").each(function (idx, element) {
+				arrPoolTables.push(new PoolTable(element));
+			});	
+
+			$("[data-component='BtnSwitch']").each(function (idx, element){
+				$(this).find("button").on('click' , function () {
+					//do switch
+					$(this).siblings('button').removeClass('active');
+					$(this).addClass('active');
+					$(this).siblings("input[type='hidden']").val($(this).val());
+				});
+			});		
         </script>
+      
+        
     </body>
 </html>

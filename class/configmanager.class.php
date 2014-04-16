@@ -17,6 +17,7 @@
 			if (!file_exists(FILE_SYSTEM_SETTNGS)) {
 				//create default system settings
 				fopen(FILE_SYSTEM_SETTNGS , "w");
+				
 				$settings = array (
 					"restartevery" => 0,
 					"btccoresdual" => 11,
@@ -52,6 +53,11 @@
 			
 			$configMan = new ConfigurationManager();
 			
+			exec('sudo chown www-data:www-data '.FILE_SYSTEM_SETTNGS);
+			exec('sudo chmod 755 '.FILE_SYSTEM_SETTNGS);
+			exec('sudo chown www-data:www-data '.FILE_POOLSETTINGS);
+			exec('sudo chmod 755 '.FILE_POOLSETTINGS);
+			
 			$configMan->poolSettings = json_decode(file_get_contents(FILE_POOLSETTINGS));
 			$configMan->systemSettings = json_decode(file_get_contents(FILE_SYSTEM_SETTNGS));
 						
@@ -62,9 +68,6 @@
 			return $this->systemSettings;
 		}
 		
-		function getPoolSettings ($type) {
-			return $this->poolSettings[$type];
-		}
 		
 		/**
 		 * 
@@ -74,27 +77,64 @@
 		 * @param string $password
 		 * @return boolean
 		 */
-		function setPoolSettings ($type, $url , $worker, $password) {
-			//does pool exists? url is identifier
-			foreach ($this->poolSettings[$type] as &$pool) {
-				if ($pool->url === $url) {
-					//pool exists, edit current
-					$pool->worker = $worker;
-					$pool->password = $password;
-					$this->save();
-					return true;
+		function setPoolSettings ($id, $type, $url , $worker, $password) {
+			syslog(LOG_INFO, "adding pool with id " . $id);
+			if($id > -1) {
+				foreach ($this->poolSettings->$type as $key=>&$pool) {
+					if ($key == $id) {
+						//pool exists, edit current
+						$pool->url = $url;
+						$pool->worker = $worker;
+						$pool->password = $password;
+						$this->save();
+						return true;
+					}
 				}
+			}else{
+				//doesn't exist, add it
+				$newPool = array (
+						"url" => $url,
+						"worker" => $worker,
+						"password" => $password
+				);
+				array_push($this->poolSettings->$type, $newPool);
+				$this->save();
+				return true;
 			}
-			//doesn't exist, add it	
-			$pool = array (
-				"url" => $url,
-				"worker" => $worker,
-				"password" => $password
-			);
-			$this->poolSettings[$type][] = $pool;
-			$this->save();
-			return true;
 		}
+		
+		
+		function rearrangePool($type, $old, $new) {
+			$arrPools = array(); 
+			foreach ($this->poolSettings->$type as $key=>&$pool) {
+				$arrPools[] = $pool;
+			}
+			$oldSeatholder = $arrPools[$new];
+			$target = $arrPools[$old];
+			$arrPools[$new] = $target;
+			$arrPools[$old] = $oldSeatholder;
+			$this->poolSettings->$type = $arrPools;
+			$this->save();
+		}		
+		
+		/**
+		 * returns the pools for a type
+		 * @param string $type
+		 */
+		function getPools($type = 'scrypt'){
+			return $this->poolSettings->$type;
+		}
+		
+		/**
+		 * deletes pool
+		 * @param String $type
+		 * @param String $id
+		 */
+		function deletePool($type, $id) {
+			array_splice($this->poolSettings->$type, $id, 1);
+			$this->save();	
+		}
+	
 		
 		/**
 		 * saves the configuration to file

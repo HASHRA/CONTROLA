@@ -68,6 +68,10 @@ if(!empty($devices))
 	if (isset($statsui["summary"])) {
 		$summary = json_encode($statsui["summary"]);
 	}
+	$pools = "{}";
+	if (isset($statsui["pools"])){
+		$pools = json_encode($statsui["pools"]);
+	}
 	if(count($devices) == $offline)
 	{
 		$uptime = 0;
@@ -78,6 +82,7 @@ if(!empty($devices))
 
 {
 	"Summary" : <?php echo $summary?>,
+	"pools" : <?php echo $pools ?>,
 	"LTCDevices" : [<?php if($runmode === 'LTC') echo $table?>],
 	"BTCDevices" : [<?php if ($runmode === 'DUAL' || $runmode === 'BTC') echo $table?>]
 }
