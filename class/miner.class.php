@@ -446,8 +446,8 @@ class Miner {
 				if(isset($pl["POOL"])){
 					$pools [] = array(
 							"id" => $pl["POOL"],
-							"URL" => $pl["URL"],
-							"Status" => $pl["Stratum Active"] == 'true'? "ALIVE" : "SLEEPING"
+							"URL" => $pl['URL'],
+							"Status" => ($pl["Stratum Active"] == 'true'? "ALIVE" : ($pl["Status"] =='Dead' ? "DEAD" : "SLEEPING"))
 					);
 				}
 			}
@@ -552,8 +552,8 @@ class Miner {
 			if(isset($pl["POOL"])){
 					$pools [] = array(
 							"id" => $pl["POOL"],
-							"URL" => $pl["URL"],
-							"Status" => $pl["Stratum Active"] == 'true'? "ALIVE" : "SLEEPING"
+							"URL" => $pl['URL'],
+							"Status" => ($pl["Stratum Active"] == 'true'? "ALIVE" : ($pl["Status"] =='Dead' ? "DEAD" : "SLEEPING"))
 					);
 				}
 				
