@@ -56,10 +56,20 @@ if(!empty($devices))
 			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
+            $serial = isset($statsui["devices"][$devid]["serial"]) ? $statsui["devices"][$devid]["serial"] : 0;
 			$time = $statsui["devices"][$devid]["time"];
+            $hw = $statsui["devices"][$devid]["hw"];
 			$lastcommittime = ($time > 0) ? (time() - $time) / 60 : 0;
 			$comma = ($counter == 0)? '':',';
-			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" , "hash" : "'.$hash.'", "valids" : "'.$valids.'" , "totals" : "'.$totals.'", "rejectrate" : "'.$rejrate.'" , "time" : "'.$time.'", "lastcommit" : "'.$lastcommittime.'"}';
+			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" , "hash" : "'.$hash.'",
+                "valids" : "'.$valids.'" ,
+                "totals" : "'.$totals.'",
+                "rejectrate" : "'.$rejrate.'" ,
+                "time" : "'.$time.'",
+                "lastcommit" : "'.$lastcommittime.'",
+                "serial" : "'.$serial.'",
+                "hw" : "'.$hw.'"
+			}';
 			$counter++;
 		}
 

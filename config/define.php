@@ -60,7 +60,7 @@ define('GHS' , 3);
 
 define('SUPPORTS' , SCRYPT | SHA);
 define('PRODUCT_NAME' , 'MINI CONTROLA');
-define('CALCULATE_HASHRATE_SCRYPT', BY_CORE);
+define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', KHS);
 define('SHA_UNIT', GHS);
@@ -76,7 +76,7 @@ define('DEFAULT_UPDATE_URL' , 'https://hashracustomer:hashra1@bitbucket.org/purp
  * @return boolean
  */
 function supportedAlgo($algoMask) {
-	return ($algoMask & SUPPORTS);	
+	return (SUPPORTS & $algoMask);
 }
 
 function require_with($pg, $vars)

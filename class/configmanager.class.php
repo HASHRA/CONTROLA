@@ -102,9 +102,13 @@
 				return true;
 			}
 		}
-		
-		
-		function rearrangePool($type, $old, $new) {
+
+        /**
+         * @param $type algo type, scrypt or sha
+         * @param $old old priority
+         * @param $new new priority
+         */
+        function rearrangePool($type, $old, $new) {
 			$arrPools = array(); 
 			foreach ($this->poolSettings->$type as $key=>&$pool) {
 				$arrPools[] = $pool;

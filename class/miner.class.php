@@ -395,6 +395,7 @@ class Miner {
 		}
 		
 		$devs = CGMinerClient::requestDevices();
+
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
 				if (strpos($key, 'PGA') !== false) {
@@ -406,8 +407,10 @@ class Miner {
 							'hashrate'  => Miner::calculateSCRYPTHashrate($val),
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
-							'enabled'	=> $val["Enabled"]
-					);
+							'enabled'	=> $val["Enabled"],
+                            'serial'    => $val["Serial"],
+                            'hw'        => $val["Hardware Errors"]
+                    );
 				}
 			}
 			
@@ -510,7 +513,8 @@ class Miner {
 							'hashrate'  => Miner::calculateSHAHashrate($val),
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
-							'enabled'	=> $val["Enabled"]
+							'enabled'	=> $val["Enabled"],
+                            'hw'        => $val["Hardware Errors"]
 					);
 				}
 			}
