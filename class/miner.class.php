@@ -232,7 +232,7 @@ class Miner {
 		
 		$pools = ConfigurationManager::instance()->getPools('scrypt');
 		
-		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --scrypt --api-allow W:0/0 --api-port 4001 -S gridseed:all --set-device gridseed:clock={$freq} --failover-only";
+		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --scrypt --api-allow W:0/0 --api-port 4001 --gridseed-chips ".CHIP_AMOUNT." -S gridseed:all --set-device gridseed:clock={$freq} --failover-only";
 		
 		foreach ($pools as &$pool){
 			$cmd .= " -o {$pool->url} -u {$pool->worker} -p {$pool->password} ";

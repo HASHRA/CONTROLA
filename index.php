@@ -256,7 +256,7 @@ if(isset($_GET["i"]))
                  	<div class="form-group">
 		                	<label for="freq">Core clock speed (Mhz)</label>
 		                	<select class="form-control" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
-								<?php for ($i = 600 ; $i <= 1300 ; $i += 25) {?>
+								<?php foreach(FREQ_TABLE as $i) {?>
 									<option value="<?php echo $i?>" <?php $tbool = $freq == $i ? 'selected="selected"' : ''; echo $tbool; ?> ><?php echo $i?></option>
 								<?php }?>
 		                     </select>
