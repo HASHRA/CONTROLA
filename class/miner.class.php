@@ -404,7 +404,8 @@ class Miner {
 							'time'		=> $val['Last Share Time'],
 							'device'	=> $val['ID'],
 							'diff'		=> $val['Diff1 Work'],
-							'hashrate'  => Miner::calculateSCRYPTHashrate($val),
+							'hashrate'  => Miner::calculateSCRYPTHashrate($val, BY_CORE),
+                            'poolhashrate' => Miner::calculateSCRYPTHashrate($val, BY_DIFF1),
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"],
@@ -573,12 +574,12 @@ class Miner {
 		return $stats;
 	}
 	
-	function calculateSCRYPTHashrate ($aStats) {
+	function calculateSCRYPTHashrate ($aStats, $method) {
 		$multiplier = 1000;
 		if (SCRYPT_UNIT === MHS) {
 			$multiplier = 1;
 		}
-		if (CALCULATE_HASHRATE_SCRYPT === BY_CORE) {
+		if ($method === BY_CORE) {
 			return $aStats['MHS 20s'] * $multiplier;
 		}
 		return round(pow(2,32) * $aStats['Diff1 Work'] / $aStats['Device Elapsed'] / 1E6, 2) * $multiplier;

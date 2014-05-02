@@ -79,9 +79,17 @@ $table = 'No devices found';
 if(!empty($devices))
 {
 	$table = "";
+    $tableadvanced = "";
 	$tablebtc = "";
 
 	$statsui = Miner::getCGMinerStats();
+
+    $options = '';
+
+    foreach ($freq_table as $f) {
+        $options.='<option value="'.$f.'">'.$f.'</option>';
+    }
+
 	foreach($statsui["devices"] as $stat)
 	{
 		$totalhash += $stat["hashrate"];
@@ -90,8 +98,21 @@ if(!empty($devices))
 	foreach($devices["devids"] as $devid)
 	{
 		$unit = (SCRYPT_UNIT === KHS) ? 'Kh/s' : 'Mh/s'; 
-		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> '.$unit.'</span></div><div>Scrypt '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
-		
+		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box">
+		<div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'">
+		    <span><b class="value"> 0 </b> '.$unit.'</span>
+		 </div>
+		 <div>Scrypt '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
+		$tableadvanced.="
+		<tr>
+		    <td id='serial_".$devid."'>loading..</td>
+		    <td id='adv_".$devid."'>".MINER_NAME." ".($devid + 1)."</td>
+		    <td id='hw_".$devid."'>loading..</td><td id='accrej_".$devid."'>loading..</td>
+		    <td id='poolhash_".$devid."'><span class='badge badge-success'> loading..</span></td>
+		    <td>
+            <select class='form-control select2'>".$options."</select>
+            </td>
+         </tr>";
 	}
 
 }
@@ -202,7 +223,35 @@ if(isset($_GET["i"]))
                     <h3 class="panel-title">SCRYPT Miners hashrate <b id="ltc_totalhash" class="value"><?php echo $totalhash ?></b> Kh/s</h3>
                 </div>
                 <div class="panel-body">
-                	<?php echo $table ?>
+
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#standard" data-toggle="tab">Standard</a></li>
+                        <li><a href="#advanced" data-toggle="tab">Advanced</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="standard">
+                                <?php echo $table ?>
+                        </div>
+                        <div class="tab-pane" id="advanced">
+                            <table class="table table-striped table-hover" >
+                                <thead>
+                                <tr>
+                                    <th>Serial</th>
+                                    <th>Minername</th>
+                                    <th>HW</th>
+                                    <th>Acc/Rej</th>
+                                    <th>Hash</th>
+                                    <th>Clock</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php echo $tableadvanced ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
                 <?php }?>
                 
@@ -266,7 +315,7 @@ if(isset($_GET["i"]))
                  <div class="panel-body">
                  	<div class="form-group">
 		                	<label for="freq">Core clock speed (Mhz)</label>
-		                	<select class="form-control" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
+		                	<select class="form-control select2" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
 								<?php foreach($freq_table as $i) {?>
 									<option value="<?php echo $i?>" <?php $tbool = $freq == $i ? 'selected="selected"' : ''; echo $tbool; ?> ><?php echo $i?></option>
 								<?php }?>
@@ -470,10 +519,14 @@ if(isset($_GET["i"]))
 					  url: "ajaxController.php?action=GetStats"
 					}).done(function (data) {
 								var totalHashLTC = 0;
+                                var id = 0;
 								for (i = 0 ; i < data.LTCDevices.length ; i++) {
 									var ltcdevice = data.LTCDevices[i];
 									if (ltcdevice) {
 										var hash = ltcdevice.hash;
+                                        var poolhash = ltcdevice.poolhash;
+                                        var hw = ltcdevice.hw;
+                                        var serial = ltcdevice.serial;
 										var percentage = (hash / <?php echo MINER_MAX_HASHRATE?>) * 100;
 										var totals = ltcdevice.totals;
 										var valids = ltcdevice.valids;
@@ -482,7 +535,15 @@ if(isset($_GET["i"]))
 										$("#" + ltcdevice.dev + " b.value").html(hash);
 										$("#" + ltcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
 										$("#" + ltcdevice.dev ).siblings("a").attr("title" , "lastcommit " + ltcdevice.lastcommit + " minutes ago ");
+
+                                        //advanced stats
+                                        $("#poolhash_" + id + " span ").html(poolhash);
+                                        $("#hw_" + id ).html(hw);
+                                        $("#serial_" + id ).html(serial);
+                                        $("#accrej_" + id ).html(valids+"/"+totals+" ("+rejrate+"%)");
+
 										totalHashLTC += parseFloat(hash);
+                                        id++;
 									}
 								}
 								<?php if (SCRYPT_UNIT === KHS) {?>

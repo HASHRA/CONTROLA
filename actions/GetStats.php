@@ -52,6 +52,7 @@ if(!empty($devices))
 		{
 			
 			$hash = isset($statsui["devices"][$devid]["hashrate"]) ? $statsui["devices"][$devid]["hashrate"] : 0;
+            $poolhash = isset($statsui["devices"][$devid]["poolhashrate"]) ? $statsui["devices"][$devid]["poolhashrate"] : 0;
 			$valids = isset($statsui["devices"][$devid]["valid"]) ? $statsui["devices"][$devid]["valid"] : 0;
 			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
@@ -61,7 +62,9 @@ if(!empty($devices))
             $hw = $statsui["devices"][$devid]["hw"];
 			$lastcommittime = ($time > 0) ? (time() - $time) / 60 : 0;
 			$comma = ($counter == 0)? '':',';
-			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" , "hash" : "'.$hash.'",
+			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" ,
+			    "poolhash" : "'.$poolhash.'",
+			    "hash" : "'.$hash.'",
                 "valids" : "'.$valids.'" ,
                 "totals" : "'.$totals.'",
                 "rejectrate" : "'.$rejrate.'" ,
