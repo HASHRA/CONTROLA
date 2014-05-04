@@ -60,6 +60,7 @@ if(!empty($devices))
             $serial = isset($statsui["devices"][$devid]["serial"]) ? $statsui["devices"][$devid]["serial"] : 0;
 			$time = $statsui["devices"][$devid]["time"];
             $hw = $statsui["devices"][$devid]["hw"];
+            $clockspeed = $statsui["devices"][$devid]["clock"];
 			$lastcommittime = ($time > 0) ? (time() - $time) / 60 : 0;
 			$comma = ($counter == 0)? '':',';
 			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" ,
@@ -71,7 +72,9 @@ if(!empty($devices))
                 "time" : "'.$time.'",
                 "lastcommit" : "'.$lastcommittime.'",
                 "serial" : "'.$serial.'",
+                "clock" : "'.$clockspeed.'",
                 "hw" : "'.$hw.'"
+
 			}';
 			$counter++;
 		}

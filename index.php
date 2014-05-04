@@ -3,6 +3,7 @@ require_once 'config/define.php';
 require_once 'class/miner.class.php';
 require_once 'class/cache.class.php';
 require_once 'class/accesscontrol.class.php';
+require_once 'class/configmanager.class.php';
 
 if (!AccessControl::hasAccess()){
 	header('Location: login.php');
@@ -50,6 +51,16 @@ if($_POST)
     $model = $_POST["mode"];
     
     $freq = (int) $_POST["freq"];
+
+    if($iniArr["freq"] != $freq) {
+        //freq changed, so change all config settings with it
+        $configMan = ConfigurationManager::instance();
+        $clockSettings = $configMan->getClockSettings();
+        foreach ($clockSettings as  $key=>$clockSetting) {
+            $configMan->setClockSetting($key, $freq);
+        }
+    }
+
     if($freq < 600 || $freq > 1400)
     {
         $freq = 600;
@@ -110,7 +121,7 @@ if(!empty($devices))
 		    <td id='hw_".$devid."'>loading..</td><td id='accrej_".$devid."'>loading..</td>
 		    <td id='poolhash_".$devid."'><span class='badge badge-success'> loading..</span></td>
 		    <td>
-            <select class='form-control select2'>".$options."</select>
+            <select class='form-control select2' data-id='{$devid}' data-lock='false' data-component='ClockSpeed'>".$options."</select>
             </td>
          </tr>";
 	}
@@ -220,7 +231,7 @@ if(isset($_GET["i"]))
             <div class="panel ">
             	 <?php if ($runmode == "SCRYPT") {?>
                 <div class="panel-heading">
-                    <h3 class="panel-title">SCRYPT Miners hashrate <b id="ltc_totalhash" class="value"><?php echo $totalhash ?></b> Kh/s</h3>
+                    <h3 class="panel-title">Miners overview</h3>
                 </div>
                 <div class="panel-body">
 
@@ -231,16 +242,30 @@ if(isset($_GET["i"]))
 
                     <div class="tab-content">
                         <div class="tab-pane active" id="standard">
-                                <?php echo $table ?>
+                            <h3 class="panel-title">SCRYPT Miners hashrate <b id="ltc_totalhash" class="value"><?php echo $totalhash ?></b> Kh/s</h3>
+                            <br/>
+                            <?php echo $table ?>
                         </div>
                         <div class="tab-pane" id="advanced">
+                            <h3 class="panel-title">SCRYPT Miners pool hashrate <b id="ltc_pooltotalhash" class="value">loading...</b> Kh/s</h3>
+                            <br/>
+
+                                <p>
+                                To change the clockspeed of individual miners, simply change it in the select box, you <strong>DO NOT</strong> have to save it!.
+                                </p>
+                                <p>
+                                    <ul class="nav nav-pills">
+                                        <li><a class="resetclockbutton" href="#">Reset all to default clockspeed</a> </li>
+                                    </ul>
+                                </p>
+
                             <table class="table table-striped table-hover" >
                                 <thead>
                                 <tr>
                                     <th>Serial</th>
                                     <th>Minername</th>
                                     <th>HW</th>
-                                    <th>Acc/Rej</th>
+                                    <th>Acc/Submitted</th>
                                     <th>Hash</th>
                                     <th>Clock</th>
                                 </tr>
@@ -519,6 +544,7 @@ if(isset($_GET["i"]))
 					  url: "ajaxController.php?action=GetStats"
 					}).done(function (data) {
 								var totalHashLTC = 0;
+                                var poolTotalHashLTC = 0;
                                 var id = 0;
 								for (i = 0 ; i < data.LTCDevices.length ; i++) {
 									var ltcdevice = data.LTCDevices[i];
@@ -527,10 +553,12 @@ if(isset($_GET["i"]))
                                         var poolhash = ltcdevice.poolhash;
                                         var hw = ltcdevice.hw;
                                         var serial = ltcdevice.serial;
+                                        var clock = ltcdevice.clock;
 										var percentage = (hash / <?php echo MINER_MAX_HASHRATE?>) * 100;
 										var totals = ltcdevice.totals;
 										var valids = ltcdevice.valids;
 										var rejrate = ltcdevice.rejectrate;
+
 										$("#" + ltcdevice.dev).data('easyPieChart').update(percentage);
 										$("#" + ltcdevice.dev + " b.value").html(hash);
 										$("#" + ltcdevice.dev ).siblings("a").html("Mining..."+valids+"/"+totals+" ("+rejrate+"%)");
@@ -540,16 +568,24 @@ if(isset($_GET["i"]))
                                         $("#poolhash_" + id + " span ").html(poolhash);
                                         $("#hw_" + id ).html(hw);
                                         $("#serial_" + id ).html(serial);
+                                        var clockselect = $("select[data-id="+id+"]");
+                                        if(!clockselect.data("lock")){
+                                            clockselect.select2("val", clock);
+                                            clockselect.data("serial" , serial);
+                                        }
                                         $("#accrej_" + id ).html(valids+"/"+totals+" ("+rejrate+"%)");
 
 										totalHashLTC += parseFloat(hash);
+                                        poolTotalHashLTC += parseFloat(poolhash);
                                         id++;
 									}
 								}
 								<?php if (SCRYPT_UNIT === KHS) {?>
-								$("#ltc_totalhash").html(totalHashLTC);	
-								<?php } else { ?>
-								$("#ltc_totalhash").html(parseInt(totalHashLTC * 1000));
+								    $("#ltc_totalhash").html(totalHashLTC);
+                                    $("#ltc_pooltotalhash").html(poolTotalHashLTC);
+                                <?php } else { ?>
+								    $("#ltc_totalhash").html(parseInt(totalHashLTC * 1000));
+                                    $("#ltc_pooltotalhash").html(parseInt(poolTotalHashLTC * 1000));
 								<?php }?>
 
 								var totalHashBTC = 0;
@@ -750,7 +786,51 @@ if(isset($_GET["i"]))
 						});
 					}
 				});
-			} 
+			}
+            $(".resetclockbutton").on("click", function(e){
+                e.preventDefault();
+                $("select[data-component=ClockSpeed]").select2("val" , $("#freq").val());
+                $.post('/ajaxController.php?action=ResetClock' ,
+                     function(data) {
+                        if (data.STATUS == 'NOTOK') {
+                            $(this).data("lock", false);
+                            //application error handling
+                            console.log("Failed at Resetting clock");
+                        }else{
+                            console.log(data.MESSAGE);
+                        }
+                    }, 'json').fail(function() {
+                        $(this).data("lock", false);
+                        //error handling
+                        console.log("http fail");
+                    });
+
+            })
+
+            $("select[data-component=ClockSpeed]").on("change", function(){
+                var serial = $(this).data("serial");
+                $(this).data("lock" , true);
+                var id = $(this).data("id");
+                var clock = $(this).val();
+                $.post('/ajaxController.php?action=SetClock' ,
+                    {
+                        id : id ,
+                        serial:serial,
+                        clock:clock
+                    }, function(data) {
+                        if (data.STATUS == 'NOTOK') {
+                            $(this).data("lock", false);
+                            //application error handling
+                            console.log("Failed at deleting pool");
+                        }else{
+                            console.log(data.MESSAGE);
+                        }
+                    }, 'json').fail(function() {
+                        $(this).data("lock", false);
+                        //error handling
+                        console.log("http fail");
+                    });
+            });
 
 			
 			$(document).on('action-re-up', function (evt, poolType, payload) {

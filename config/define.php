@@ -25,6 +25,7 @@ define('PATH_LOG', '/var/log');
 
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
 define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
+define('FILE_CLOCK_SETTNGS', PATH_CONFIG.'/clocksettings.json');
 define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');
 define('FILE_USERS', PATH_CONFIG.'/users.json');
 
@@ -94,7 +95,7 @@ function require_with($pg, $vars)
 function is_iterable($var)
 {
 	return $var !== null
-	&& (is_array($var)
-			|| $var instanceof Traversable
+	&& ((is_array($var)
+			|| $var instanceof Traversable) && count($var) > 0
 	);
 }

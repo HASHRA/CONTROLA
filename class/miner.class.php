@@ -197,7 +197,7 @@ class Miner {
 		$p = popen($cmd, 'r');
 		pclose($p);
 		
-		usleep(100000);
+		exec("sleep 5");
 		exec('ps agx | grep ' . BIN_BTC . ' | grep -v grep | awk \'{print $1}\'', $out);
 		if(!empty($out))
 		{
@@ -215,22 +215,22 @@ class Miner {
 					break;
 				}
 				$waitsec--;
-				sleep(1);
+				exec("sleep 1");
 			} 
 			if(!$is_run)
 			{
 				exec("kill -9 {$pid}");
 				return false;
 			}
-			return array('pid' => $pid, 'devids' => $devids);
+			return array('pid' => $pid);
 		}
 	}
 	
 	// Start LTC miner
 	function startupLtcProc($freq)
 	{
-		
-		$pools = ConfigurationManager::instance()->getPools('scrypt');
+		$configMan = ConfigurationManager::instance();
+		$pools = $configMan->getPools('scrypt');
 		
 		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --scrypt --api-allow W:0/0 --api-port 4001 --gridseed-chips ".CHIP_AMOUNT." -S gridseed:all --set-device gridseed:clock={$freq} --failover-only";
 		
@@ -250,34 +250,47 @@ class Miner {
 		
 		$p = popen($cmd, 'r');
 		pclose($p);
+
+        exec('sleep 5');
 		
 		syslog(LOG_INFO, "Started LTC PRocess waiting 10 seconds to boot cgminer");
-		usleep(100000);
-		exec('ps agx | grep ' . BIN_LTC . ' | grep sudo | grep -v grep | awk \'{print $1}\'', $out);
+		exec('ps agx | grep ' . BIN_LTC . ' | grep -v SCREEN | grep -v grep | awk \'{print $1}\'', $out);
+
 		if(!empty($out))
 		{
 			$pid = intval(trim($out[0]));
 			$waitsec = 120;
 			$is_run = false;
+
 			while($waitsec > 0)
 			{
-				
 				//get answer from cgminerclient
 				$devs = CGMinerClient::requestDevices();
-				
+
 				if(is_iterable($devs))
 				{
 					$devids = array();
 					foreach ($devs as $key=>$val) {
-						if (strpos($key,'ASC') !== false){
+						if (strpos($key,'PGA') !== false){
 							$devids[] = $val['ID'];
+
+                            //set the clock speed
+                            $clockSettings = $configMan->getClockSettings();
+                            $clock = $freq;
+                            if(isset($clockSettings[$val['Serial']])) {
+                                $clock = $clockSettings[$val['Serial']];
+                            }else{
+                                //save clock setting for the first time
+                                $configMan->setClockSetting($val['Serial'], $freq);
+                            }
+                            CGMinerClient::setClockSpeed($val['ID'],$clock);
 						}
 					}
 					$is_run = true;
 					break;
 				}
 				$waitsec--;
-				sleep(1);
+				exec('sleep 1');
 			}
 			if(!$is_run)
 			{
@@ -304,7 +317,7 @@ class Miner {
 		
 		$p = popen($cmd, 'r');
 		pclose($p);
-		usleep(100000);
+		exec("sleep 5");
 		exec('ps | grep ' . BIN_LTC . ' | grep \'dif=' . $devid . '\' | grep -v grep | awk \'{print $1}\'', $out);
 		if(!empty($out))
 		{
@@ -395,6 +408,7 @@ class Miner {
 		}
 		
 		$devs = CGMinerClient::requestDevices();
+        $clockspeeds = ConfigurationManager::instance()->getClockSettings();
 
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
@@ -410,6 +424,7 @@ class Miner {
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"],
                             'serial'    => $val["Serial"],
+                            'clock'     => $clockspeeds[$val["Serial"]],
                             'hw'        => $val["Hardware Errors"]
                     );
 				}
