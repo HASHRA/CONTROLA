@@ -7,7 +7,7 @@
 
 <!-- CSS -->
 <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" type="text/css" />
-		<link href="scripts/vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="scripts/vendor/bootstrap/dist/css/bootstrap.min.css?<?php echo (new DateTime())->getTimestamp(); ?>" rel="stylesheet" />
         <link href="scripts/vendor/bootstrap-jasny/dist/extend/css/jasny-bootstrap.min.css" rel="stylesheet" />
         <!--<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" />-->
         		<link href="scripts/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css"  />

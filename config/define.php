@@ -25,6 +25,7 @@ define('PATH_LOG', '/var/log');
 
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
 define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
+define('FILE_CLOCK_SETTNGS', PATH_CONFIG.'/clocksettings.json');
 define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');
 define('FILE_USERS', PATH_CONFIG.'/users.json');
 
@@ -66,6 +67,7 @@ define('SCRYPT_UNIT', KHS);
 define('SHA_UNIT', GHS);
 define('MINER_NAME' , 'ATLANTIS');
 define ('MINER_MAX_HASHRATE' , 500);
+define('CHIP_AMOUNT' , 5);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
 define('DEFAULT_UPDATE_URL' , 'https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
