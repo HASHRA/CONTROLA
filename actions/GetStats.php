@@ -52,14 +52,30 @@ if(!empty($devices))
 		{
 			
 			$hash = isset($statsui["devices"][$devid]["hashrate"]) ? $statsui["devices"][$devid]["hashrate"] : 0;
+            $poolhash = isset($statsui["devices"][$devid]["poolhashrate"]) ? $statsui["devices"][$devid]["poolhashrate"] : 0;
 			$valids = isset($statsui["devices"][$devid]["valid"]) ? $statsui["devices"][$devid]["valid"] : 0;
 			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
+            $serial = isset($statsui["devices"][$devid]["serial"]) ? $statsui["devices"][$devid]["serial"] : 0;
 			$time = $statsui["devices"][$devid]["time"];
+            $hw = $statsui["devices"][$devid]["hw"];
+            $clockspeed = $statsui["devices"][$devid]["clock"];
 			$lastcommittime = ($time > 0) ? (time() - $time) / 60 : 0;
 			$comma = ($counter == 0)? '':',';
-			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" , "hash" : "'.$hash.'", "valids" : "'.$valids.'" , "totals" : "'.$totals.'", "rejectrate" : "'.$rejrate.'" , "time" : "'.$time.'", "lastcommit" : "'.$lastcommittime.'"}';
+			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" ,
+			    "poolhash" : "'.$poolhash.'",
+			    "hash" : "'.$hash.'",
+                "valids" : "'.$valids.'" ,
+                "totals" : "'.$totals.'",
+                "rejectrate" : "'.$rejrate.'" ,
+                "time" : "'.$time.'",
+                "lastcommit" : "'.$lastcommittime.'",
+                "serial" : "'.$serial.'",
+                "clock" : "'.$clockspeed.'",
+                "hw" : "'.$hw.'"
+
+			}';
 			$counter++;
 		}
 

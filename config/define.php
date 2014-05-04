@@ -25,6 +25,7 @@ define('PATH_LOG', '/var/log');
 
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
 define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
+define('FILE_CLOCK_SETTNGS', PATH_CONFIG.'/clocksettings.json');
 define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');
 define('FILE_USERS', PATH_CONFIG.'/users.json');
 
@@ -66,6 +67,7 @@ define('SCRYPT_UNIT', MHS);
 define('SHA_UNIT', GHS);
 define('MINER_NAME' , 'Blade');
 define ('MINER_MAX_HASHRATE' , 5);
+define('CHIP_AMOUNT' , 40);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
 define('DEFAULT_UPDATE_URL' , '-b pi-controller-blades https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
@@ -76,7 +78,7 @@ define('DEFAULT_UPDATE_URL' , '-b pi-controller-blades https://hashracustomer:ha
  * @return boolean
  */
 function supportedAlgo($algoMask) {
-	return ($algoMask & SUPPORTS);	
+	return (SUPPORTS & $algoMask);
 }
 
 function require_with($pg, $vars)
@@ -93,7 +95,7 @@ function require_with($pg, $vars)
 function is_iterable($var)
 {
 	return $var !== null
-	&& (is_array($var)
-			|| $var instanceof Traversable
+	&& ((is_array($var)
+			|| $var instanceof Traversable) && count($var) > 0
 	);
 }
