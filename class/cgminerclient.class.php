@@ -5,7 +5,7 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 		#
 		# Sample Socket I/O to CGMiner API
 		#
-		function getsock($addr, $port)
+		static function getsock($addr, $port)
 		{
 			$socket = null;
 			$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -29,7 +29,7 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 		return $socket;
 		}
 		
-		function readsockline($socket)
+		static function readsockline($socket)
 		{
 			$line = '';
 			while (true)
@@ -44,7 +44,7 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			return $line;
 		}
 		
-		function request($cmd)
+		static function request($cmd)
 		{
 			$socket = CGMinerClient::getsock('127.0.0.1', 4001);
 			if ($socket != null)
@@ -105,31 +105,45 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 		
 			return $data;
 		}
-		
-		return null;
+        exec('sleep 5');
+		return CGMinerClient::request($cmd);
 		}
 		
-		function disableDevice($devid) {
+		static function disableDevice($devid) {
 			return CGMinerClient::request("ascdisable|".$devid); 
 		}
 		
-		function restart() {
+		static function restart() {
 			return CGMinerClient::request("restart");
 		}
 		
-		function enableDevice($devid) {
+		static function enableDevice($devid) {
 			return CGMinerClient::request("ascenable|".$devid);
 		}
+
+        static function setClockSpeed($devIdx , $clock) {
+            CGMinerClient::request("pgaset|$devIdx,clock,$clock");
+        }
 		
-		function requestDevices() {
-			return CGMinerClient::request("devs");
+		static function requestDevices() {
+            $devs = CGMinerClient::request("devs");
+            if (empty($devs)) return $devs;
+            $devDetails = array_values(CGMinerClient::request("devdetails"));
+            $counter = 0;
+            foreach ($devs as $key=>&$dev) {
+                if (strpos($key, 'PGA') !== false){
+                    $dev["Serial"] = $devDetails[$counter]["Serial"];
+                }
+                $counter++;
+            }
+            return $devs;
 		}
 		
-		function requestPools() {
+		static function requestPools() {
 			return CGMinerClient::request("pools");
 		}
 		
-		function requestSummary() {
+		static function requestSummary() {
 			return CGMinerClient::request("summary");
 		}
 		

@@ -25,6 +25,7 @@ define('PATH_LOG', '/var/log');
 
 define('FILE_CONFIG', PATH_CONFIG.'/config.ini');
 define('FILE_SYSTEM_SETTNGS', PATH_CONFIG.'/systemsettings.json');
+define('FILE_CLOCK_SETTNGS', PATH_CONFIG.'/clocksettings.json');
 define('FILE_POOLSETTINGS', PATH_CONFIG.'/poolsettings.json');
 define('FILE_USERS', PATH_CONFIG.'/users.json');
 
@@ -60,12 +61,13 @@ define('GHS' , 3);
 
 define('SUPPORTS' , SCRYPT | SHA);
 define('PRODUCT_NAME' , 'MINI CONTROLA');
-define('CALCULATE_HASHRATE_SCRYPT', BY_CORE);
+define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', KHS);
 define('SHA_UNIT', GHS);
 define('MINER_NAME' , 'MINI');
 define ('MINER_MAX_HASHRATE' , 500);
+define('CHIP_AMOUNT' , 5);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
 define('DEFAULT_UPDATE_URL' , 'https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
@@ -76,7 +78,7 @@ define('DEFAULT_UPDATE_URL' , 'https://hashracustomer:hashra1@bitbucket.org/purp
  * @return boolean
  */
 function supportedAlgo($algoMask) {
-	return ($algoMask & SUPPORTS);	
+	return (SUPPORTS & $algoMask);
 }
 
 function require_with($pg, $vars)
@@ -93,7 +95,7 @@ function require_with($pg, $vars)
 function is_iterable($var)
 {
 	return $var !== null
-	&& (is_array($var)
-			|| $var instanceof Traversable
+	&& ((is_array($var)
+			|| $var instanceof Traversable) && count($var) > 0
 	);
 }
