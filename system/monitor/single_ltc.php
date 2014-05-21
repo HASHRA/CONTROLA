@@ -28,7 +28,7 @@ if (isset($stats["summary"]) && $systemSettings->restartevery > 0){
 	if ($elapsed > ($systemSettings->restartevery * 60 * 60 ) ) {
 		syslog(LOG_INFO, "Maintenance restart started");
 		Miner::shutdownLtcProc();
-		sleep(2);
+		exec("sleep 2");
 	}
 }
 
