@@ -61,9 +61,9 @@ if($_POST)
         }
     }
 
-    if($freq < 600 || $freq > 1400)
+    if($freq < 200 || $freq > 400)
     {
-        $freq = 600;
+        $freq = 285;
     }
 
     $iniStr = "[config]\n";
@@ -78,6 +78,7 @@ if($_POST)
 	header('Location: /?i=2');
 	exit;
 }
+
 else
 {
     $freq = $iniArr["freq"];
@@ -97,7 +98,7 @@ if(!empty($devices))
 
     $options = '';
 
-    foreach ($freq_table as $f) {
+    for ($f = 285 ; $f <= 335 ; $f++) {
         $options.='<option value="'.$f.'">'.$f.'</option>';
     }
 
@@ -341,7 +342,7 @@ if(isset($_GET["i"]))
                  	<div class="form-group">
 		                	<label for="freq">Core clock speed (Mhz)</label>
 		                	<select class="form-control select2" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="Clock speed of your gridseed chips. Adjust at your own risk!">
-								<?php foreach($freq_table as $i) {?>
+								<?php for($i = 250 ; $i <= 350 ; $i++) {?>
 									<option value="<?php echo $i?>" <?php $tbool = $freq == $i ? 'selected="selected"' : ''; echo $tbool; ?> ><?php echo $i?></option>
 								<?php }?>
 		                     </select>
