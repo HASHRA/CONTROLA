@@ -418,22 +418,20 @@ class Miner {
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"],
-                            'serial'    => $val["Serial"],
-                            'clock'     => $clockspeeds[$val["Serial"]],
                             'hw'        => $val["Hardware Errors"]
                     );
 				}
 			}
-			
+		
 			//got devs, so get summary
 		}
 		$sum = CGMinerClient::requestSummary();
-
+		
 		if (isset($sum["SUMMARY"])) {
 			$summary["status"] = "RUNNING";
 			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
 			
-			$mh = $sum["SUMMARY"]["MHS 20s"];
+			$mh = $sum["SUMMARY"]["MHS 5s"];
 			$avgmh = $sum["SUMMARY"]["MHS av"];
 			if (CALCULATE_HASHRATE_SCRYPT === BY_DIFF1) {
 				$mh = 0;

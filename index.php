@@ -48,7 +48,8 @@ if($_POST)
 {
 
     $model = $_POST["mode"];
-    
+    $freq = $_POST["freq"];
+  
     if($freq < 200 || $freq > 400)
     {
         $freq = 285;
