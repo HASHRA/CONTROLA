@@ -60,13 +60,13 @@ define('GHS' , 3);
 
 
 define('SUPPORTS' , SCRYPT);
-define('PRODUCT_NAME' , 'HASHRA LUNAR');
+define('PRODUCT_NAME' , 'HASHRA LUNAR LANDER WARP 2');
 define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', MHS);
 define('SHA_UNIT', GHS);
 define('MINER_NAME' , 'Lunar');
-define ('MINER_MAX_HASHRATE' , 5);
+define ('MINER_MAX_HASHRATE' , 30);
 define('CHIP_AMOUNT' , 128);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
