@@ -36,7 +36,7 @@ define('RUN_MODEL_LTC', 0x02);
 
 
 define('BIN_BTC', '/var/www/soft/sha/cgminer');
-define('BIN_LTC', '/var/www/soft/bfg/bfgminer');
+define('BIN_LTC', '/var/www/soft/scrypt/cgminer');
 define('BIN_CPUMINER', '/var/www/soft/minerd');
 
 
@@ -60,17 +60,17 @@ define('GHS' , 3);
 
 
 define('SUPPORTS' , SCRYPT);
-define('PRODUCT_NAME' , 'BLADE CONTROLA');
+define('PRODUCT_NAME' , 'HASHRA LUNAR');
 define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', MHS);
 define('SHA_UNIT', GHS);
-define('MINER_NAME' , 'Blade');
+define('MINER_NAME' , 'Lunar');
 define ('MINER_MAX_HASHRATE' , 5);
-define('CHIP_AMOUNT' , 40);
+define('CHIP_AMOUNT' , 128);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
-define('DEFAULT_UPDATE_URL' , '-b pi-controller-blades https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
+define('DEFAULT_UPDATE_URL' , '-b pi-controller-lunar https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
 
 //-----------------end product settings
 /**

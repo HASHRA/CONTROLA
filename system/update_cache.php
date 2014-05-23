@@ -10,8 +10,8 @@ class UpdateCache {
 	{
 
 		$array = array(
-			'devids'	=> Miner::getAvailableDevice(),
-			'bus'		=> Miner::getUsbBus(),
+			'devids'	=> Miner::getAvailableDevice()
+			//'bus'		=> Miner::getUsbBus(),
 		);
 
 		$cache = new Cache(PATH_CACHE);

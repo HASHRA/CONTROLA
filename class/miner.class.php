@@ -232,7 +232,14 @@ class Miner {
 		$configMan = ConfigurationManager::instance();
 		$pools = $configMan->getPools('scrypt');
 		
-		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --scrypt --api-allow W:0/0 --api-port 4001 --gridseed-chips ".CHIP_AMOUNT." -S gridseed:all --set-device gridseed:clock={$freq} --failover-only";
+		$devList = '';
+		
+		$devs = Miner::getAvailableDevice();
+		foreach ( $devs as $dev) {
+			$devList .= " -S /dev/ttyUSB$dev";  
+		}
+		
+		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --api-allow W:0/0 --api-port 4001 --chips-count ".CHIP_AMOUNT." $devList --ltc-clk {$freq} --failover-only --nocheck-golden";
 		
 		foreach ($pools as &$pool){
 			$cmd .= " -o {$pool->url} -u {$pool->worker} -p {$pool->password} ";
@@ -273,17 +280,6 @@ class Miner {
 					foreach ($devs as $key=>$val) {
 						if (strpos($key,'PGA') !== false){
 							$devids[] = $val['ID'];
-
-                            //set the clock speed
-                            $clockSettings = $configMan->getClockSettings();
-                            $clock = $freq;
-                            if(isset($clockSettings[$val['Serial']])) {
-                                $clock = $clockSettings[$val['Serial']];
-                            }else{
-                                //save clock setting for the first time
-                                $configMan->setClockSetting($val['Serial'], $freq);
-                            }
-                            CGMinerClient::setClockSpeed($val['ID'],$clock);
 						}
 					}
 					$is_run = true;
@@ -408,7 +404,6 @@ class Miner {
 		}
 		
 		$devs = CGMinerClient::requestDevices();
-        $clockspeeds = ConfigurationManager::instance()->getClockSettings();
 
 		if (is_iterable($devs)) {
 			foreach ($devs as $key=>$val){
@@ -595,7 +590,7 @@ class Miner {
 			$multiplier = 1;
 		}
 		if ($method === BY_CORE) {
-			return $aStats['MHS 20s'] * $multiplier;
+			return $aStats['MHS 5s'] * $multiplier;
 		}
 		return round(pow(2,32) * $aStats['Diff1 Work'] / $aStats['Device Elapsed'] / 1E6, 2) * $multiplier;
 	}

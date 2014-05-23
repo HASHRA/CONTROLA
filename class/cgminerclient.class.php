@@ -126,17 +126,7 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
         }
 		
 		static function requestDevices() {
-            $devs = CGMinerClient::request("devs");
-            if (empty($devs)) return $devs;
-            $devDetails = array_values(CGMinerClient::request("devdetails"));
-            $counter = 0;
-            foreach ($devs as $key=>&$dev) {
-                if (strpos($key, 'PGA') !== false){
-                    $dev["Serial"] = $devDetails[$counter]["Serial"];
-                }
-                $counter++;
-            }
-            return $devs;
+            return CGMinerClient::request("devs");
 		}
 		
 		static function requestPools() {

@@ -32,7 +32,7 @@ if (isset($stats["summary"]) && $systemSettings->restartevery > 0){
 	}
 }
 
-if(count(Miner::getRunningLtcProcess()) == 0 && !empty($devices['bus'])) {
+if(count(Miner::getRunningLtcProcess()) == 0) {
 	$runtime = array('runtime' => time());
 	$cache->set(CACHE_RUNTIME, $runtime);
 

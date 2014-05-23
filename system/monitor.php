@@ -31,7 +31,7 @@ if(isset($_SERVER['argv'])){
 
 if(!file_exists(FILE_CONFIG))
 {
-	Miner::shutdownBtcProc();
+	//Miner::shutdownBtcProc();
 	Miner::shutdownLtcProc();
 	return;
 }
