@@ -76,24 +76,12 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
                 </div>
                 <div class="panel-body">
                 	<form id="ssform" action="/ajaxController.php?action=SaveSystemSettings">
-                		<div class="form-group">
-		                    <label for="ss_restartevery">Restart miner every x hours (0 means never)</label>
-		                    <input class="form-control" id="ss_restartevery" name="ss_restartevery" value="<?php echo $sysSettings->restartevery; ?>" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The frequency of restarts. 0 will disable automatic restarts">
+                        <div class="form-group">
+                            <label for="ss_updateurl">Chip count</label>
+                            <input class="form-control" id="ss_chipcount" name="ss_updatecount" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The chipcount of the machine. do not change this if you don't know the value">
 		                    <span class="help-block"> 
 		                    </span>
-		                </div>
-		                <div class="form-group"  <?php if (!DUAL_SUPPORT) echo "style='display:none'"?>>
-		                    <label for="ss_btccoresdual">SHA Cores on dual mode</label>
-		                    <select class="form-control" id="ss_btccoresdual" name="ss_btccoresdual" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="This is the amount of SHA cores on the chip to be activated. A higher number increases SHA mining hashrate, but consumes more energy and reduces scrypt hashrate">
-		                       
-		                        <?php for ($i = 1 ; $i <= 16 ; $i++) {?>
-		                        <option value="<?php echo $i;?>" <?php $tbool = $i == $sysSettings->btccoresdual ? 'selected="selected"' : ''; echo $tbool; ?> ><?php echo $i;?></option>
-		                        <?php }?>
-								
-		                     </select>
-		                    <span class="help-block"> 
-		                    </span>
-		                </div>
+                        </div>
 		                <div class="form-group">
 		                    <label for="ss_updateurl">Update URL</label>
 		                    <input class="form-control" id="ss_updateurl" name="ss_updateurl" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The url of the update location. When you're a BETA user you will get development builds">
@@ -148,19 +136,17 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
 
 			$("#ssform").submit(function (event) {
 					event.preventDefault();
-					var restartEvery = $("#ss_restartevery");
-					var btcCoresDual = $("#ss_btccoresdual");
+					var chipcount = $("#ss_restartevery");
 					var updateUrl = $("#ss_updateurl");
 					$("div").removeClass("has-error");
-					if (restartEvery.val() == '' || isNaN(restartEvery.val())) {
-						restartEvery.parent().addClass("has-error");
-						restartEvery.next(".help-block").html("Must not be empty and must be numeric value");
+					if (chipcount.val() == '' || isNaN(chipcount.val())) {
+						chipcount.parent().addClass("has-error");
+						chipcount.next(".help-block").html("Must not be empty and must be numeric value");
 					}else{
 
 						//validated, save
 						$.post( $("#ssform").attr("action"), {
-							restartevery: restartEvery.val(),
-							btccoresdual : btcCoresDual.val(),
+							chipcount: chipcount.val(),
 							updateurl : updateUrl.val()
 							} , function( data ) {
 						  if (data.STATUS == 'NOTOK') {
