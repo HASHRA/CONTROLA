@@ -40,30 +40,29 @@ if(!empty($devices))
 	}else if ($runmode == 'LTC'){
 		$statsui = Miner::getBFGMinerStats();
 	}
+	
 	$counter = 0;
 	$runType = "ltc";
 	if($iniArr["model"] == 1 || $iniArr["model"] == 3)
 	{
 		$runType = "btc";
 	}
-	foreach($devices["devids"] as $devid)
+	foreach($statsui["devices"] as $devid)
 	{
-		if(isset($statsui["devices"][$devid]))
-		{
+
 			
-			$hash = isset($statsui["devices"][$devid]["hashrate"]) ? $statsui["devices"][$devid]["hashrate"] : 0;
-            $poolhash = isset($statsui["devices"][$devid]["poolhashrate"]) ? $statsui["devices"][$devid]["poolhashrate"] : 0;
-			$valids = isset($statsui["devices"][$devid]["valid"]) ? $statsui["devices"][$devid]["valid"] : 0;
-			$invalids = isset($statsui["devices"][$devid]["invalid"]) ? $statsui["devices"][$devid]["invalid"] : 0;
+			$hash = isset($devid["hashrate"]) ? $devid["hashrate"] : 0;
+            $poolhash = isset($devid["poolhashrate"]) ? $devid["poolhashrate"] : 0;
+			$valids = isset($devid["valid"]) ? $devid["valid"] : 0;
+			$invalids = isset($devid["invalid"]) ? $devid["invalid"] : 0;
 			$totals = $valids + $invalids;
 			$rejrate = $totals > 0 ? round(100 * $invalids / $totals, 2) : 0;
-            $serial = isset($statsui["devices"][$devid]["serial"]) ? $statsui["devices"][$devid]["serial"] : 0;
-			$time = $statsui["devices"][$devid]["time"];
-            $hw = $statsui["devices"][$devid]["hw"];
-            $clockspeed = $statsui["devices"][$devid]["clock"];
+            $serial = isset($devid["serial"]) ? $devid["serial"] : 0;
+			$time = $devid["time"];
+            $hw = $devid["hw"];
 			$lastcommittime = ($time > 0) ? (time() - $time) / 60 : 0;
 			$comma = ($counter == 0)? '':',';
-			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid.'" ,
+			$table .= $comma.'{"dev" : "'.$runType.'_'.$devid['device'].'" ,
 			    "poolhash" : "'.$poolhash.'",
 			    "hash" : "'.$hash.'",
                 "valids" : "'.$valids.'" ,
@@ -72,12 +71,11 @@ if(!empty($devices))
                 "time" : "'.$time.'",
                 "lastcommit" : "'.$lastcommittime.'",
                 "serial" : "'.$serial.'",
-                "clock" : "'.$clockspeed.'",
                 "hw" : "'.$hw.'"
 
 			}';
 			$counter++;
-		}
+		
 
 	}
 	$summary = "{}";

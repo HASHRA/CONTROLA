@@ -43,7 +43,7 @@ class Miner {
 	}
 	
 	// Available USB/ACM device IDs
-	function getAvailableDevice($api = false)
+	function getAvailableDevice()
 	{
 		exec("ls -1 /dev | grep ttyUSB", $devices);
 		if(!empty($devices))
@@ -404,8 +404,9 @@ class Miner {
 		}
 		
 		$devs = CGMinerClient::requestDevices();
+		$sum = CGMinerClient::requestSummary();
 
-		if (is_iterable($devs)) {
+		if (is_iterable($devs) && isset($sum["SUMMARY"])) {
 			foreach ($devs as $key=>$val){
 				if (strpos($key, 'PGA') !== false) {
 					//found device
@@ -413,8 +414,8 @@ class Miner {
 							'time'		=> $val['Last Share Time'],
 							'device'	=> $val['ID'],
 							'diff'		=> $val['Diff1 Work'],
-							'hashrate'  => Miner::calculateSCRYPTHashrate($val, BY_CORE),
-                            'poolhashrate' => Miner::calculateSCRYPTHashrate($val, BY_DIFF1),
+							'hashrate'  => Miner::calculateSCRYPTHashrate($sum["SUMMARY"], $val, BY_CORE),
+                            'poolhashrate' => Miner::calculateSCRYPTHashrate($sum["SUMMARY"], $val, BY_DIFF1),
 							'valid'		=> $val['Accepted'],
 							'invalid'	=> $val['Rejected'],
 							'enabled'	=> $val["Enabled"],
@@ -425,20 +426,18 @@ class Miner {
 		
 			//got devs, so get summary
 		}
-		$sum = CGMinerClient::requestSummary();
 		
 		if (isset($sum["SUMMARY"])) {
 			$summary["status"] = "RUNNING";
 			$summary["elapsed"] = $sum["SUMMARY"]["Elapsed"];
 			
-			$mh = $sum["SUMMARY"]["MHS 5s"];
 			$avgmh = $sum["SUMMARY"]["MHS av"];
 			if (CALCULATE_HASHRATE_SCRYPT === BY_DIFF1) {
 				$mh = 0;
 				foreach ($devices as $d) {
 					$mh += $d["hashrate"];
 				}
-				$avgmh = $mh;
+				//$avgmh = $mh;
 			}
 			
 			$summary["mh"] = $mh;
@@ -534,7 +533,6 @@ class Miner {
 	
 		if (isset($sum["SUMMARY"])) {
 			
-			$mh = $sum["SUMMARY"]["MHS 5s"];
 			$avgmh = $sum["SUMMARY"]["MHS av"];
 			if (CALCULATE_HASHRATE_SHA === BY_DIFF1) {
 				$mh = 0;
@@ -582,7 +580,7 @@ class Miner {
 		return $stats;
 	}
 	
-	function calculateSCRYPTHashrate ($aStats, $method) {
+	function calculateSCRYPTHashrate ($aSummary, $aStats, $method) {
 		$multiplier = 1000;
 		if (SCRYPT_UNIT === MHS) {
 			$multiplier = 1;
@@ -590,7 +588,7 @@ class Miner {
 		if ($method === BY_CORE) {
 			return $aStats['MHS 5s'] * $multiplier;
 		}
-		return round(pow(2,32) * $aStats['Diff1 Work'] / $aStats['Device Elapsed'] / 1E6, 2) * $multiplier;
+		return round(pow(2,32) * ((int)$aStats['Diff1 Work']) / ((int)$aSummary['Elapsed']) / 1E6, 2) * $multiplier;
 	}
 	
 	function calculateSHAHashrate ($aStats) {

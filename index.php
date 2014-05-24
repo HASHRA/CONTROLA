@@ -40,8 +40,6 @@ if ($iniArr["model"] == 1) {$runmode = 'SHA256';}
 if ($iniArr["model"] == 2) {$runmode = 'SCRYPT';}
 if ($iniArr["model"] == 3) {$runmode = 'DUAL';}
 
-$devices = $cache->get(CACHE_DEVICE);
-
 $success = false;   
  
 if($_POST)
@@ -76,30 +74,27 @@ $totalhash = 0;
 $totalhashbtc = 0;
 $info = "";
 $table = 'No devices found';
+$devices = Miner::getAvailableDevice();
+
+syslog(LOG_INFO , 'devices -  ' . json_encode($devices));
+
 if(!empty($devices))
 {
 	$table = "";
-	$tablebtc = "";
 
-	$statsui = Miner::getCGMinerStats();
+	$statsui = Miner::getBFGMinerStats();
 	foreach($statsui["devices"] as $stat)
 	{
 		$totalhash += $stat["hashrate"];
 	}
 	$color = $runmode === 'SHA256' || $runmode === 'DUAL' ? '1F8A70' : 'F94743';
-	foreach($devices["devids"] as $devid)
+	foreach($devices as $devid)
 	{
 		$unit = (SCRYPT_UNIT === KHS) ? 'Kh/s' : 'Mh/s'; 
 		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> '.$unit.'</span></div><div>Scrypt '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
 		
 	}
 
-}
-
-foreach($devices["devids"]  as $devid)
-{
-
-	$tablebtc .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="btc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> Gh/s</span></div><div>SHA256 '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
 }
 
 if(isset($_GET["i"]))
