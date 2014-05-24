@@ -231,6 +231,10 @@ class Miner {
 	{
 		$configMan = ConfigurationManager::instance();
 		$pools = $configMan->getPools('scrypt');
+        $chipcount = $configMan->getSystemSettings()->chipcount;
+        if (!isset($chipcount)) {
+            $chipcount = CHIP_AMOUNT;
+        }
 		
 		$devList = '';
 		
@@ -239,7 +243,7 @@ class Miner {
 			$devList .= " -S /dev/ttyUSB$dev";  
 		}
 		
-		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --api-allow W:0/0 --api-port 4001 --chips-count ".CHIP_AMOUNT." $devList --ltc-clk {$freq} --failover-only --nocheck-golden";
+		$cmd = 'sudo screen -dmS SCRYPT '. BIN_LTC . " --api-listen --syslog --api-allow W:0/0 --api-port 4001 --chips-count ".$chipcount." $devList --ltc-clk {$freq} --failover-only";
 		
 		foreach ($pools as &$pool){
 			$cmd .= " -o {$pool->url} -u {$pool->worker} -p {$pool->password} ";

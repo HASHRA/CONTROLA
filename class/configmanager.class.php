@@ -20,8 +20,7 @@
 				fopen(FILE_SYSTEM_SETTNGS , "w");
 				
 				$settings = array (
-					"restartevery" => 0,
-					"btccoresdual" => 11,
+                    "chipcount" => 128,
 					"updateurl" => DEFAULT_UPDATE_URL
 				);
 				file_put_contents(FILE_SYSTEM_SETTNGS, json_encode($settings));
@@ -171,15 +170,14 @@
 			file_put_contents(FILE_SYSTEM_SETTNGS, json_encode($this->systemSettings));
             file_put_contents(FILE_CLOCK_SETTNGS, json_encode($this->clockSettings));
 		}
-		
-		/**
-		 * 
-		 * @param string $updateUrl
-		 * @param string $btccoresdual
-		 */
-		function setSystemSettings ($restartevery, $updateUrl , $btccoresdual) {
-			$this->systemSettings->restartevery = $restartevery;
-			$this->systemSettings->btccoresdual = $btccoresdual;
+
+        /**
+         *
+         * @param string $updateUrl
+         * @param $chipamount
+         */
+		function setSystemSettings ($updateUrl , $chipamount ) {
+            $this->systemSettings->chipcount = $chipamount;
 			if(trim($updateUrl) != '') {
 				$this->systemSettings->updateurl = $updateUrl;
 			}

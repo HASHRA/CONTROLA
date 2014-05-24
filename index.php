@@ -110,7 +110,7 @@ if(isset($_GET["i"]))
 		$success = true;
 	}
 }
-
+$lunarcount = ConfigurationManager::instance()->getSystemSettings()->chipcount / 64;
 ?>
 
 <!DOCTYPE html>
@@ -136,7 +136,7 @@ if(isset($_GET["i"]))
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title"><?php echo PRODUCT_NAME;?></h3>
+        <h3 class="header-title"><?php echo PRODUCT_NAME.' '.$lunarcount  ;?></h3>
         <?php if (DUAL_SUPPORT) {?>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
         <?php }?>
