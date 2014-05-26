@@ -8,13 +8,23 @@
 		
 		private $systemSettings;
 		private $poolSettings;
-        private $clockSettings;
+		private $productSettings;
 		
 		/**
 		 * factory method
 		 * @return ConfigurationManager
 		 */
 		static function instance () {
+			if (!file_exists(FILE_PRODUCT_SETTNGS)) {
+				fopen(FILE_PRODUCT_SETTNGS, "w"); 
+				$product = array (
+					"name" => "LUNAR LANDER",
+					"warp" => 2,
+					"chipcount" => 128
+				);
+				
+				file_put_contents(FILE_PRODUCT_SETTNGS, json_encode($product));
+			}
 			if (!file_exists(FILE_SYSTEM_SETTNGS)) {
 				//create default system settings
 				fopen(FILE_SYSTEM_SETTNGS , "w");
@@ -50,24 +60,18 @@
 				
 				file_put_contents(FILE_POOLSETTINGS , json_encode($pools));
 			}
-
-            if(!file_exists(FILE_CLOCK_SETTNGS)) {
-                fopen(FILE_CLOCK_SETTNGS, "w");
-                file_put_contents(FILE_CLOCK_SETTNGS, json_encode(array()));
-            }
-			
 			$configMan = new ConfigurationManager();
 			
 			exec('sudo chown www-data:www-data '.FILE_SYSTEM_SETTNGS);
 			exec('sudo chmod 755 '.FILE_SYSTEM_SETTNGS);
 			exec('sudo chown www-data:www-data '.FILE_POOLSETTINGS);
 			exec('sudo chmod 755 '.FILE_POOLSETTINGS);
-            exec('sudo chown www-data:www-data '.FILE_CLOCK_SETTNGS);
-            exec('sudo chmod 755 '.FILE_CLOCK_SETTNGS);
+            exec('sudo chown www-data:www-data '.FILE_PRODUCT_SETTNGS);
+            exec('sudo chmod 755 '.FILE_PRODUCT_SETTNGS);
 			
 			$configMan->poolSettings = json_decode(file_get_contents(FILE_POOLSETTINGS));
 			$configMan->systemSettings = json_decode(file_get_contents(FILE_SYSTEM_SETTNGS));
-            $configMan->clockSettings = json_decode(file_get_contents(FILE_CLOCK_SETTNGS), true);
+			$configMan->productSettings = json_decode(file_get_contents(FILE_PRODUCT_SETTNGS));
 						
 			return $configMan;
 		}
@@ -76,21 +80,24 @@
 			return $this->systemSettings;
 		}
 
-        function getClockSettings() {
-            return $this->clockSettings;
-        }
-
-        /**
-         * sets a clock speed setting for a particular device
-         * identified by it's serial id
-         * @param $serialId the device's serial number
-         * @param $clock clock speed
-         */
-        function setClockSetting ($serialId , $clock) {
-            $this->clockSettings[$serialId] = $clock;
-            $this->save();
-        }
-
+      	function getProductSettings() {
+      		return $this->productSettings;
+      	}
+      	
+      	/**
+      	 * gets the product specific settings. 
+      	 * @param unknown $name
+      	 * @param unknown $warp
+      	 * @param unknown $chipcount
+      	 */
+      	function setProductSettings($name, $warp, $chipcount) {
+      		$this->productSettings->name = $name;
+      		$this->productSettings->warp = $warp;
+      		$this->productSettings->chipcount = $chipcount;
+      		$this->save();
+      	}
+		
+		
 		/**
 		 * 
 		 * @param string $type
@@ -168,7 +175,7 @@
 		function save() {
 			file_put_contents(FILE_POOLSETTINGS, json_encode($this->poolSettings));
 			file_put_contents(FILE_SYSTEM_SETTNGS, json_encode($this->systemSettings));
-            file_put_contents(FILE_CLOCK_SETTNGS, json_encode($this->clockSettings));
+            file_put_contents(FILE_PRODUCT_SETTNGS, json_encode($this->productSettings));
 		}
 
         /**

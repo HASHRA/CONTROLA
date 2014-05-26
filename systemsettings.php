@@ -8,7 +8,9 @@ if (!AccessControl::hasAccess()){
 	die();
 }
 
-$sysSettings = ConfigurationManager::instance()->getSystemSettings();
+$configMan = ConfigurationManager::instance();
+$sysSettings = $configMan->getSystemSettings();
+$prodSettings = $configMan->getProductSettings();
 
 ?>
 
@@ -78,7 +80,7 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
                 	<form id="ssform" action="/ajaxController.php?action=SaveSystemSettings">
                         <div class="form-group">
                             <label for="ss_updateurl">Chip count</label>
-                            <input class="form-control" id="ss_chipcount" value="<?= ConfigurationManager::instance()->getSystemSettings()->chipcount;?>" name="ss_chipcount" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The chipcount of the machine. do not change this if you don't know the value">
+                            <input class="form-control" id="ss_chipcount" value="<?= $prodSettings->chipcount;?>" name="ss_chipcount" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The chipcount of the machine. do not change this if you don't know the value">
 		                    <span class="help-block"> 
 		                    </span>
                         </div>
@@ -88,6 +90,25 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
 		                    <span class="help-block"> 
 		                    </span>
 		                </div>
+		                
+		                <?php if (isset($_REQUEST["admin"])) {?>
+		                	
+		                <div class="form-group">
+                            <label for="ss_updateurl">Product name</label>
+                            <input class="form-control" id="ss_prodname" value="<?= $prodSettings->name;?>" name="ss_prodname" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The product name">
+		                    <span class="help-block"> 
+		                    </span>
+                        </div>	
+                        
+                        <div class="form-group">
+                            <label for="ss_updateurl">Warp</label>
+                            <input class="form-control" id="ss_warp" value="<?= $prodSettings->warp;?>" name="ss_warp" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="model of product">
+		                    <span class="help-block"> 
+		                    </span>
+                        </div>	
+		                
+		                <?php }?>
+		                
 		                <div class="form-group">
 		                	<button type="submit" class="btn btn-primary">Save settings</button>
 		                </div>
@@ -138,6 +159,8 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
 					event.preventDefault();
 					var chipcount = $("#ss_chipcount");
 					var updateUrl = $("#ss_updateurl");
+					var prodname = $("#ss_prodname");
+					var warp = $("#ss_warp");
 					$("div").removeClass("has-error");
 					if (chipcount.val() == '' || isNaN(chipcount.val())) {
 						chipcount.parent().addClass("has-error");
@@ -147,7 +170,9 @@ $sysSettings = ConfigurationManager::instance()->getSystemSettings();
 						//validated, save
 						$.post( $("#ssform").attr("action"), {
 							chipcount: chipcount.val(),
-							updateurl : updateUrl.val()
+							updateurl : updateUrl.val(),
+							prodname : prodname.val(),
+							warp : warp.val()
 							} , function( data ) {
 						  if (data.STATUS == 'NOTOK') {
 							  updateUrl.parent().addClass("has-error");

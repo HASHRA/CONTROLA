@@ -2,10 +2,12 @@
 require_once 'class/accesscontrol.class.php';
 
 	if ( AccessControl::hasAccess() ) {
-		ConfigurationManager::instance()->setSystemSettings(
+		$config = ConfigurationManager::instance();
+		$config->setSystemSettings(
 			$_REQUEST["updateurl"],
             $_REQUEST["chipcount"]
 		);
+		$config->setProductSettings($_REQUEST["prodname"], $_REQUEST["warp"], $_REQUEST["chipcount"]);
 		AjaxUtils::printStatusMessage(OK, "System settings saved");
 	}else{
 		AjaxUtils::printAccessDenied(); 

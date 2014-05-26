@@ -12,17 +12,6 @@ if (!AccessControl::hasAccess()){
 
 $cache = new Cache(PATH_CACHE);
 
-$freq_table = array(600, 650,
-    700, 706, 713, 719, 725, 731, 738, 744,
-    750, 756, 763, 769, 775, 781, 788, 794,
-    800, 813, 825, 838, 850, 863, 875, 888,
-    900, 913, 925, 938, 950, 963, 975, 988,
-    1000, 1013, 1025, 1038, 1050, 1063, 1075, 1088,
-    1100, 1113, 1125, 1138, 1150, 1163, 1175, 1188,
-    1200, 1213, 1225, 1238, 1250, 1263, 1275, 1288,
-    1300, 1313, 1325, 1338, 1350, 1363, 1375, 1388,
-    1400);
-
 
 function formatTime($input)
 {
@@ -51,7 +40,7 @@ if($_POST)
   
     if($freq < 200 || $freq > 400)
     {
-        $freq = 285;
+        $freq = 291;
     }
 
     $iniStr = "[config]\n";
@@ -111,7 +100,8 @@ if(isset($_GET["i"]))
 		$success = true;
 	}
 }
-$lunarcount = ConfigurationManager::instance()->getSystemSettings()->chipcount / 64;
+$prodSettings = ConfigurationManager::instance()->getProductSettings();
+$prodname = $prodSettings->name ." WARP " . $prodSettings->warp;
 ?>
 
 <!DOCTYPE html>
@@ -137,7 +127,7 @@ $lunarcount = ConfigurationManager::instance()->getSystemSettings()->chipcount /
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title"><?php echo PRODUCT_NAME.' '.$lunarcount  ;?></h3>
+        <h3 class="header-title"><?php echo $prodname;?></h3>
         <?php if (DUAL_SUPPORT) {?>
         <p class="header-info">Running in <b class="value"> <?php echo $runmode?> </b> mode</p>
         <?php }?>

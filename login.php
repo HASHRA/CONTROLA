@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-	<?php include_once 'config/define.php';?>
-    <?php include 'includes/head.php';?>
 
+   <?php 
+   
+   include_once 'config/define.php';
+   include 'class/configmanager.class.php';
+   
+   $config =  ConfigurationManager::instance();
+   $prodSettings = $config->getProductSettings();
+   include 'includes/head.php';?>
            
 <body class="cover">
 
 	<div class="login-wrap">
 		<div class="brand">
 	        <div id="logowhite"></div>
-	        <div class="center"><?php echo PRODUCT_NAME?></div> 
+	        <div class="center"><?= $prodSettings->name?> WARP <?= $prodSettings->warp  ?></div> 
 	    </div>
 	    <div class="panel">
 				<div class="panel-heading">
