@@ -1,5 +1,6 @@
 <?php
 require_once 'config/define.php';
+require_once 'class/configmanager.class.php';
 ?>
 
 <!DOCTYPE html>

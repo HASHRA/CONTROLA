@@ -2,11 +2,15 @@
 
 require_once 'class/accesscontrol.class.php';
 require_once 'config/define.php';
+require_once 'class/configmanager.class.php';
 
 if (!AccessControl::hasAccess()){
 	header('Location: login.php');
 	die();
 }
+
+$config = ConfigurationManager::instance();
+
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +36,7 @@ if (!AccessControl::hasAccess()){
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title"><?php echo PRODUCT_NAME?> </h3>
+        <h3 class="header-title"><?php echo $prodname = $config->getProductSettings()->name ." WARP " . $config->getProductSettings()->warp;?> </h3>
         <p class="header-info"></p>
     </div>
 </div>
