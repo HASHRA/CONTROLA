@@ -231,7 +231,7 @@ class Miner {
 	{
 		$configMan = ConfigurationManager::instance();
 		$pools = $configMan->getPools('scrypt');
-        $chipcount = $configMan->getSystemSettings()->chipcount;
+        $chipcount = $configMan->getProductSettings()->chipcount;
         if (!isset($chipcount)) {
             $chipcount = CHIP_AMOUNT;
         }
