@@ -32,7 +32,7 @@ $prodSettings = $configMan->getProductSettings();
                 <section class="content">
                     
 <ol class="breadcrumb">
-    <li class="active"><i class="fa fa-home fa-fw"></i> Home</li>
+    <li class="active"></li>
 </ol>
 
 <div class="header">
