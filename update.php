@@ -36,7 +36,7 @@ $config = ConfigurationManager::instance();
 
 <div class="header">
     <div class="col-md-12">
-        <h3 class="header-title"><?php echo $prodname = $config->getProductSettings()->name ." WARP " . $config->getProductSettings()->warp;?> </h3>
+        <h3 class="header-title"><?php echo $prodname = $config->getProductSettings()->name;?> </h3>
         <p class="header-info"></p>
     </div>
 </div>

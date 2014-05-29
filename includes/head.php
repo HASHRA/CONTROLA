@@ -4,7 +4,7 @@
 
 <?php $prodSettings = ConfigurationManager::instance()->getProductSettings();?>
 
-<title>HASHRA <?php echo $prodSettings->name . " WARP ". $prodSettings->warp;?></title>
+<title>HASHRA <?php echo $prodSettings->name;?></title>
 <link rel="shortcut icon" href="/img/ico/favicon.png" />
 
 <!-- CSS -->

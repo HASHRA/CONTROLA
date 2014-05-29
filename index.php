@@ -101,7 +101,7 @@ if(isset($_GET["i"]))
 	}
 }
 $prodSettings = ConfigurationManager::instance()->getProductSettings();
-$prodname = $prodSettings->name ." WARP " . $prodSettings->warp;
+$prodname = $prodSettings->name;
 ?>
 
 <!DOCTYPE html>
