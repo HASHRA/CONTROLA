@@ -141,8 +141,6 @@ $prodSettings = $configMan->getProductSettings();
 					event.preventDefault();
 					var chipcount = $("#ss_chipcount");
 					var updateUrl = $("#ss_updateurl");
-					var prodname = $("#ss_prodname");
-					var warp = $("#ss_warp");
 					$("div").removeClass("has-error");
 					if (chipcount.val() == '' || isNaN(chipcount.val())) {
 						chipcount.parent().addClass("has-error");
@@ -152,9 +150,7 @@ $prodSettings = $configMan->getProductSettings();
 						//validated, save
 						$.post( $("#ssform").attr("action"), {
 							chipcount: chipcount.val(),
-							updateurl : updateUrl.val(),
-							prodname : prodname.val(),
-							warp : warp.val()
+							updateurl : updateUrl.val()
 							} , function( data ) {
 						  if (data.STATUS == 'NOTOK') {
 							  updateUrl.parent().addClass("has-error");
