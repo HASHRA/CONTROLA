@@ -91,24 +91,6 @@ $prodSettings = $configMan->getProductSettings();
 		                    </span>
 		                </div>
 		                
-		                <?php if (isset($_REQUEST["admin"])) {?>
-		                	
-		                <div class="form-group">
-                            <label for="ss_updateurl">Product name</label>
-                            <input class="form-control" id="ss_prodname" value="<?= $prodSettings->name;?>" name="ss_prodname" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The product name">
-		                    <span class="help-block"> 
-		                    </span>
-                        </div>	
-                        
-                        <div class="form-group">
-                            <label for="ss_updateurl">Warp</label>
-                            <input class="form-control" id="ss_warp" value="<?= $prodSettings->warp;?>" name="ss_warp" value="" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="model of product">
-		                    <span class="help-block"> 
-		                    </span>
-                        </div>	
-		                
-		                <?php }?>
-		                
 		                <div class="form-group">
 		                	<button type="submit" class="btn btn-primary">Save settings</button>
 		                </div>

@@ -18,8 +18,6 @@
 			if (!file_exists(FILE_PRODUCT_SETTNGS)) {
 				fopen(FILE_PRODUCT_SETTNGS, "w"); 
 				$product = array (
-					"name" => "LUNAR LANDER",
-					"warp" => 2,
 					"chipcount" => 128
 				);
 				
@@ -85,27 +83,24 @@
       	}
       	
       	/**
-      	 * gets the product specific settings. 
-      	 * @param unknown $name
-      	 * @param unknown $warp
-      	 * @param unknown $chipcount
+      	 * gets the product specific settings.
+      	 * @param int $chipcount
       	 */
-      	function setProductSettings($name, $warp, $chipcount) {
-      		$this->productSettings->name = $name;
-      		$this->productSettings->warp = $warp;
+      	function setProductSettings( $chipcount) {
       		$this->productSettings->chipcount = $chipcount;
       		$this->save();
       	}
-		
-		
-		/**
-		 * 
-		 * @param string $type
-		 * @param string $url
-		 * @param string $worker
-		 * @param string $password
-		 * @return boolean
-		 */
+
+
+        /**
+         *
+         * @param $id
+         * @param string $type
+         * @param string $url
+         * @param string $worker
+         * @param string $password
+         * @return boolean
+         */
 		function setPoolSettings ($id, $type, $url , $worker, $password) {
 			syslog(LOG_INFO, "adding pool with id " . $id);
 			if($id > -1) {
@@ -181,10 +176,9 @@
         /**
          *
          * @param string $updateUrl
-         * @param $chipamount
+         * @internal param $chipamount
          */
-		function setSystemSettings ($updateUrl , $chipamount ) {
-            $this->systemSettings->chipcount = $chipamount;
+		function setSystemSettings ($updateUrl ) {
 			if(trim($updateUrl) != '') {
 				$this->systemSettings->updateurl = $updateUrl;
 			}

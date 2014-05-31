@@ -81,7 +81,7 @@ if(!empty($devices))
 	foreach($devices as $devid)
 	{
 		$unit = (SCRYPT_UNIT === KHS) ? 'Kh/s' : 'Mh/s'; 
-		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> '.$unit.'</span></div><div>Scrypt '.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
+		$table .= '<div class="col-md-4 col-sm-4 col-xs-6 text-center pie-box"><div id="ltc_'.$devid.'" class="pie-chart" data-percent="0" data-bar-color="#'.$color.'"><span><b class="value"> 0 </b> '.$unit.'</span></div><div>'.MINER_NAME.' '.($devid + 1).' </div> <a class="minerLink" href="#'.$devid.'"> Offline :(</a></div>';
 		
 	}
 
@@ -101,7 +101,7 @@ if(isset($_GET["i"]))
 	}
 }
 $prodSettings = ConfigurationManager::instance()->getProductSettings();
-$prodname = $prodSettings->name;
+$prodname = PRODUCT_NAME;
 ?>
 
 <!DOCTYPE html>

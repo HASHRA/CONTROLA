@@ -2,9 +2,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<?php $prodSettings = ConfigurationManager::instance()->getProductSettings();?>
-
-<title>HASHRA <?php echo $prodSettings->name;?></title>
+<title>HASHRA <?php echo PRODUCT_NAME;?></title>
 <link rel="shortcut icon" href="/img/ico/favicon.png" />
 
 <!-- CSS -->

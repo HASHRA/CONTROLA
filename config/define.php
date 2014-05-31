@@ -60,12 +60,12 @@ define('GHS' , 3);
 
 
 define('SUPPORTS' , SCRYPT);
-define('PRODUCT_NAME' , 'LUNAR LANDER WARP');
+define('PRODUCT_NAME' , 'MISSION CONTROLA');
 define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', MHS);
 define('SHA_UNIT', GHS);
-define('MINER_NAME' , 'Lunar');
+define('MINER_NAME' , 'Lunar Lander');
 define ('MINER_MAX_HASHRATE' , 30);
 define('CHIP_AMOUNT' , 128);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
@@ -90,6 +90,7 @@ function require_with($pg, $vars)
 /**
  * Determine if a variable is iterable. i.e. can be used to loop over.
  *
+ * @param $var
  * @return bool
  */
 function is_iterable($var)

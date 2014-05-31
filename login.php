@@ -15,7 +15,7 @@
 	<div class="login-wrap">
 		<div class="brand">
 	        <div id="logowhite"></div>
-	        <div class="center"><?= $prodSettings->name?></div>
+	        <div class="center"><?= PRODUCT_NAME?></div>
 	    </div>
 	    <div class="panel">
 				<div class="panel-heading">
