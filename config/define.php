@@ -68,7 +68,7 @@ define('SHA_UNIT', GHS);
 define('MINER_NAME' , 'Miner');
 define ('MINER_MAX_HASHRATE' , 30);
 define('CHIP_AMOUNT' , 128);
-define('DEFAULT_CLOCK' , 291);
+define('DEFAULT_CLOCK' , 330);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
 define('DEFAULT_UPDATE_URL' , '-b pi-controller-lunar https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
