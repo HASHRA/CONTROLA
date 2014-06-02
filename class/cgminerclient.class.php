@@ -44,7 +44,7 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			return $line;
 		}
 		
-		static function request($cmd)
+		static function request($cmd, $count = 0)
 		{
 			$socket = CGMinerClient::getsock('127.0.0.1', 4001);
 			if ($socket != null)
@@ -106,7 +106,11 @@ openlog("CGMinerClient", LOG_PID, LOG_LOCAL0);
 			return $data;
 		}
         exec('sleep 5');
-		return CGMinerClient::request($cmd);
+        if ($count < 4) {
+            return CGMinerClient::request($cmd, $count++);
+        }else{
+            syslog(LOG_WARNING, "Quiting connection, cgminer probably dead");
+        }
 		}
 		
 		static function disableDevice($devid) {
