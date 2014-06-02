@@ -60,7 +60,7 @@ define('GHS' , 3);
 
 
 define('SUPPORTS' , SCRYPT);
-define('PRODUCT_NAME' , 'LUNAR LANDER CONTROLA');
+define('PRODUCT_NAME' , 'LUNAR LAUNCHER CONTROLA');
 define('CALCULATE_HASHRATE_SCRYPT', BY_DIFF1);
 define('CALCULATE_HASHRATE_SHA' , BY_DIFF1);
 define('SCRYPT_UNIT', MHS);
@@ -68,7 +68,7 @@ define('SHA_UNIT', GHS);
 define('MINER_NAME' , 'Miner');
 define ('MINER_MAX_HASHRATE' , 30);
 define('CHIP_AMOUNT' , 128);
-define('DEFAULT_CLOCK' , 301);
+define('DEFAULT_CLOCK' , 291);
 define('DUAL_SUPPORT', supportedAlgo(SCRYPT) && supportedAlgo(SHA));
 
 define('DEFAULT_UPDATE_URL' , '-b pi-controller-lunar https://hashracustomer:hashra1@bitbucket.org/purplefox/hashra-firmware.git');
