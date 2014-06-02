@@ -250,9 +250,9 @@ $prodname = PRODUCT_NAME;
 			            </table>	
                 </div>
                  <div class="panel-body">
-                 	<div class="form-group" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The default clock speed setting for the <?= $prodname ?> is <?= DEFAULT_CLOCK ?>. Change clock speed at your own risk. Increasing Clock speed voids warranty.">
+                 	<div class="form-group">
 		                	<label for="freq">Core clock speed (Mhz)</label>
-		                	<select class="form-control select2" id="freq" name="freq">
+		                	<select class="form-control" id="freq" name="freq" data-toggle="tooltip" data-trigger="focus" title="" data-placement="auto left" data-container="body" type="text" data-original-title="The default clock speed setting for the <?= $prodname ?> is <?= DEFAULT_CLOCK ?>. Change clock speed at your own risk. Increasing Clock speed voids warranty.">
 								<?php for($i = 250 ; $i <= 350 ; $i++) {?>
 									<option value="<?php echo $i?>" <?php $tbool = $freq == $i ? 'selected="selected"' : ''; echo $tbool; ?> ><?php echo $i?></option>
 								<?php }?>
